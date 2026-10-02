@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,7 @@ public class PasswordService {
     private final AuthAudit audit;
     private final AuditService rawAudit;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
     public PasswordService(
             UserRepository users,
@@ -47,7 +49,8 @@ public class PasswordService {
             AuthProperties properties,
             AuthAudit audit,
             AuditService rawAudit,
-            Clock clock) {
+            Clock clock,
+            ApplicationEventPublisher events) {
         this.users = users;
         this.authTokens = authTokens;
         this.passwordEncoder = passwordEncoder;
@@ -60,6 +63,7 @@ public class PasswordService {
         this.audit = audit;
         this.rawAudit = rawAudit;
         this.clock = clock;
+        this.events = events;
     }
 
     /**
@@ -127,6 +131,7 @@ public class PasswordService {
         applyNewPassword(user, newPassword);
         user.setStatus(UserStatus.ACTIVE);
         audit.event(AuditAction.INVITATION_ACCEPTED, user, Map.of());
+        events.publishEvent(new InvitationAccepted(userId));
         return securityPolicy.mfaSetupRequired(user);
     }
 
@@ -155,6 +160,21 @@ public class PasswordService {
         lockout.registerSuccess(user);
         refreshTokens.revokeAll(userId);
         audit.event(AuditAction.PASSWORD_CHANGED, user, Map.of());
+    }
+
+    /**
+     * A super admin forces a reset email for a community admin and signs them out everywhere.
+     * Call this last in a transaction: revoking sessions is a bulk update that detaches loaded entities.
+     */
+    public void adminInitiatedReset(User user, UUID initiatedBy) {
+        UUID userId = user.getId();
+        String raw = issueToken(user, AuthTokenPurpose.PASSWORD_RESET, properties.resetTtl());
+        emails.passwordReset(user, raw, properties.resetTtl());
+        int revoked = refreshTokens.revokeAll(userId);
+        audit.event(
+                AuditAction.PASSWORD_RESET_REQUESTED,
+                user,
+                Map.of("initiatedBy", "SUPER_ADMIN", "byUserId", initiatedBy.toString(), "revokedSessions", revoked));
     }
 
     /** Creates a single-use token (hash stored, raw returned once) and retires older unused ones of the same purpose. */

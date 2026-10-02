@@ -106,6 +106,16 @@ public class Community extends BaseEntity {
     @Column(name = "financial_year_start_month", nullable = false)
     private short financialYearStartMonth = 4;
 
+    /** Why the status last changed (suspension or archive reason). */
+    @Column(name = "status_reason")
+    private String statusReason;
+
+    @Column(name = "status_changed_at")
+    private java.time.Instant statusChangedAt;
+
+    @Column(name = "status_changed_by")
+    private UUID statusChangedBy;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "settings", nullable = false, columnDefinition = "jsonb")
     private Map<String, Object> settings = new HashMap<>();

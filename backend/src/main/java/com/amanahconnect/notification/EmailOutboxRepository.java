@@ -15,6 +15,9 @@ public interface EmailOutboxRepository extends Repository<EmailOutbox, UUID> {
 
     List<EmailOutbox> findByCommunityIdAndStatus(UUID communityId, EmailStatus status);
 
+    /** True if this template was already queued for the address since the given moment (de-duplication). */
+    boolean existsByToEmailAndTemplateAndCreatedAtGreaterThanEqual(String toEmail, String template, Instant since);
+
     /** Emails queued for a community since the given moment, not counting failed ones (the monthly quota). */
     long countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(UUID communityId, Instant since, EmailStatus status);
 }

@@ -90,6 +90,18 @@ app:
     # First start only. Remove these two variables once the super admin exists.
     super-admin-email: ${BOOTSTRAP_SUPERADMIN_EMAIL:}
     super-admin-password: ${BOOTSTRAP_SUPERADMIN_PASSWORD:}
+  platform:
+    # Where new-lead notifications go. Blank = every active SUPER_ADMIN account.
+    notification-email: ${PLATFORM_NOTIFICATION_EMAIL:}
+  subscriptions:
+    expiring-window-days: 30           # "EXPIRING" in lists means ending within this many days
+    auto-suspend-enabled: false        # default is warn only: never suspend automatically unless turned on
+    grace-days: 7                      # days after expiry before auto-suspension (only if enabled)
+  scheduling:
+    enabled: true
+  imports:
+    max-rows-per-file: 5000
+    max-file-bytes: 2097152            # 2 MB
   rate-limit:
     login-per-ip-per-minute: 10
     login-per-email-per-minute: 5

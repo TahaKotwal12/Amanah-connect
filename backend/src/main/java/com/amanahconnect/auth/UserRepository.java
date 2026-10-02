@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByRole(UserRole role);
 
+    java.util.List<User> findByRoleAndStatus(UserRole role, UserStatus status);
+
     /**
      * Row-locks the user. Login and 2FA take this lock so that concurrent guesses against one account
      * are serialised and every failure is counted (no lost updates on failed_attempts).

@@ -45,6 +45,16 @@ public class AuditService {
                 after);
     }
 
+    /**
+     * Records an action by the authenticated user (a super admin) on a specific community. Super admins
+     * have no tenant context, so the community is passed explicitly.
+     */
+    @Transactional
+    public void recordForCommunity(
+            String action, UUID communityId, String entityType, UUID entityId, Object before, Object after) {
+        record(action, currentActor(), communityId, entityType, entityId, before, after);
+    }
+
     /** Records an action with an explicit actor and community (auth events, super admin and system actions). */
     @Transactional
     public void record(
@@ -68,6 +78,11 @@ public class AuditService {
         entry.setUserAgent(info.userAgent());
         entry.setRequestId(info.requestId());
         repository.save(entry);
+    }
+
+    /** The authenticated user, or null outside an authenticated request. */
+    public static UUID currentActorId() {
+        return currentActor();
     }
 
     private static UUID currentActor() {

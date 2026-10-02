@@ -29,6 +29,7 @@
     <totp.version>1.7.1</totp.version>
     <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
     <archunit.version>1.5.1</archunit.version>
+    <commons-csv.version>1.14.1</commons-csv.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
   </properties>
@@ -159,6 +160,13 @@
     <dependency>
       <groupId>software.amazon.awssdk</groupId>
       <artifactId>s3</artifactId>
+    </dependency>
+
+    <!-- CSV import -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>${commons-csv.version}</version>
     </dependency>
 
     <!-- PDF, QR, TOTP -->

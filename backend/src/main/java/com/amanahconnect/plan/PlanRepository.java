@@ -9,5 +9,7 @@ public interface PlanRepository extends JpaRepository<Plan, UUID> {
 
     Optional<Plan> findByCode(String code);
 
+    boolean existsByCode(String code);
+
     List<Plan> findByPublicPlanTrueAndActiveTrueOrderBySortOrderAsc();
 }

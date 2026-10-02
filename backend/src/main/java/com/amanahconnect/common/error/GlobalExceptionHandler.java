@@ -76,6 +76,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return dot < 0 ? path : path.substring(dot + 1);
     }
 
+    /** A concurrent edit lost the race (@Version): the client should reload and retry. */
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ProblemDetail> handleOptimisticLock(org.springframework.orm.ObjectOptimisticLockingFailureException ex) {
+        return respond(Problems.of(ErrorCode.VERSION_CONFLICT, "The record was changed by someone else. Reload and try again."));
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ProblemDetail> handleApi(ApiException ex) {
         ProblemDetail problem = Problems.of(ex.code(), ex.getMessage());

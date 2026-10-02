@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface LeadRepository extends JpaRepository<Lead, UUID> {
 
     Page<Lead> findByStatus(LeadStatus status, Pageable pageable);
+
+    long countByStatus(LeadStatus status);
 }

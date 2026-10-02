@@ -10,6 +10,8 @@ management:
     port: 0                            # random port; tests read it from local.management.port
 
 app:
+  scheduling:
+    enabled: false                     # tests call the jobs directly; the cron must never fire mid-test
   cors:
     allowed-origins: http://localhost:5173
   auth:

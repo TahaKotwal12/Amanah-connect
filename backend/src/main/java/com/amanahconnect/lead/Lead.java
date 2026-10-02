@@ -45,6 +45,10 @@ public class Lead extends BaseEntity {
     @Column(name = "handled_by")
     private UUID handledBy;
 
+    /** Set when a community was created from this lead; required for status CONVERTED. */
+    @Column(name = "converted_community_id")
+    private UUID convertedCommunityId;
+
     @Column(name = "source", nullable = false, length = 50)
     private String source = "WEBSITE";
 }

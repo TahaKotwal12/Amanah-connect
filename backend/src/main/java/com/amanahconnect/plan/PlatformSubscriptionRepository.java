@@ -8,6 +8,10 @@ import java.util.UUID;
 
 public interface PlatformSubscriptionRepository extends TenantRepository<PlatformSubscription, UUID> {
 
+    List<PlatformSubscription> findByCommunityIdOrderByPeriodEndDesc(UUID communityId);
+
+    boolean existsByCommunityIdAndReferenceIgnoreCaseAndStatusNot(UUID communityId, String reference, SubscriptionStatus status);
+
     List<PlatformSubscription> findByCommunityIdAndStatusOrderByPeriodEndDesc(
             UUID communityId, SubscriptionStatus status);
 
