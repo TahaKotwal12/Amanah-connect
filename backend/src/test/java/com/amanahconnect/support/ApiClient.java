@@ -82,6 +82,35 @@ public final class ApiClient {
         return send("POST", path, rawBody, headers);
     }
 
+    /** A multipart/form-data POST: plain text fields and CSV file parts (name -> bytes). */
+    public Response postMultipart(String path, java.util.Map<String, String> fields, java.util.Map<String, byte[]> files, String... headers) {
+        String boundary = "----amanah" + System.nanoTime();
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        java.util.function.Consumer<String> text = t -> out.writeBytes(t.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        fields.forEach((name, value) -> text.accept("--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name + "\"\r\n\r\n" + value + "\r\n"));
+        files.forEach((name, bytes) -> {
+            text.accept("--" + boundary + "\r\nContent-Disposition: form-data; name=\"" + name + "\"; filename=\"" + name + ".csv\"\r\nContent-Type: text/csv\r\n\r\n");
+            out.writeBytes(bytes);
+            text.accept("\r\n");
+        });
+        text.accept("--" + boundary + "--\r\n");
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofByteArray(out.toByteArray()));
+        for (int i = 0; i + 1 < headers.length; i += 2) {
+            request.header(headers[i], headers[i + 1]);
+        }
+        try {
+            HttpResponse<String> response = HTTP.send(request.build(), HttpResponse.BodyHandlers.ofString());
+            return new Response(response.statusCode(), response.headers(), response.body());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        }
+    }
+
     public static String bearer(String accessToken) {
         return "Bearer " + accessToken;
     }
