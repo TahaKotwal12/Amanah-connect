@@ -101,6 +101,14 @@ Tenant isolation, auditing, paging, money handling and plan limits are described
 [`docs/tenancy.md`](docs/tenancy.md), including the checklist every new `/community` module must follow.
 Integration tests of tenant modules extend `AbstractTenantIT`.
 
+## Platform administration (SUPER_ADMIN)
+
+Everything under `/api/v1/admin/**` is for SUPER_ADMIN accounts with 2FA completed: communities (create,
+suspend, archive, export, support overview, CSV import for migrations), plans, platform subscriptions and
+their daily expiry job, demo-request leads and platform statistics. The public demo-request form is
+`POST /api/v1/public/leads`. Details, decisions and limits are in [`docs/admin.md`](docs/admin.md).
+Run with the `local` profile and open `/swagger-ui.html` to browse the API grouped by area.
+
 ## Testing against a Neon database
 
 Neon is PostgreSQL. You need **two** hostnames from the Neon console for the same database:
