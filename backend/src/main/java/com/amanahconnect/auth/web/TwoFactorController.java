@@ -1,5 +1,6 @@
 package com.amanahconnect.auth.web;
 
+import com.amanahconnect.audit.AuditHandledBy;
 import com.amanahconnect.auth.TwoFactorService;
 import com.amanahconnect.auth.web.AuthDtos.RecoveryCodesResponse;
 import com.amanahconnect.auth.web.AuthDtos.TwoFactorDisableRequest;
@@ -25,6 +26,7 @@ public class TwoFactorController {
         this.twoFactor = twoFactor;
     }
 
+    @AuditHandledBy("TwoFactorService records TWO_FACTOR_SETUP_STARTED")
     @PostMapping("/setup")
     public TwoFactorSetupResponse setup(@AuthenticationPrincipal Jwt jwt) {
         TwoFactorService.Setup setup = twoFactor.setup(UUID.fromString(jwt.getSubject()));
@@ -35,11 +37,13 @@ public class TwoFactorController {
      * Turns 2FA on and returns the recovery codes. They are shown exactly once. Afterwards call
      * /auth/refresh to receive an access token without the mfa_setup_required flag.
      */
+    @AuditHandledBy("TwoFactorService records TWO_FACTOR_ENABLED")
     @PostMapping("/enable")
     public RecoveryCodesResponse enable(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody TwoFactorEnableRequest body) {
         return new RecoveryCodesResponse(twoFactor.enable(UUID.fromString(jwt.getSubject()), body.code()));
     }
 
+    @AuditHandledBy("TwoFactorService records TWO_FACTOR_DISABLED")
     @PostMapping("/disable")
     public ResponseEntity<Void> disable(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody TwoFactorDisableRequest body) {
         twoFactor.disable(UUID.fromString(jwt.getSubject()), body.password(), body.code(), body.recoveryCode());

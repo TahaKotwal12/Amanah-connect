@@ -1,5 +1,6 @@
 package com.amanahconnect.auth.web;
 
+import com.amanahconnect.audit.AuditHandledBy;
 import com.amanahconnect.auth.AuthService;
 import com.amanahconnect.auth.LoginOutcome;
 import com.amanahconnect.auth.MeService;
@@ -39,11 +40,13 @@ public class AuthController {
         this.cookie = cookie;
     }
 
+    @AuditHandledBy("AuthService records LOGIN_SUCCESS and LOGIN_FAILED")
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest body, HttpServletRequest request) {
         return respond(auth.login(body.email(), body.password(), RequestInfo.of(request)));
     }
 
+    @AuditHandledBy("AuthService records LOGIN_SUCCESS, MFA_FAILED and RECOVERY_CODE_USED")
     @PostMapping("/login/2fa")
     public ResponseEntity<?> loginWithSecondFactor(@Valid @RequestBody MfaLoginRequest body, HttpServletRequest request) {
         return respond(
@@ -52,6 +55,7 @@ public class AuthController {
     }
 
     /** Guarded by {@link CookieEndpointGuardFilter}: needs X-Requested-With and an allowed Origin. */
+    @AuditHandledBy("reuse of a rotated token is audited (TOKEN_REUSE_DETECTED); routine rotation is deliberately not")
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(
             @CookieValue(name = RefreshCookie.NAME, required = false) String refreshToken,
@@ -70,12 +74,14 @@ public class AuthController {
     }
 
     /** Guarded by {@link CookieEndpointGuardFilter}. Always 204: it never reveals whether the token was valid. */
+    @AuditHandledBy("AuthService records LOGOUT")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = RefreshCookie.NAME, required = false) String refreshToken) {
         auth.logout(refreshToken);
         return ResponseEntity.noContent().header(HttpHeaders.SET_COOKIE, cookie.clear()).build();
     }
 
+    @AuditHandledBy("AuthService records LOGOUT_ALL")
     @PostMapping("/logout-all")
     public ResponseEntity<Void> logoutAll(@AuthenticationPrincipal Jwt jwt) {
         auth.logoutAll(UUID.fromString(jwt.getSubject()));
