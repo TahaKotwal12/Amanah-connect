@@ -42,6 +42,13 @@ public class User extends BaseEntity {
     @Column(name = "totp_enabled", nullable = false)
     private boolean totpEnabled;
 
+    @Column(name = "must_setup_2fa", nullable = false)
+    private boolean mustSetup2fa;
+
+    /** Last accepted 30-second TOTP step; a code for a step at or before this is a replay. */
+    @Column(name = "totp_last_used_step")
+    private Long totpLastUsedStep;
+
     @Column(name = "failed_attempts", nullable = false)
     private int failedAttempts;
 
