@@ -35,8 +35,10 @@ SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
 
 Flyway runs at startup and applies `V1__init_extensions.sql` (citext, pgcrypto).
 
-No profile is active by default on purpose. Forgetting `SPRING_PROFILES_ACTIVE` fails fast
-instead of running with the wrong settings.
+`local` is the default profile (set in `application.yml`). **Production must set
+`SPRING_PROFILES_ACTIVE=prod`**; if it is forgotten the app would start with local settings
+(Swagger on, throwaway auth keys). Remove `spring.profiles.active` from `application.yml` if you
+prefer a missing profile to fail at startup instead.
 
 ## Test
 
@@ -54,7 +56,7 @@ Integration tests start a throwaway Postgres 16 with Testcontainers, so Docker m
 | `test` | Testcontainers | none | readable | off |
 | `prod` | env vars only, no defaults | env vars | JSON (logstash encoder) | off |
 
-`prod` has no fallbacks: a missing variable aborts startup. See [`.env.example`](.env.example)
+`prod` has no fallbacks: a missing variable aborts startup, including `JWT_SECRET` and `TOTP_ENC_KEY`. See [`.env.example`](.env.example)
 for the full list. Config is read from the process environment (Spring does not read `.env`
 files; use `set -a; source .env; set +a` in your shell).
 
@@ -72,6 +74,26 @@ Everything else on 8080 is deny-by-default (401 problem+json).
 Every response carries `X-Request-Id`. A caller-supplied value is reused only if it is 1–64 chars
 of `[A-Za-z0-9._-]`, otherwise a UUID is generated. The id is in the log MDC (`requestId`) and in
 every problem+json body.
+
+## Authentication
+
+JWT access tokens (15 min, `Authorization: Bearer`), rotating refresh tokens in an HttpOnly cookie,
+TOTP 2FA with recovery codes, lockout, rate limiting and an audit trail. Design notes, the full flow
+and the known limits are in [`docs/auth.md`](docs/auth.md).
+
+**First super admin.** On the very first start set `BOOTSTRAP_SUPERADMIN_EMAIL` and
+`BOOTSTRAP_SUPERADMIN_PASSWORD` (the password must meet the policy: 10+ characters, mixed classes or a
+long passphrase). The account is created only if no SUPER_ADMIN exists and must enrol in 2FA at its
+first login. **Remove both variables afterwards.**
+
+**Try it against a running app:**
+
+```bash
+ADMIN_EMAIL=owner@example.test ADMIN_PASSWORD='...' ./docs/auth-smoke.sh
+```
+
+It logs in, refreshes (showing rotation and reuse detection), enrols 2FA, completes a 2FA login and
+logs out. It needs curl and python3, and it enables 2FA on the account it uses.
 
 ## Testing against a Neon database
 
@@ -105,8 +127,8 @@ must use the direct endpoint.
    The `local` profile is the quickest way to try Neon: it reads the same `DB_*` / `FLYWAY_*`
    variables, only defaulting them to the local Docker database when they are unset. To
    exercise the real production wiring, use `SPRING_PROFILES_ACTIVE=prod` and also export
-   `MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD` (placeholders are fine for this test) and
-   `CORS_ALLOWED_ORIGINS`.
+   `MAIL_HOST`, `MAIL_USER`, `MAIL_PASSWORD` (placeholders are fine for this test),
+   `ALLOWED_ORIGIN`, `FRONTEND_BASE_URL`, `JWT_SECRET` and `TOTP_ENC_KEY`.
 4. Verify:
    * `curl localhost:8080/actuator/health/readiness` returns `{"status":"UP"}` (this runs a real
      query through the pooled connection)

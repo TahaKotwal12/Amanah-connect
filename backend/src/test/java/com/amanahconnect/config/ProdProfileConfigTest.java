@@ -35,6 +35,37 @@ class ProdProfileConfigTest {
     }
 
     @Test
+    void authSecretsAndOriginsComeFromTheEnvironmentWithoutDefaults() {
+        assertThat(prod.get("app.auth.jwt-secret")).isEqualTo("${JWT_SECRET}");
+        assertThat(prod.get("app.auth.totp-enc-key")).isEqualTo("${TOTP_ENC_KEY}");
+        assertThat(prod.get("app.auth.frontend-base-url")).isEqualTo("${FRONTEND_BASE_URL}");
+        assertThat(prod.get("app.cors.allowed-origins")).isEqualTo("${ALLOWED_ORIGIN}");
+    }
+
+    @Test
+    void noSecretIsEverDefaultedInSharedOrLocalConfig() {
+        for (String file : new String[] {"application.yml", "application-local.yml"}) {
+            Map<?, ?> config = load(file);
+            for (String key : new String[] {"app.auth.jwt-secret", "app.auth.totp-enc-key", "app.bootstrap.super-admin-password"}) {
+                Object value = config.get(key);
+                if (value != null) {
+                    assertThat(value.toString()).as(file + " " + key).matches("\\$\\{[A-Z_]+:\\}");
+                }
+            }
+        }
+    }
+
+    @Test
+    void sharedConfigKeepsTheDocumentedRateLimitsAndTheTestProfileLiftsThem() {
+        Map<?, ?> base = load("application.yml");
+        assertThat(base.get("app.rate-limit.login-per-ip-per-minute")).isEqualTo(10);
+        assertThat(base.get("app.rate-limit.login-per-email-per-minute")).isEqualTo(5);
+        assertThat(base.get("app.rate-limit.forgot-password-per-ip-per-hour")).isEqualTo(5);
+        assertThat(base.get("app.rate-limit.lead-per-ip-per-hour")).isEqualTo(5);
+        assertThat(load("application-prod.yml").get("app.auth.bcrypt-strength")).as("production keeps the BCrypt default of 12").isNull();
+    }
+
+    @Test
     void noLiteralCredentialsOrHostsInProdConfig() {
         prod.forEach(
                 (key, value) -> {

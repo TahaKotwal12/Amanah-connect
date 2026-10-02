@@ -56,6 +56,14 @@ class ArchitectureTest {
                     .because("common is the base layer");
 
     @ArchTest
+    static final ArchRule securityCodeNeverMatchesOnTheRawRequestUri =
+            noClasses()
+                    .should()
+                    .callMethod(jakarta.servlet.http.HttpServletRequest.class, "getRequestURI")
+                    .because("the raw URI is still percent-encoded and can be used to slip past path-based filters; "
+                            + "use RequestPaths.of(request)");
+
+    @ArchTest
     static final ArchRule noJavaUtilLogging =
             noClasses().should().dependOnClassesThat().resideInAPackage("java.util.logging..");
 
