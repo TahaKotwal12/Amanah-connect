@@ -1,6 +1,6 @@
 # AMANAH CONNECT — V2 PRODUCTION BLUEPRINT
 > Spring Boot 3 + React 19 + PostgreSQL (Neon) + AWS EC2
-> Multi-tenant SaaS for **every kind of community** (residential, religious, charitable, social, non-profit, clubs, associations)
+> Multi-tenant SaaS for communities of any kind. A community is identified by its name only (no community types)
 > Built for live users. This replaces the earlier FastAPI master doc.
 
 ---
@@ -44,13 +44,13 @@ Neon only offers **PostgreSQL**. There is no MySQL on Neon. You already have a N
 ### 1.1 What it is
 A platform where **any community** gets a private workspace to manage members, dues and donations, budget, complaints and announcements, with transparent finances and every bill, receipt and update delivered by email. Members never log in. Community Admins and the platform SuperAdmin do.
 
-### 1.2 Community types (generic, not society-only)
-`RESIDENTIAL`, `RELIGIOUS`, `CHARITABLE_TRUST`, `SOCIAL_GROUP`, `NON_PROFIT`, `EDUCATIONAL`, `SPORTS_CLUB`, `PROFESSIONAL_ASSOCIATION`, `OTHER`.
+### 1.2 One generic community model (no community types)
+A community is identified **only by its name** (plus contact details). There is no "type" field anywhere: not in the database, the API, the forms or the filters. Every community gets the same features and the same defaults, which keeps the product simple and avoids type-specific code paths.
 
-The type only changes **defaults and wording**, never the code path:
-- Default budget categories (Residential: Maintenance, Security, Repairs. Religious: Zakat/Donations, Events, Utilities. Trust: Grants, Programs, Admin.)
-- Optional member grouping label: "Flat/Unit", "Family", "Batch", "Team".
-- Terminology: "Maintenance" vs "Subscription" vs "Contribution" (a display label on invoices).
+Flexibility comes from settings the admin controls, not from a type:
+- A short default set of budget categories (Maintenance, Utilities, Repairs, Events, Donations, Administration, Other) that the admin can add to, rename or hide.
+- An optional **member group label** that the admin names themselves (for example "Flat", "Family", "Batch" or "Team"), so the same field works for any community.
+- The fee kind on an invoice (Maintenance, Subscription, Donation, Event, Fine, Other) is chosen per invoice.
 
 ### 1.3 Roles
 | Role | Who | Access |
@@ -228,7 +228,7 @@ backend/src/main/java/com/amanahconnect/
 | `users` | email unique (citext), password_hash, role, status, totp_secret_enc, totp_enabled, failed_attempts, locked_until, last_login_at |
 | `refresh_tokens` | user_id, token_hash, family_id, expires_at, revoked_at, replaced_by, ip, user_agent |
 | `recovery_codes` | user_id, code_hash, used_at |
-| `communities` | name, type, slug unique, owner_user_id, contact fields, address, date_of_establishment, status (PENDING/ACTIVE/SUSPENDED/ARCHIVED), plan_id, currency, upi_id, upi_payee_name, logo_key, financial_year_start_month, settings jsonb |
+| `communities` | name, slug unique, owner_user_id, contact fields, address, date_of_establishment, status (PENDING/ACTIVE/SUSPENDED/ARCHIVED), plan_id, currency, upi_id, upi_payee_name, logo_key, financial_year_start_month, settings jsonb |
 | `community_users` | community_id, user_id, role (OWNER/ADMIN, future TREASURER) |
 | `plans` | code, name, price_monthly, price_yearly, limits jsonb (max_members, storage_mb, emails_per_month), features jsonb, is_public, active, sort_order |
 | `platform_subscriptions` | community_id, plan_id, period_start/end, amount, reference, status, recorded_by |
@@ -249,7 +249,7 @@ backend/src/main/java/com/amanahconnect/
 | `email_outbox` | community_id, to_email, template, payload jsonb, status (PENDING/SENT/FAILED), attempts, next_attempt_at, ses_message_id, error |
 | `notification_settings` | community_id, due_reminder_days_before, overdue_reminder_every_days, send_welcome, send_receipt |
 | `audit_logs` | actor_user_id, community_id, action, entity_type, entity_id, before jsonb, after jsonb, ip, user_agent, request_id, created_at. **Append-only** (DB trigger blocks UPDATE/DELETE) |
-| `leads` | name, email, phone, community_name, community_type, size_estimate, message, status, handled_by, source |
+| `leads` | name, email, phone, community_name, size_estimate, message, status, handled_by, source |
 | `shedlock` | ShedLock table |
 
 ### 3.6 API surface (prefix `/api/v1`)
@@ -397,7 +397,7 @@ Requirements:
 - Indexes on every community_id, on (community_id, status), (community_id, due_date), (community_id, entry_date), email columns, and token_hash columns.
 - audit_logs: add a trigger that RAISES EXCEPTION on UPDATE or DELETE (append-only).
 - A document_counters table (community_id, counter_type, financial_year, last_value) used with SELECT ... FOR UPDATE to generate gap-free invoice and receipt numbers, plus a NumberingService with a test that proves no gaps or duplicates under 20 concurrent threads.
-- Seed data migration: the three default plans (Starter, Growth, Enterprise) with limits and features in jsonb, and default ledger categories per community type as a reference table (category templates), NOT tied to any community.
+- Seed data migration: the three default plans (Starter, Growth, Enterprise) with limits and features in jsonb, and one generic list of default ledger categories (Maintenance, Utilities, Repairs, Events, Donations, Administration, Other) stored as a reference table, copied into each new community on creation.
 - Do NOT seed any user. The SuperAdmin is bootstrapped by a command in the next prompt.
 - JPA: entities use @Getter/@Setter (no @Data on entities), explicit equals/hashCode on id, LAZY associations, no entity leaks to the API.
 - Add a Testcontainers-based integration test that boots Postgres, runs all migrations, and verifies Hibernate validation passes.
@@ -453,8 +453,8 @@ Done when: ./mvnw verify passes with the harness and ArchUnit rules in place.
 Read CLAUDE.md. Implement the SUPER_ADMIN module under /api/v1/admin/** (all endpoints require SUPER_ADMIN with 2FA completed). Mutations are audited.
 
 COMMUNITIES
-- Create community (new): name, type, contact details, address, date of establishment, plan, owner name/email. Creates the community (status PENDING), the owner user (status INVITED) and sends a "set your password" invitation email via the outbox. Community becomes ACTIVE once the owner accepts, or SuperAdmin can activate it.
-- List with search, filters (status, type, plan), sort, pagination, member counts, subscription expiry. Detail view. Update. Suspend/activate (with reason, audited, emails the owner). Archive (soft).
+- Create community (new): name, contact details, address, date of establishment, plan, owner name/email. Creates the community (status PENDING), the owner user (status INVITED) and sends a "set your password" invitation email via the outbox. Community becomes ACTIVE once the owner accepts, or SuperAdmin can activate it.
+- List with search, filters (status, plan), sort, pagination, member counts, subscription expiry. Detail view. Update. Suspend/activate (with reason, audited, emails the owner). Archive (soft).
 - Reset the community admin's password (forces a reset email, revokes sessions) and export community details (JSON and CSV: profile, owner, members count, subscription history).
 - MIGRATION onboarding (Excel item "migration or new user"): POST /admin/communities/{id}/import accepting CSV for members and optionally opening balances and open invoices. Validate row by row, return a dry-run report (valid/invalid rows with reasons) before an explicit confirm step. Idempotent via an import batch id. Respect plan member limits.
 - Read-only community overview for support (profile, counts, finance summary, recent activity). Every call writes an audit entry "SUPPORT_VIEW".
@@ -464,7 +464,7 @@ PLANS AND SUBSCRIPTIONS
 - Platform subscriptions: record a payment manually (community, plan, amount, reference, period start/end). List with status (ACTIVE, EXPIRING, EXPIRED). Endpoint for expiring in N days. A scheduled job (ShedLock) daily at 09:00 IST: email owners 7 and 1 days before expiry, mark expired, and optionally auto-suspend after a configurable grace period (default: warn only, never auto-suspend without a flag).
 
 LEADS
-- Public POST /api/v1/public/leads (name, email, phone, community name, type, size, message) with honeypot field, rate limiting, input length limits. Stores the lead, emails SuperAdmin, sends an acknowledgement to the lead. SuperAdmin endpoints to list, change status (NEW, CONTACTED, DEMO_SCHEDULED, CONVERTED, LOST) and "convert to community" which pre-fills community creation.
+- Public POST /api/v1/public/leads (name, email, phone, community name, size, message) with honeypot field, rate limiting, input length limits. Stores the lead, emails SuperAdmin, sends an acknowledgement to the lead. SuperAdmin endpoints to list, change status (NEW, CONTACTED, DEMO_SCHEDULED, CONVERTED, LOST) and "convert to community" which pre-fills community creation.
 
 STATS
 - GET /admin/stats: total/active/suspended communities, total members, platform revenue (this month, year), expiring subscriptions, new leads, open support threads. Use efficient aggregate queries.
@@ -525,7 +525,7 @@ UPI QR / PAYMENT LINK (Excel: "QR generation or link for payment")
 - A public, tokenised payment info page endpoint GET /public/pay/{token} showing community name, invoice number, amount due, the QR and "pay with UPI app" link. The token is unguessable, expires, and reveals no other member data. The bill email contains this link. Be explicit in the response that confirmation is manual (the admin marks it paid after checking their bank/UPI app).
 
 LEDGER (BUDGET)
-- Category CRUD (income/expense), seeded from the community-type template on community creation.
+- Category CRUD (income/expense), seeded from the generic default category list on community creation.
 - Manual ledger entries (income/expense) with category, date, amount, notes, optional attachment (receipt image/PDF via presigned S3 upload with type/size validation). Entries from payments are read-only (edit via reversal).
 - GET /community/ledger/summary: total income, expense, net, by category, by month, with date-range filters; plus an "opening balance" setting.
 - Reports (CSV and PDF): income vs expense statement, category breakdown, collection report (billed vs collected vs outstanding), member dues statement, defaulters list, receipts register. PDF reports behind the "pdf_reports" plan feature flag.
@@ -653,15 +653,15 @@ Read CLAUDE.md. Build the public landing page at src/features/landing/ as a prem
 
 Sections (all responsive, mobile-first, fast):
 1. Sticky navbar: logo (public/brand/logo-lockup-transparent.png or the mark + Cinzel wordmark), links (Solutions, Features, Security, Pricing, FAQ), "Login" (outline) and "Request a demo" (primary). Mobile drawer.
-2. Hero: eyebrow "CONNECTING COMMUNITIES WITH TRUST", H1 "Run your community with clarity, care and complete transparency." Subtext covering membership, dues and donations, budgets, complaints and announcements in one secure place. CTAs: "Request a demo", "See how it works". Right side: a coded product preview (a React-built dashboard mock with sample numbers, NOT a screenshot) floating on a teal gradient with the logo's wave as the section's bottom divider and a faint geometric lattice pattern at 5% opacity. Trust strip below: "Built for residential societies, mosques and temples, charitable trusts, clubs, alumni groups and non-profits" with small icons.
-3. "One platform, every kind of community": tabs/cards for Residential, Religious, Charitable Trust, Social & Clubs, Non-profit, Associations, each with a short tailored pitch and sample use (e.g. monthly maintenance, zakat/donation tracking, grant utilisation, membership fees).
+2. Hero: eyebrow "CONNECTING COMMUNITIES WITH TRUST", H1 "Run your community with clarity, care and complete transparency." Subtext covering membership, dues and donations, budgets, complaints and announcements in one secure place. CTAs: "Request a demo", "See how it works". Right side: a coded product preview (a React-built dashboard mock with sample numbers, NOT a screenshot) floating on a teal gradient with the logo's wave as the section's bottom divider and a faint geometric lattice pattern at 5% opacity. Trust strip below with short, generic proof points ("Members never need to log in", "Receipts by email", "Complete audit trail", "Your data stays yours") with small icons.
+3. "Everything your community runs on": use-case cards, not audience types: collect monthly dues, record donations, track spending against budget, handle member complaints, keep everyone informed. Each card has a one-line pitch and a small example. Keep the copy universal so it fits any community.
 4. Feature bento grid (6 to 8 cards, lucide icons): Member management, Dues and donations, Instant receipts by email, UPI QR payments, Budget and financial reports, Complaint tracking, Announcements, Audit trail and 2FA.
 5. "Why Amanah" values band using the logo's four values (Trust, Integrity, Collaboration, Excellence) with the shield, scales, handshake and star icons, gold hairlines, deep teal background.
 6. How it works: 3 steps (We set up your community, add or invite members, collect and report with confidence) with the dashed connector.
 7. Transparency and security: bullets on encryption, two-factor authentication, role-based access, audit logs, daily backups, data export. Be factual; no fake certifications or fake numbers.
 8. Pricing: loads plans from GET /public/plans (fallback to static copy on error), monthly/yearly toggle, highlighted middle plan, Enterprise with "Contact us" using the premium purple accent.
 9. FAQ accordion (Radix) with at least 8 honest questions (do members need to log in? how do payments work? is our data safe? can we migrate from Excel? etc.).
-10. Demo request form (React Hook Form + Zod) posting to /public/leads: name, email, phone, community name, community type, approximate members, message; honeypot field; success state; accessible errors.
+10. Demo request form (React Hook Form + Zod) posting to /public/leads: name, email, phone, community name, approximate members, message; honeypot field; success state; accessible errors.
 11. Final CTA band and footer (logo, tagline, links, copyright, privacy and terms links to placeholder pages).
 
 Quality bar: Lighthouse mobile Performance >= 90, Accessibility >= 95, SEO >= 95. Self-hosted fonts, lazy-loaded below-the-fold sections, images with width/height, AVIF/WebP where possible, prefers-reduced-motion respected, subtle framer-motion fade/slide only. Add react-helmet-async metadata, Open Graph/Twitter tags, JSON-LD (Organization, SoftwareApplication), sitemap.xml, robots.txt. Include Privacy Policy and Terms pages as clearly marked drafts needing legal review.
@@ -689,7 +689,7 @@ Done when: tests, build and e2e pass.
 Read CLAUDE.md. Build src/features/superadmin/ (pages: Dashboard, Communities (+ detail), Plans, Subscriptions, Invites, Leads, Support, Announcements, Audit). Use the design system and DataTable. API layer in api/, TanStack Query hooks in hooks/, query key factories, optimistic updates only where safe.
 
 - Dashboard: stat cards (communities, active, suspended, members, revenue this month/year, expiring soon, new leads, open support), 12-month revenue and new-communities charts (Recharts, brand palette), expiring-subscriptions list, recent leads, quick actions.
-- Communities: searchable/filterable table (status, type, plan), create community wizard (details -> plan -> owner -> review), detail page with tabs (Overview, Admin and contact, Plan and subscription, Activity, Support), actions: suspend/activate (reason dialog), reset admin password, export details, archive. Migration import wizard: upload CSV -> dry-run results table with row errors -> confirm.
+- Communities: searchable/filterable table (status, plan), create community wizard (details -> plan -> owner -> review), detail page with tabs (Overview, Admin and contact, Plan and subscription, Activity, Support), actions: suspend/activate (reason dialog), reset admin password, export details, archive. Migration import wizard: upload CSV -> dry-run results table with row errors -> confirm.
 - Read-only "support view" of a community's overview with a visible banner "You are viewing community data (this access is logged)".
 - Plans: cards + editor (limits and features), preview how the plan appears on the landing page.
 - Subscriptions: table with expiry badges, record-payment slide-over, expiring-in-N-days filter.
