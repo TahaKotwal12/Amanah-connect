@@ -1,12 +1,11 @@
 package com.amanahconnect.ledger;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,10 +13,7 @@ import lombok.Setter;
 @Table(name = "ledger_categories")
 @Getter
 @Setter
-public class LedgerCategory extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class LedgerCategory extends TenantEntity {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;

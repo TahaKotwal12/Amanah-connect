@@ -16,15 +16,24 @@ import jakarta.persistence.Version;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import com.amanahconnect.tenant.TenantFilters;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.ParamDef;
 import org.hibernate.type.SqlTypes;
 
 /** A tenant. Its own id is the community id every tenant-owned row points at. */
 @Entity
 @Table(name = "communities")
+@FilterDef(
+        name = TenantFilters.COMMUNITY_FILTER,
+        parameters = @ParamDef(name = TenantFilters.PARAMETER, type = UUID.class))
+@Filter(name = TenantFilters.COMMUNITY_FILTER, condition = "id = :communityId")
 @Getter
 @Setter
 public class Community extends BaseEntity {

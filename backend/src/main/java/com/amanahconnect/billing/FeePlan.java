@@ -1,6 +1,6 @@
 package com.amanahconnect.billing;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +9,6 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -19,10 +18,7 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "fee_plans")
 @Getter
 @Setter
-public class FeePlan extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class FeePlan extends TenantEntity {
 
     @Column(name = "name", nullable = false, length = 150)
     private String name;

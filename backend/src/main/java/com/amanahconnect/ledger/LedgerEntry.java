@@ -1,6 +1,6 @@
 package com.amanahconnect.ledger;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,14 +24,11 @@ import lombok.Setter;
 @Table(name = "ledger_entries")
 @Getter
 @Setter
-public class LedgerEntry extends BaseEntity {
+public class LedgerEntry extends TenantEntity {
 
     @Version
     @Column(name = "version", nullable = false)
     private long version;
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, updatable = false, length = 10)

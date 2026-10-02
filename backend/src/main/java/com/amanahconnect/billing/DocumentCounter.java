@@ -1,12 +1,11 @@
 package com.amanahconnect.billing;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,10 +14,7 @@ import lombok.Setter;
 @Table(name = "document_counters")
 @Getter
 @Setter
-public class DocumentCounter extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class DocumentCounter extends TenantEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "counter_type", nullable = false, updatable = false, length = 20)

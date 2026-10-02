@@ -1,7 +1,7 @@
 package com.amanahconnect.support;
 
 import com.amanahconnect.common.Priority;
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,10 +17,7 @@ import lombok.Setter;
 @Table(name = "support_threads")
 @Getter
 @Setter
-public class SupportThread extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class SupportThread extends TenantEntity {
 
     @Column(name = "subject", nullable = false, length = 200)
     private String subject;

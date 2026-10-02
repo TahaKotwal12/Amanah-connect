@@ -1,6 +1,6 @@
 package com.amanahconnect.member;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import com.amanahconnect.common.persistence.CitextJdbcType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
@@ -22,10 +21,7 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "members")
 @Getter
 @Setter
-public class Member extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class Member extends TenantEntity {
 
     @Column(name = "member_no", nullable = false, length = 30)
     private String memberNo;

@@ -1,6 +1,6 @@
 package com.amanahconnect.complaint;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -15,10 +15,7 @@ import lombok.Setter;
 @Table(name = "complaint_comments")
 @Getter
 @Setter
-public class ComplaintComment extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class ComplaintComment extends TenantEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "complaint_id", nullable = false, updatable = false)

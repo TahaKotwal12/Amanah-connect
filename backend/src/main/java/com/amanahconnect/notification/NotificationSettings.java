@@ -1,10 +1,9 @@
 package com.amanahconnect.notification;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,10 +12,7 @@ import lombok.Setter;
 @Table(name = "notification_settings")
 @Getter
 @Setter
-public class NotificationSettings extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class NotificationSettings extends TenantEntity {
 
     @Column(name = "due_reminder_days_before", nullable = false)
     private int dueReminderDaysBefore = 3;

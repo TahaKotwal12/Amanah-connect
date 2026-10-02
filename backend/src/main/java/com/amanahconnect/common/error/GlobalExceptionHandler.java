@@ -34,7 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 Problems.of(ErrorCode.VALIDATION_FAILED, "One or more fields are invalid.");
         List<FieldViolation> errors =
                 ex.getBindingResult().getFieldErrors().stream()
-                        .map(e -> new FieldViolation(e.getField(), e.getDefaultMessage()))
+                        .map(e -> new FieldViolation(e.getField(), e.isBindingFailure() ? "invalid value" : e.getDefaultMessage()))
                         .toList();
         problem.setProperty("errors", errors);
         return super.handleExceptionInternal(ex, problem, headers, status, request);
@@ -59,12 +59,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, problem, headers, statusCode, request);
     }
 
+    /** Violations from method-level validation (e.g. @Valid on a @RequestParam list) become the same shape. */
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ProblemDetail> handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+        ProblemDetail problem = Problems.of(ErrorCode.VALIDATION_FAILED, "One or more fields are invalid.");
+        problem.setProperty(
+                "errors",
+                ex.getConstraintViolations().stream()
+                        .map(v -> new FieldViolation(leaf(v.getPropertyPath().toString()), v.getMessage()))
+                        .toList());
+        return respond(problem);
+    }
+
+    private static String leaf(String path) {
+        int dot = path.lastIndexOf('.');
+        return dot < 0 ? path : path.substring(dot + 1);
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ProblemDetail> handleApi(ApiException ex) {
         ProblemDetail problem = Problems.of(ex.code(), ex.getMessage());
         if (!ex.details().isEmpty()) {
             problem.setProperty("errors", ex.details());
         }
+        ex.properties().forEach(problem::setProperty);
         ResponseEntity.BodyBuilder response = ResponseEntity.status(problem.getStatus());
         if (ex instanceof RateLimitedException limited) {
             response.header(HttpHeaders.RETRY_AFTER, String.valueOf(limited.retryAfterSeconds()));

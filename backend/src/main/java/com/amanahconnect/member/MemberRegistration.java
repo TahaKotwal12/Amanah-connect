@@ -1,6 +1,6 @@
 package com.amanahconnect.member;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import com.amanahconnect.common.persistence.CitextJdbcType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,10 +25,7 @@ import org.hibernate.type.SqlTypes;
 @Table(name = "member_registrations")
 @Getter
 @Setter
-public class MemberRegistration extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class MemberRegistration extends TenantEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "invite_id", nullable = false, updatable = false)

@@ -1,6 +1,6 @@
 package com.amanahconnect.billing;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import com.amanahconnect.member.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,14 +20,11 @@ import lombok.Setter;
 @Table(name = "invoices")
 @Getter
 @Setter
-public class Invoice extends BaseEntity {
+public class Invoice extends TenantEntity {
 
     @Version
     @Column(name = "version", nullable = false)
     private long version;
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false, updatable = false)

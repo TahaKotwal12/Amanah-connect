@@ -3,6 +3,8 @@ package com.amanahconnect.config;
 import com.amanahconnect.auth.JwtService;
 import com.amanahconnect.common.error.ErrorCode;
 import com.amanahconnect.common.error.ProblemResponseWriter;
+import com.amanahconnect.tenant.TenantContextFilter;
+import com.amanahconnect.tenant.TenantResolver;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -76,7 +78,8 @@ public class SecurityConfig {
             HttpSecurity http,
             ProblemResponseWriter problems,
             CorsConfigurationSource corsConfigurationSource,
-            JwtService jwtService)
+            JwtService jwtService,
+            TenantResolver tenantResolver)
             throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 // Stateless API. Bearer-authenticated endpoints have no ambient credential for CSRF to
@@ -114,6 +117,7 @@ public class SecurityConfig {
                                                 (request, response, e) -> unauthenticated(problems, response))
                                         .accessDeniedHandler((request, response, e) -> forbidden(problems, response)))
                 .addFilterAfter(new MfaSetupEnforcementFilter(problems), BearerTokenAuthenticationFilter.class)
+                .addFilterAfter(new TenantContextFilter(tenantResolver, problems), MfaSetupEnforcementFilter.class)
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers(HttpMethod.GET, "/api/v1/ping")

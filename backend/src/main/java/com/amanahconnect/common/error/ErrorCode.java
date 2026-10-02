@@ -26,6 +26,9 @@ public enum ErrorCode {
     CSRF_HEADER_REQUIRED(HttpStatus.FORBIDDEN, "Required request header is missing"),
     ORIGIN_NOT_ALLOWED(HttpStatus.FORBIDDEN, "Origin not allowed"),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests"),
+    COMMUNITY_SUSPENDED(HttpStatus.FORBIDDEN, "Community is suspended or archived"),
+    PLAN_LIMIT_EXCEEDED(HttpStatus.PAYMENT_REQUIRED, "Plan limit exceeded"),
+    PLAN_FEATURE_UNAVAILABLE(HttpStatus.PAYMENT_REQUIRED, "Feature not included in the plan"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
     private final HttpStatus status;

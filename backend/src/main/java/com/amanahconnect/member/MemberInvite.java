@@ -1,6 +1,6 @@
 package com.amanahconnect.member;
 
-import com.amanahconnect.common.persistence.BaseEntity;
+import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -13,10 +13,7 @@ import lombok.Setter;
 @Table(name = "member_invites")
 @Getter
 @Setter
-public class MemberInvite extends BaseEntity {
-
-    @Column(name = "community_id", nullable = false, updatable = false)
-    private UUID communityId;
+public class MemberInvite extends TenantEntity {
 
     /** Hex SHA-256 of the invite token; the raw token is shown once and never stored. */
     @Column(name = "token_hash", nullable = false, length = 64)
