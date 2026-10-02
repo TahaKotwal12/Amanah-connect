@@ -59,6 +59,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return super.handleExceptionInternal(ex, problem, headers, statusCode, request);
     }
 
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ProblemDetail> handleApi(ApiException ex) {
+        ProblemDetail problem = Problems.of(ex.code(), ex.getMessage());
+        if (!ex.details().isEmpty()) {
+            problem.setProperty("errors", ex.details());
+        }
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(problem.getStatus());
+        if (ex instanceof RateLimitedException limited) {
+            response.header(HttpHeaders.RETRY_AFTER, String.valueOf(limited.retryAfterSeconds()));
+        }
+        return response.body(problem);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ProblemDetail> handleAccessDenied(AccessDeniedException ex) {
         return respond(Problems.of(ErrorCode.FORBIDDEN, "You do not have access to this resource."));

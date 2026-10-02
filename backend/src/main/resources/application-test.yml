@@ -12,3 +12,11 @@ management:
 app:
   cors:
     allowed-origins: http://localhost:5173
+  auth:
+    bcrypt-strength: 4                 # tests only; production uses 12
+  rate-limit:                          # high so the shared test context is never throttled by accident
+    login-per-ip-per-minute: 100000
+    login-per-email-per-minute: 100000
+    mfa-per-ip-per-minute: 100000
+    forgot-password-per-ip-per-hour: 100000
+    lead-per-ip-per-hour: 100000

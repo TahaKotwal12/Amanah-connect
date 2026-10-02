@@ -80,3 +80,19 @@ springdoc:
 app:
   cors:
     allowed-origins: []
+  auth:
+    # Secrets come from the environment only. They are optional in the local and test profiles (a
+    # throwaway key is generated) and mandatory everywhere else (see AuthKeysConfig).
+    jwt-secret: ${JWT_SECRET:}
+    totp-enc-key: ${TOTP_ENC_KEY:}
+    frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  bootstrap:
+    # First start only. Remove these two variables once the super admin exists.
+    super-admin-email: ${BOOTSTRAP_SUPERADMIN_EMAIL:}
+    super-admin-password: ${BOOTSTRAP_SUPERADMIN_PASSWORD:}
+  rate-limit:
+    login-per-ip-per-minute: 10
+    login-per-email-per-minute: 5
+    mfa-per-ip-per-minute: 10
+    forgot-password-per-ip-per-hour: 5
+    lead-per-ip-per-hour: 5
