@@ -8,7 +8,7 @@ import com.amanahconnect.tenant.TenantResolver;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -64,7 +64,7 @@ public class SecurityConfig {
     /** Swagger UI and the OpenAPI document, only registered when the local profile is active. */
     @Bean
     @Order(2)
-    @Profile("local")
+    @ConditionalOnProperty(name = "springdoc.api-docs.enabled", havingValue = "true")
     SecurityFilterChain apiDocsChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                 .csrf(csrf -> csrf.disable())
@@ -79,7 +79,8 @@ public class SecurityConfig {
             ProblemResponseWriter problems,
             CorsConfigurationSource corsConfigurationSource,
             JwtService jwtService,
-            TenantResolver tenantResolver)
+            TenantResolver tenantResolver,
+            com.amanahconnect.auth.UserRepository users)
             throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 // Stateless API. Bearer-authenticated endpoints have no ambient credential for CSRF to
@@ -117,7 +118,8 @@ public class SecurityConfig {
                                                 (request, response, e) -> unauthenticated(problems, response))
                                         .accessDeniedHandler((request, response, e) -> forbidden(problems, response)))
                 .addFilterAfter(new MfaSetupEnforcementFilter(problems), BearerTokenAuthenticationFilter.class)
-                .addFilterAfter(new TenantContextFilter(tenantResolver, problems), MfaSetupEnforcementFilter.class)
+                .addFilterAfter(new AdminAccountFilter(users, problems), MfaSetupEnforcementFilter.class)
+                .addFilterAfter(new TenantContextFilter(tenantResolver, problems), AdminAccountFilter.class)
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers(HttpMethod.GET, "/api/v1/ping")

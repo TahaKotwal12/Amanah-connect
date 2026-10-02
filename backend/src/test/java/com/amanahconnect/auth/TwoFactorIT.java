@@ -370,8 +370,8 @@ class TwoFactorIT extends AbstractAuthIT {
         String fresh = refresh(session.refreshToken()).json().get("accessToken").asString();
 
         assertThat(api.get("/api/v1/auth/me", "Authorization", ApiClient.bearer(fresh)).json().get("flags").get("mfaSetupRequired").asBoolean()).isFalse();
-        // authorised now: no /admin handler exists yet, so the request passes security and gets a 404
-        assertThat(api.get("/api/v1/admin/communities", "Authorization", ApiClient.bearer(fresh)).status()).isEqualTo(404);
+        // authorised now: the request passes security and reaches the admin controller
+        assertThat(api.get("/api/v1/admin/communities", "Authorization", ApiClient.bearer(fresh)).status()).isEqualTo(200);
     }
 
     @Test

@@ -80,7 +80,7 @@ class RoleAuthorizationIT extends AbstractAuthIT {
 
         assertThat(community.status()).as("a super admin has no community of their own").isEqualTo(403);
         assertThat(community.code()).isEqualTo("FORBIDDEN");
-        assertThat(admin.status()).as("passes security; no handler yet").isEqualTo(404);
+        assertThat(admin.status()).as("passes security and reaches the controller").isEqualTo(200);
     }
 
     @Test

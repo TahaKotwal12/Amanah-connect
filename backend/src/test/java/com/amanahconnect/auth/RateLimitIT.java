@@ -65,7 +65,7 @@ class RateLimitIT extends AbstractAuthIT {
 
     @Test
     void thePublicLeadFormIsLimitedPerIpPerHour() {
-        // The lead endpoint itself arrives with the SuperAdmin work; the limit already guards its path.
+        // Invalid bodies still count: the limit is applied before the request is parsed.
         ApiClient.Response first = api.post("/api/v1/public/leads", Map.of("name", "A"));
         ApiClient.Response second = api.post("/api/v1/public/leads", Map.of("name", "B"));
         ApiClient.Response third = api.post("/api/v1/public/leads", Map.of("name", "C"));
