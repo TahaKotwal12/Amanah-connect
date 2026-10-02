@@ -2,6 +2,8 @@
 # No profile is active by default on purpose: a missing SPRING_PROFILES_ACTIVE must fail
 # fast (no datasource URL) instead of silently running with local settings.
 spring:
+  profiles:
+    active: local
   application:
     name: amanah-connect-api
   datasource:
