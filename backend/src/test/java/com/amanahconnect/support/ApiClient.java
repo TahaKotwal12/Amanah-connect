@@ -65,6 +65,19 @@ public final class ApiClient {
         return send("GET", path, null, headers);
     }
 
+    public Response put(String path, Object body, String... headers) {
+        return send("PUT", path, body == null ? null : JSON.writeValueAsString(body), headers);
+    }
+
+    public Response delete(String path, String... headers) {
+        return send("DELETE", path, null, headers);
+    }
+
+    /** Any method; used by the cross-tenant harness. */
+    public Response call(String method, String path, Object body, String... headers) {
+        return send(method, path, body == null ? null : JSON.writeValueAsString(body), headers);
+    }
+
     public Response postRaw(String path, String rawBody, String... headers) {
         return send("POST", path, rawBody, headers);
     }

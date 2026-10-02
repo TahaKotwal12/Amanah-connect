@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.amanahconnect.support.AbstractIntegrationTest;
 import com.amanahconnect.tenant.TenantRepository;
-import jakarta.persistence.Column;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Version;
 import jakarta.persistence.metamodel.EntityType;
@@ -88,12 +87,6 @@ class RepositoryConventionsIT extends AbstractIntegrationTest {
     }
 
     private static boolean hasMandatoryCommunityId(Class<?> entity) {
-        for (Field field : entity.getDeclaredFields()) {
-            Column column = field.getAnnotation(Column.class);
-            if (column != null && column.name().equals("community_id") && !column.nullable()) {
-                return true;
-            }
-        }
-        return false;
+        return com.amanahconnect.tenant.TenantEntity.class.isAssignableFrom(entity);
     }
 }

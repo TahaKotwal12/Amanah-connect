@@ -22,6 +22,7 @@ import com.amanahconnect.plan.Plan;
 import com.amanahconnect.plan.PlanRepository;
 import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
+import java.util.Map;
 import java.time.LocalDate;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -66,6 +67,30 @@ public class TestData {
 
     public Plan plan(String code) {
         return plans.findByCode(code).orElseThrow();
+    }
+
+    /** A throwaway plan with the given limits and features (the seeded plans are left alone). */
+    public Plan customPlan(String name, Map<String, Object> limits, Map<String, Object> features) {
+        Plan plan = new Plan();
+        plan.setCode("TEST_" + unique().toUpperCase());
+        plan.setName(name);
+        plan.setLimits(limits);
+        plan.setFeatures(features);
+        plan.setPublicPlan(false);
+        plans.save(plan);
+        em.flush();
+        return plan;
+    }
+
+    public Community communityOn(Plan plan) {
+        Community community = new Community();
+        community.setName("Community " + unique());
+        community.setSlug("c-" + unique());
+        community.setPlan(plan);
+        community.setStatus(CommunityStatus.ACTIVE);
+        communities.save(community);
+        em.flush();
+        return community;
     }
 
     public User user(UserRole role) {

@@ -63,6 +63,18 @@ class ArchitectureTest {
                     .because("the raw URI is still percent-encoded and can be used to slip past path-based filters; "
                             + "use RequestPaths.of(request)");
 
+    @ArchTest static final ArchRule controllersDoNotAccessRepositories = ArchitectureRules.CONTROLLERS_DO_NOT_ACCESS_REPOSITORIES;
+
+    @ArchTest static final ArchRule controllersDoNotExposeEntities = ArchitectureRules.CONTROLLERS_DO_NOT_EXPOSE_ENTITIES;
+
+    @ArchTest static final ArchRule tenantRepositoriesHaveNoUnscopedLookups = ArchitectureRules.TENANT_REPOSITORIES_HAVE_NO_UNSCOPED_LOOKUPS;
+
+    @ArchTest static final ArchRule mutatingControllerMethodsAreAudited = ArchitectureRules.MUTATING_CONTROLLER_METHODS_ARE_AUDITED;
+
+    @ArchTest static final ArchRule communityControllersTakeNoCommunityIdFromTheClient = ArchitectureRules.COMMUNITY_CONTROLLERS_TAKE_NO_COMMUNITY_ID_FROM_THE_CLIENT;
+
+    @ArchTest static final ArchRule noFloatingPointFields = ArchitectureRules.NO_FLOATING_POINT_FIELDS;
+
     @ArchTest
     static final ArchRule noJavaUtilLogging =
             noClasses().should().dependOnClassesThat().resideInAPackage("java.util.logging..");

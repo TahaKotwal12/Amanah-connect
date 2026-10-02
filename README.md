@@ -95,6 +95,12 @@ ADMIN_EMAIL=owner@example.test ADMIN_PASSWORD='...' ./docs/auth-smoke.sh
 It logs in, refreshes (showing rotation and reuse detection), enrols 2FA, completes a 2FA login and
 logs out. It needs curl and python3, and it enables 2FA on the account it uses.
 
+## Multi-tenancy and shared foundations
+
+Tenant isolation, auditing, paging, money handling and plan limits are described in
+[`docs/tenancy.md`](docs/tenancy.md), including the checklist every new `/community` module must follow.
+Integration tests of tenant modules extend `AbstractTenantIT`.
+
 ## Testing against a Neon database
 
 Neon is PostgreSQL. You need **two** hostnames from the Neon console for the same database:
