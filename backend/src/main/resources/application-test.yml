@@ -1,0 +1,14 @@
+# Integration tests. The database comes from Testcontainers (@ServiceConnection),
+# so no datasource settings are needed here.
+spring:
+  mail:
+    host: localhost
+    port: 1025
+
+management:
+  server:
+    port: 0                            # random port; tests read it from local.management.port
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173

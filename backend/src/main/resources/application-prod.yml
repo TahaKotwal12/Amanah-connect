@@ -1,0 +1,31 @@
+# Production: every value comes from the environment, nothing is defaulted.
+# A missing variable fails startup, which is what we want.
+#
+# DB_*      pooled Neon endpoint (host contains "-pooler"), used by the application.
+# FLYWAY_*  DIRECT Neon endpoint (no "-pooler"). Flyway's advisory lock does not work through
+#           PgBouncer transaction pooling, so migrations must not use the pooled endpoint.
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  flyway:
+    url: ${FLYWAY_URL}
+    user: ${FLYWAY_USER}
+    password: ${FLYWAY_PASSWORD}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.starttls.required: true
+
+server:
+  forward-headers-strategy: native     # behind Nginx on the same host
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
