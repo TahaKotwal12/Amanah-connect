@@ -14,4 +14,7 @@ public interface EmailOutboxRepository extends Repository<EmailOutbox, UUID> {
             EmailStatus status, Instant now);
 
     List<EmailOutbox> findByCommunityIdAndStatus(UUID communityId, EmailStatus status);
+
+    /** Emails queued for a community since the given moment, not counting failed ones (the monthly quota). */
+    long countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(UUID communityId, Instant since, EmailStatus status);
 }
