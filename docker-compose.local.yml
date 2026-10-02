@@ -1,0 +1,35 @@
+# Local development services. Not for production (see deploy/ for that).
+#   docker compose -f docker-compose.local.yml up -d
+# Ports are bound to 127.0.0.1 so nothing is reachable from other machines.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: amanah-postgres
+    environment:
+      POSTGRES_DB: amanah
+      POSTGRES_USER: amanah
+      POSTGRES_PASSWORD: ${LOCAL_POSTGRES_PASSWORD:-amanah_local_only}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - amanah-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U amanah -d amanah"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: amanah-mailpit
+    ports:
+      - "127.0.0.1:1025:1025"   # SMTP
+      - "127.0.0.1:8025:8025"   # web UI
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  amanah-pgdata:
