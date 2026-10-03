@@ -148,8 +148,7 @@ public class LeadService {
 
     /** Single-line text: control characters (including newlines) become spaces, runs collapse, ends trimmed. */
     static String singleLine(String value) {
-        if (value == null) return "";
-        return value.replaceAll("[\\p{Cntrl}\\p{Cf}]", " ").replaceAll("\\s+", " ").trim();
+        return com.amanahconnect.common.Text.singleLine(value);
     }
 
     /** Free text: newlines and tabs survive, other control characters are dropped. */

@@ -22,3 +22,5 @@ app:
     mfa-per-ip-per-minute: 100000
     forgot-password-per-ip-per-hour: 100000
     lead-per-ip-per-hour: 100000
+    invite-view-per-ip-per-minute: 100000
+    invite-register-per-ip-per-hour: 100000

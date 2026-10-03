@@ -125,6 +125,23 @@ public abstract class AbstractTenantIT extends AbstractAuthIT {
         markCovered("POST", createPath);
     }
 
+    /**
+     * For a resource that has no id because there is one per community (settings, counts, an export): A calls it, also
+     * sending B's community id in the query and a header. A's call must succeed and leave B's view of the same resource
+     * exactly as it was.
+     *
+     * @param readB reads B's own view of the resource (through B's session) as text
+     */
+    protected ApiClient.Response assertTenantSingleton(String method, String path, Object bodyForA, java.util.function.Supplier<String> readB) {
+        String before = readB.get();
+        String forged = path + (path.contains("?") ? "&" : "?") + "communityId=" + communityB.getId();
+        ApiClient.Response response = call(sessionA, method, forged, bodyForA, "X-Community-Id", communityB.getId().toString());
+        assertThat(response.status()).as(response.body()).isBetween(200, 299);
+        assertThat(readB.get()).as("B's data must be untouched by A's call").isEqualTo(before);
+        markCovered(method, path);
+        return response;
+    }
+
     private void assertHiddenFromA(String method, String pathToResourceOfB, Object body) {
         ApiClient.Response foreign = asA(method, pathToResourceOfB, body);
         ApiClient.Response missing = asA(method, withRandomId(pathToResourceOfB), body);
@@ -157,7 +174,7 @@ public abstract class AbstractTenantIT extends AbstractAuthIT {
         return last == null ? path : path.replace(last, UUID.randomUUID().toString());
     }
 
-    private void markCovered(String method, String path) {
+    protected void markCovered(String method, String path) {
         MockHttpServletRequest request = new MockHttpServletRequest(method, path.contains("?") ? path.substring(0, path.indexOf('?')) : path);
         try {
             var chain = handlerMapping.getHandler(request);

@@ -61,7 +61,15 @@ public class ImportValidator {
     // ---- members ------------------------------------------------------------------------------------
 
     public Validated<MemberRow> members(UUID communityId, CsvTable table, LocalDate today) {
-        List<String> fileErrors = headerErrors(table, Set.of("member_no", "full_name"), MEMBER_COLUMNS);
+        return members(communityId, table, today, false);
+    }
+
+    /**
+     * @param memberNoOptional when true (a community admin importing new members) a blank or missing member_no is fine:
+     *     numbers are generated when the import is confirmed
+     */
+    public Validated<MemberRow> members(UUID communityId, CsvTable table, LocalDate today, boolean memberNoOptional) {
+        List<String> fileErrors = headerErrors(table, memberNoOptional ? Set.of("full_name") : Set.of("member_no", "full_name"), MEMBER_COLUMNS);
         List<String> warnings = unknownColumns(table, MEMBER_COLUMNS);
         if (!fileErrors.isEmpty()) {
             return rejected(table, fileErrors, warnings);
@@ -77,7 +85,7 @@ public class ImportValidator {
             controlChars(row, errors);
             String memberNo = row.get("member_no");
             if (memberNo.isEmpty()) {
-                errors.add("member_no is required");
+                if (!memberNoOptional) errors.add("member_no is required");
             } else if (memberNo.length() > 30) {
                 errors.add("member_no is longer than 30 characters");
             } else if (!KEY.matcher(memberNo).matches()) {
@@ -108,16 +116,44 @@ public class ImportValidator {
             if (consent == null) errors.add("consent_email must be yes/no or true/false");
 
             if (errors.isEmpty()) {
-                seen.put(memberNo, row.number());
-                valid.add(new MemberRow(row.number(), memberNo, fullName, email.isEmpty() ? null : email, phone.isEmpty() ? null : phone,
+                if (!memberNo.isEmpty()) seen.put(memberNo, row.number());
+                valid.add(new MemberRow(row.number(), memberNo.isEmpty() ? null : memberNo, fullName, email.isEmpty() ? null : email, phone.isEmpty() ? null : phone,
                         group.isEmpty() ? null : group, status, joinedOn == null ? null : joinedOn.toString(), Boolean.TRUE.equals(consent)));
-                validRefs.add(new RowResult(row.number(), memberNo, List.of()));
+                validRefs.add(new RowResult(row.number(), memberNo.isEmpty() ? fullName : memberNo, List.of()));
             } else {
                 if (!memberNo.isEmpty()) seen.putIfAbsent(memberNo, row.number());
-                invalid.add(new RowResult(row.number(), memberNo, errors));
+                invalid.add(new RowResult(row.number(), memberNo.isEmpty() ? fullName : memberNo, errors));
             }
         }
+        warnings.addAll(sharedEmailWarnings(communityId, valid));
         return new Validated<>(file(table, validRefs, invalid, List.of(), warnings), valid);
+    }
+
+    /** Several members may share an address (a household), so this is a heads-up on the report, not an error. */
+    private List<String> sharedEmailWarnings(UUID communityId, List<MemberRow> valid) {
+        List<String> warnings = new ArrayList<>();
+        Map<String, Integer> firstRow = new HashMap<>();
+        List<String> emails = valid.stream().map(MemberRow::email).filter(e -> e != null).map(e -> e.toLowerCase(Locale.ROOT)).distinct().toList();
+        Map<String, String> inDb = new HashMap<>();
+        if (!emails.isEmpty()) {
+            jdbc.query("SELECT lower(email::text) AS email, member_no FROM members WHERE community_id = :c AND deleted_at IS NULL AND lower(email::text) IN (:emails)",
+                    new MapSqlParameterSource("c", communityId).addValue("emails", emails),
+                    rs -> { inDb.putIfAbsent(rs.getString("email"), rs.getString("member_no")); });
+        }
+        int extra = 0;
+        for (MemberRow row : valid) {
+            if (row.email() == null) continue;
+            String email = row.email().toLowerCase(Locale.ROOT);
+            String message = null;
+            if (inDb.containsKey(email)) message = "row " + row.row() + ": " + row.email() + " is already used by member " + inDb.get(email);
+            else if (firstRow.containsKey(email)) message = "row " + row.row() + ": " + row.email() + " is also used on row " + firstRow.get(email);
+            firstRow.putIfAbsent(email, row.row());
+            if (message != null) {
+                if (warnings.size() < 20) warnings.add(message); else extra++;
+            }
+        }
+        if (extra > 0) warnings.add("and " + extra + " more rows share an email address");
+        return warnings;
     }
 
     // ---- opening balances ------------------------------------------------------------------------------

@@ -99,6 +99,11 @@ app:
     grace-days: 7                      # days after expiry before auto-suspension (only if enabled)
   scheduling:
     enabled: true
+  storage:
+    bucket: ${S3_BUCKET:}              # empty = file storage unavailable (logo upload answers 503)
+    region: ${AWS_REGION:ap-south-1}
+    endpoint: ${S3_ENDPOINT:}          # only for MinIO / LocalStack
+    logo-max-bytes: 524288
   imports:
     max-rows-per-file: 5000
     max-file-bytes: 2097152            # 2 MB
@@ -108,3 +113,5 @@ app:
     mfa-per-ip-per-minute: 10
     forgot-password-per-ip-per-hour: 5
     lead-per-ip-per-hour: 5
+    invite-view-per-ip-per-minute: 30
+    invite-register-per-ip-per-hour: 10

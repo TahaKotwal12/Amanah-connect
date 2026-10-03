@@ -14,6 +14,8 @@ import com.amanahconnect.community.imports.ImportModel.MemberRow;
 import com.amanahconnect.community.imports.ImportModel.StoredRows;
 import com.amanahconnect.community.imports.ImportReport.FileReport;
 import com.amanahconnect.community.imports.ImportReport.Summary;
+import com.amanahconnect.member.MemberLock;
+import com.amanahconnect.member.MemberNumbers;
 import com.amanahconnect.member.MemberRepository;
 import com.amanahconnect.plan.PlanLimitKeys;
 import com.amanahconnect.plan.PlanLimitService;
@@ -72,6 +74,8 @@ public class ImportService {
     private final CsvParser parser;
     private final ImportValidator validator;
     private final PlanLimitService planLimits;
+    private final MemberLock memberLock;
+    private final MemberNumbers memberNumbers;
     private final NamedParameterJdbcTemplate jdbc;
     private final AuditService audit;
     private final JsonMapper json;
@@ -84,6 +88,8 @@ public class ImportService {
             CsvParser parser,
             ImportValidator validator,
             PlanLimitService planLimits,
+            MemberLock memberLock,
+            MemberNumbers memberNumbers,
             NamedParameterJdbcTemplate jdbc,
             AuditService audit,
             JsonMapper json,
@@ -94,6 +100,8 @@ public class ImportService {
         this.parser = parser;
         this.validator = validator;
         this.planLimits = planLimits;
+        this.memberLock = memberLock;
+        this.memberNumbers = memberNumbers;
         this.jdbc = jdbc;
         this.audit = audit;
         this.json = json;
@@ -104,6 +112,14 @@ public class ImportService {
 
     @Transactional
     public Outcome dryRun(UUID communityId, UUID batchId, byte[] membersCsv, byte[] balancesCsv, byte[] invoicesCsv) {
+        return dryRun(communityId, batchId, membersCsv, balancesCsv, invoicesCsv, false);
+    }
+
+    /**
+     * @param memberNoOptional a community admin importing new members: member_no may be blank and is generated on confirm
+     */
+    @Transactional
+    public Outcome dryRun(UUID communityId, UUID batchId, byte[] membersCsv, byte[] balancesCsv, byte[] invoicesCsv, boolean memberNoOptional) {
         Community community = community(communityId);
         requireOpen(community);
         if (membersCsv == null && balancesCsv == null && invoicesCsv == null) {
@@ -112,7 +128,7 @@ public class ImportService {
         CsvTable memberTable = membersCsv == null ? null : parser.parse("members", membersCsv);
         CsvTable balanceTable = balancesCsv == null ? null : parser.parse("openingBalances", balancesCsv);
         CsvTable invoiceTable = invoicesCsv == null ? null : parser.parse("openInvoices", invoicesCsv);
-        String hash = hash(membersCsv, balancesCsv, invoicesCsv);
+        String hash = hash(memberNoOptional, membersCsv, balancesCsv, invoicesCsv);
 
         lock(communityId, batchId);
         ImportBatch existing = batches.findByCommunityIdAndBatchId(communityId, batchId).orElse(null);
@@ -127,11 +143,11 @@ public class ImportService {
         List<String> blocking = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
 
-        var memberResult = memberTable == null ? null : validator.members(communityId, memberTable, today);
+        var memberResult = memberTable == null ? null : validator.members(communityId, memberTable, today, memberNoOptional);
         Set<String> batchMembers = new HashSet<>();
         Map<String, Integer> failedMembers = new HashMap<>();
         if (memberResult != null) {
-            memberResult.rows().forEach(r -> batchMembers.add(r.memberNo()));
+            memberResult.rows().forEach(r -> { if (r.memberNo() != null) batchMembers.add(r.memberNo()); });
             memberResult.report().invalid().forEach(r -> {
                 if (r.key() != null && !r.key().isEmpty()) failedMembers.put(r.key(), r.row());
             });
@@ -191,6 +207,7 @@ public class ImportService {
     public ImportReport confirm(UUID communityId, UUID batchId, boolean skipInvalidRows) {
         Community community = community(communityId);
         lock(communityId, batchId);
+        memberLock.lock(communityId); // nobody adds members to this community while the plan limit is checked
         ImportBatch batch = batches.findWithLockByCommunityIdAndBatchId(communityId, batchId).orElseThrow(NotFoundException::new);
         if (batch.getStatus() == ImportBatchStatus.CONFIRMED) {
             return view(batch); // a retry: the stored result, nothing applied twice
@@ -210,6 +227,7 @@ public class ImportService {
             throw new ApiException(ErrorCode.IMPORT_NOT_CONFIRMABLE,
                     "%d rows failed validation. Fix the files and upload again, or confirm with skipInvalidRows=true to import only the valid rows.".formatted(invalid));
         }
+        rows = withGeneratedNumbers(community, rows);
         recheck(communityId, rows);
         UUID actor = AuditService.currentActorId();
 
@@ -247,10 +265,23 @@ public class ImportService {
 
     // ---- applying ------------------------------------------------------------------------------------------
 
+    /** Rows imported without a member_no get the community's next numbers now, in row order. */
+    private StoredRows withGeneratedNumbers(Community community, StoredRows rows) {
+        long missing = rows.members().stream().filter(m -> m.memberNo() == null).count();
+        if (missing == 0) {
+            return rows;
+        }
+        java.util.Iterator<String> numbers = memberNumbers.allocate(community.getId(), community.getSlug(), (int) missing).iterator();
+        List<MemberRow> numbered = rows.members().stream()
+                .map(m -> m.memberNo() != null ? m : new MemberRow(m.row(), numbers.next(), m.fullName(), m.email(), m.phone(), m.group(), m.status(), m.joinedOn(), m.consentEmail()))
+                .toList();
+        return new StoredRows(numbered, rows.openingBalances(), rows.openInvoices());
+    }
+
     private void recheck(UUID communityId, StoredRows rows) {
         List<String> conflicts = new ArrayList<>();
         Set<String> batchMembers = new HashSet<>();
-        for (MemberRow m : rows.members()) batchMembers.add(m.memberNo());
+        for (MemberRow m : rows.members()) if (m.memberNo() != null) batchMembers.add(m.memberNo());
 
         validator.existingMemberNos(communityId, new ArrayList<>(batchMembers), false)
                 .forEach(no -> conflicts.add("member_no " + no + " now exists in this community"));
@@ -367,9 +398,12 @@ public class ImportService {
         return json.convertValue(value, Map.class);
     }
 
-    private static String hash(byte[]... files) {
+    private static String hash(boolean memberNoOptional, byte[]... files) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            if (memberNoOptional) {
+                digest.update((byte) 2); // the same files mean something different when numbers are generated
+            }
             for (byte[] file : files) {
                 if (file == null) {
                     digest.update((byte) 0);

@@ -33,4 +33,13 @@ public class MemberInvite extends TenantEntity {
 
     @Column(name = "created_by", nullable = false, updatable = false)
     private UUID createdBy;
+
+    /** New registrations through this link land in this group, whatever the visitor sends. */
+    @Column(name = "default_group_label", length = 100)
+    private String defaultGroupLabel;
+
+    /** Set when the link was emailed to one person. */
+    @org.hibernate.annotations.JdbcType(com.amanahconnect.common.persistence.CitextJdbcType.class)
+    @Column(name = "invited_email", columnDefinition = "citext")
+    private String invitedEmail;
 }

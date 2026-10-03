@@ -56,4 +56,17 @@ public class Member extends TenantEntity {
     /** Soft delete: members stay referenced by invoices and payments. */
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    /** Why the member was last deactivated or reactivated. */
+    @Column(name = "status_reason")
+    private String statusReason;
+
+    @Column(name = "status_changed_at")
+    private Instant statusChangedAt;
+
+    @Column(name = "delete_reason")
+    private String deleteReason;
+
+    @Column(name = "deleted_by")
+    private java.util.UUID deletedBy;
 }

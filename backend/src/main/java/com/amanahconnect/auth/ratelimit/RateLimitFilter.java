@@ -27,6 +27,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final Duration MINUTE = Duration.ofMinutes(1);
     private static final Duration HOUR = Duration.ofHours(1);
+    private static final java.util.regex.Pattern INVITE_VIEW = java.util.regex.Pattern.compile("^/api/v1/public/invites/[^/]+$");
+    private static final java.util.regex.Pattern INVITE_REGISTER = java.util.regex.Pattern.compile("^/api/v1/public/invites/[^/]+/register$");
 
     private final RateLimitService limiter;
     private final RateLimitProperties limits;
@@ -41,10 +43,23 @@ public class RateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String requestPath = RequestPaths.of(request);
+        if ("GET".equals(request.getMethod()) && INVITE_VIEW.matcher(requestPath).matches()) {
+            try {
+                limiter.consume("invite-view-ip:" + request.getRemoteAddr(), limits.inviteViewPerIpPerMinute(), MINUTE);
+            } catch (RateLimitedException e) {
+                response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(e.retryAfterSeconds()));
+                problems.write(response, ErrorCode.RATE_LIMITED, e.getMessage());
+                return;
+            }
+        }
         if ("POST".equals(request.getMethod())) {
             String ip = request.getRemoteAddr();
             try {
-                switch (RequestPaths.of(request)) {
+                if (INVITE_REGISTER.matcher(requestPath).matches()) {
+                    limiter.consume("invite-register-ip:" + ip, limits.inviteRegisterPerIpPerHour(), HOUR);
+                }
+                switch (requestPath) {
                     case "/api/v1/auth/login" ->
                             limiter.consume("login-ip:" + ip, limits.loginPerIpPerMinute(), MINUTE);
                     case "/api/v1/auth/login/2fa" ->

@@ -99,6 +99,21 @@ public class PlanLimitService {
      *
      * @param additionalEmails how many emails are about to be queued (a bulk announcement)
      */
+    /**
+     * Whether the community may queue {@code additionalEmails} more this month. Unlike {@link #checkEmailQuota} it never
+     * throws, so a caller that merely wants to skip an optional email does not mark its own transaction rollback-only.
+     */
+    public boolean hasEmailQuota(UUID communityId, int additionalEmails) {
+        PlanSnapshot plan = load(communityId);
+        Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
+        if (limit == null) {
+            return true;
+        }
+        Instant monthStart = YearMonth.now(clock).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        long current = outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, monthStart, EmailStatus.FAILED);
+        return current + additionalEmails <= limit;
+    }
+
     public void checkEmailQuota(UUID communityId, int additionalEmails) {
         PlanSnapshot plan = load(communityId);
         Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);

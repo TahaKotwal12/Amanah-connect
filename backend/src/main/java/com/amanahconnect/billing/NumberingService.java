@@ -43,6 +43,24 @@ public class NumberingService {
         return format(type, financialYear, counter.getLastValue());
     }
 
+    /**
+     * Reserves {@code count} consecutive values of a counter and returns the first one, with one row update. Used
+     * for member numbers (scope {@code "ALL"}: they never restart), including bulk imports.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public long reserve(UUID communityId, CounterType type, String scope, int count) {
+        if (count < 1) {
+            throw new IllegalArgumentException("count must be at least 1");
+        }
+        counters.ensureExists(communityId, type.name(), scope);
+        DocumentCounter counter = counters.findByCommunityIdAndCounterTypeAndFinancialYear(communityId, type, scope)
+                .orElseThrow(() -> new IllegalStateException("Counter row missing right after ensureExists"));
+        long first = counter.getLastValue() + 1;
+        counter.setLastValue(counter.getLastValue() + count);
+        counters.save(counter);
+        return first;
+    }
+
     static String format(CounterType type, String financialYear, long value) {
         return "%s-%s/%06d".formatted(type.prefix(), financialYear, value);
     }
