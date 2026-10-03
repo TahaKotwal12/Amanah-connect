@@ -1,0 +1,9 @@
+[[${p.communityName}]] is active
+
+Your community is active. You can sign in and start managing members, billing and announcements.
+[# th:if="${p.reason != null and p.reason != ''}"]
+Note: [[${p.reason}]]
+[/]
+
+--
+[(${footerText})]

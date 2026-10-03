@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading('Registration approved')}"></h1>
+<p th:replace="~{mail/fragments.html :: para(|Dear ${p.memberName},|)}"></p>
+<p th:replace="~{mail/fragments.html :: para(|Good news: ${p.communityName} has approved your registration. You are now a member.|)}"></p>
+<th:block th:if="${p.memberNo != null and p.memberNo != ''}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<tr th:replace="~{mail/fragments.html :: row('Member number', ${p.memberNo})}"></tr>
+</table>
+</th:block>
+</th:block>
+</body>
+</html>

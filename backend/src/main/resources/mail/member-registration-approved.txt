@@ -1,0 +1,11 @@
+Registration approved
+
+Dear [[${p.memberName}]],
+
+Good news: [[${p.communityName}]] has approved your registration. You are now a member.
+[# th:if="${p.memberNo != null and p.memberNo != ''}"]
+Your member number: [[${p.memberNo}]]
+[/]
+
+--
+[(${footerText})]

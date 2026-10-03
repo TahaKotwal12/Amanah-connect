@@ -59,6 +59,23 @@ public class InMemoryObjectStorage implements ObjectStorage {
         contents.put(key, bytes);
     }
 
+    /** Like a browser upload with real content: stores these exact bytes under the declared type (to test files that lie about their type). */
+    public void putRaw(String key, String contentType, byte[] bytes) {
+        objects.put(key, new ObjectInfo(bytes.length, contentType));
+        contents.put(key, bytes);
+    }
+
+    @Override
+    public Optional<byte[]> getRange(String key, long from, long toInclusive) {
+        ObjectInfo info = objects.get(key);
+        if (info == null) return Optional.empty();
+        byte[] real = contents.get(key);
+        // An object a test only "uploaded" by metadata gets a header that matches its declared type.
+        byte[] all = real != null ? real : com.amanahconnect.file.MagicBytes.sample(info.contentType());
+        int end = (int) Math.min(all.length, toInclusive + 1);
+        return Optional.of(java.util.Arrays.copyOfRange(all, (int) Math.min(from, end), end));
+    }
+
     @Override
     public Optional<byte[]> get(String key) {
         return Optional.ofNullable(contents.get(key));

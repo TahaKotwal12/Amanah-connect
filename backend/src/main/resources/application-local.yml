@@ -20,5 +20,7 @@ springdoc:
     enabled: true
 
 app:
+  email:
+    preview-enabled: true
   cors:
     allowed-origins: ${ALLOWED_ORIGIN:http://localhost:5173}

@@ -1,0 +1,10 @@
+[[${p.communityName}]] has been suspended
+
+While suspended, the community is read-only: you can view your data but not change it.
+[# th:if="${p.reason != null and p.reason != ''}"]
+Reason: [[${p.reason}]]
+[/]
+Contact support to have it reactivated.
+
+--
+[(${footerText})]

@@ -34,7 +34,7 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
                     "members", "member_invites", "member_registrations",
                     "document_counters", "fee_plans", "invoices", "payment_records", "receipts",
                     "ledger_category_templates", "ledger_categories", "ledger_entries",
-                    "complaints", "complaint_comments", "support_threads", "support_messages", "announcements", "announcement_reads",
+                    "complaints", "complaint_comments", "support_threads", "support_messages", "announcements", "announcement_reads", "email_suppressions", "invoice_reminders", "stored_files",
                     "email_outbox", "notification_settings", "audit_logs", "leads",
                     "shedlock");
 
@@ -50,7 +50,7 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
                         "select version from flyway_schema_history where success order by installed_rank",
                         String.class);
 
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14");
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15");
     }
 
     @Test

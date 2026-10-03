@@ -88,6 +88,15 @@ final class S3ObjectStorage implements ObjectStorage {
     }
 
     @Override
+    public Optional<byte[]> getRange(String key, long from, long toInclusive) {
+        try {
+            return Optional.of(client.getObjectAsBytes(GetObjectRequest.builder().bucket(properties.bucket()).key(key).range("bytes=" + from + "-" + toInclusive).build()).asByteArray());
+        } catch (NoSuchKeyException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public void delete(String key) {
         client.deleteObject(r -> r.bucket(properties.bucket()).key(key));
     }

@@ -1,0 +1,8 @@
+Your subscription has expired
+
+The subscription for [[${p.communityName}]] ended on [[${fmt.d(p.periodEnd)}]].
+
+Your data is safe. Renew to keep using all features; after a grace period the community is suspended.
+
+--
+[(${footerText})]

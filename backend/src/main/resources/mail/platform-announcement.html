@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<th:block th:if="${p.test}"><div th:replace="~{mail/fragments.html :: notice('This is a test of the email below. Nobody else received it.')}"></div></th:block>
+<th:block th:if="${p.kind == 'OFFER'}"><p style="margin:0 0 8px;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:bold;color:#037077;">Special offer</p></th:block>
+<h1 th:replace="~{mail/fragments.html :: heading(${p.title})}"></h1>
+<div style="margin:0 0 20px;font-size:16px;line-height:25px;color:#1F2D30;" th:utext="${p.bodyHtml}">Body</div>
+</th:block>
+</body>
+</html>

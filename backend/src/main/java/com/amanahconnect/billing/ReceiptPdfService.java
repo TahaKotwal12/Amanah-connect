@@ -53,12 +53,14 @@ public class ReceiptPdfService {
     private final PaymentRecordRepository payments;
     private final CommunityRepository communities;
     private final ObjectStorage storage;
+    private final com.amanahconnect.file.FileService files;
 
-    public ReceiptPdfService(ReceiptRepository receipts, PaymentRecordRepository payments, CommunityRepository communities, ObjectStorage storage) {
+    public ReceiptPdfService(ReceiptRepository receipts, PaymentRecordRepository payments, CommunityRepository communities, ObjectStorage storage, com.amanahconnect.file.FileService files) {
         this.receipts = receipts;
         this.payments = payments;
         this.communities = communities;
         this.storage = storage;
+        this.files = files;
     }
 
     public static String storageKey(UUID communityId, UUID receiptId) {
@@ -90,6 +92,7 @@ public class ReceiptPdfService {
         byte[] bytes = render(communityId, receipt);
         String key = storageKey(communityId, receiptId);
         storage.put(key, bytes, "application/pdf");
+        files.recordGenerated(communityId, com.amanahconnect.file.StoredFileKind.RECEIPT_PDF, key, "application/pdf", bytes.length);
         receipt.setPdfKey(key);
         receipts.save(receipt);
     }

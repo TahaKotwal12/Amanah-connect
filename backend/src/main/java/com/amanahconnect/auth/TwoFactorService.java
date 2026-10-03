@@ -28,6 +28,7 @@ public class TwoFactorService {
     private final UserSecurityPolicy policy;
     private final LockoutService lockout;
     private final AuthAudit audit;
+    private final AuthEmails emails;
     private final Clock clock;
 
     public TwoFactorService(
@@ -39,6 +40,7 @@ public class TwoFactorService {
             UserSecurityPolicy policy,
             LockoutService lockout,
             AuthAudit audit,
+            AuthEmails emails,
             Clock clock) {
         this.users = users;
         this.recoveryCodes = recoveryCodes;
@@ -48,6 +50,7 @@ public class TwoFactorService {
         this.policy = policy;
         this.lockout = lockout;
         this.audit = audit;
+        this.emails = emails;
         this.clock = clock;
     }
 
@@ -90,6 +93,7 @@ public class TwoFactorService {
             recoveryCodes.save(entity);
         }
         audit.event(AuditAction.TWO_FACTOR_ENABLED, user, Map.of("recoveryCodes", plain.size()));
+        emails.twoFactorChanged(user, "turned on");
         return plain;
     }
 
@@ -121,6 +125,7 @@ public class TwoFactorService {
         user.setTotpLastUsedStep(null);
         recoveryCodes.deleteByUserId(userId);
         audit.event(AuditAction.TWO_FACTOR_DISABLED, user, Map.of());
+        emails.twoFactorChanged(user, "turned off");
     }
 
     /**

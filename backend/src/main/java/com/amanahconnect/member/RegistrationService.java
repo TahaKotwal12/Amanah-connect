@@ -26,6 +26,9 @@ public class RegistrationService {
     private final MemberRegistrationRepository registrations;
     private final MemberRepository members;
     private final MemberService memberService;
+    private final com.amanahconnect.community.CommunityRepository communities;
+    private final com.amanahconnect.notification.NotificationSettingsRepository notificationSettings;
+    private final com.amanahconnect.notification.MemberMail mail;
     private final AuditService audit;
     private final TenantGuard tenantGuard;
     private final Clock clock;
@@ -34,12 +37,18 @@ public class RegistrationService {
             MemberRegistrationRepository registrations,
             MemberRepository members,
             MemberService memberService,
+            com.amanahconnect.community.CommunityRepository communities,
+            com.amanahconnect.notification.NotificationSettingsRepository notificationSettings,
+            com.amanahconnect.notification.MemberMail mail,
             AuditService audit,
             TenantGuard tenantGuard,
             Clock clock) {
         this.registrations = registrations;
         this.members = members;
         this.memberService = memberService;
+        this.communities = communities;
+        this.notificationSettings = notificationSettings;
+        this.mail = mail;
         this.audit = audit;
         this.tenantGuard = tenantGuard;
         this.clock = clock;
@@ -74,6 +83,10 @@ public class RegistrationService {
         registration.setMember(member);
         registrations.save(registration);
         audit.record("MEMBER_REGISTRATION_APPROVED", "MemberRegistration", id, Map.of("status", "PENDING"), Map.of("status", "APPROVED", "memberId", member.getId().toString()));
+        // The welcome email already says "you are a member"; the approval notice is only needed when the community has welcome emails off.
+        if (!notificationSettings.findByCommunityId(communityId).map(s -> s.isSendWelcome()).orElse(true)) {
+            notifyApplicant(communityId, registration, "member-registration-approved", member.getMemberNo());
+        }
         return view(communityId, registration);
     }
 
@@ -85,7 +98,18 @@ public class RegistrationService {
         registration.setRejectionReason(request.reason().trim());
         registrations.save(registration);
         audit.record("MEMBER_REGISTRATION_REJECTED", "MemberRegistration", id, Map.of("status", "PENDING"), Map.of("status", "REJECTED", "reason", request.reason().trim()));
+        notifyApplicant(communityId, registration, "member-registration-rejected", null); // the reason is for the admins; it is never sent
         return view(communityId, registration);
+    }
+
+    private void notifyApplicant(UUID communityId, MemberRegistration registration, String template, String memberNo) {
+        var community = communities.findById(communityId).orElseThrow();
+        Map<String, Object> payload = new java.util.LinkedHashMap<>();
+        payload.put("communityName", community.getName());
+        payload.put("memberName", registration.getFullName());
+        payload.put("memberNo", memberNo);
+        payload.put("contactEmail", community.getContactEmail());
+        mail.sendTo(community, registration.getEmail(), registration.isConsentEmail(), template, payload);
     }
 
     private MemberRegistration pending(UUID communityId, UUID id) {

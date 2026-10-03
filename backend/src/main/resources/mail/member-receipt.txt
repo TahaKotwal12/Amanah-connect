@@ -1,0 +1,18 @@
+Receipt [[${p.receiptNo}]]
+
+Dear [[${p.memberName}]],
+
+Thank you. [[${p.communityName}]] has received your payment.
+
+Receipt:         [[${p.receiptNo}]]
+Amount received: [[${fmt.m(p.amount, p.currency)}]]
+[# th:if="${p.amountInWords != null and p.amountInWords != ''}"]In words:        [[${p.amountInWords}]]
+[/][# th:if="${p.method != null and p.method != ''}"]Method:          [[${p.method}]]
+[/][# th:if="${p.receivedOn != null and p.receivedOn != ''}"]Received on:     [[${fmt.d(p.receivedOn)}]]
+[/][# th:if="${p.invoiceNo != null and p.invoiceNo != ''}"]Against invoice:  [[${p.invoiceNo}]]
+[/][# th:if="${p.balance != null and p.balance != ''}"]Balance remaining: [[${fmt.m(p.balance, p.currency)}]]
+[/]
+[# th:if="${attached}"]Your receipt is attached to this email as a PDF.[/][# th:unless="${attached}"]To get a copy of the receipt as a PDF, please contact the community admin.[/]
+
+--
+[(${footerText})]

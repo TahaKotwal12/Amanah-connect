@@ -35,6 +35,18 @@ public class AuthEmails {
         enqueue(TEMPLATE_INVITATION, user, "/accept-invite", rawToken, validFor);
     }
 
+    /** Tells the account's owner that two-factor authentication was turned on or off (a security notice: it never contains a secret). */
+    public void twoFactorChanged(User user, String action) {
+        EmailOutbox email = new EmailOutbox();
+        email.setToEmail(user.getEmail());
+        email.setTemplate("two-factor-changed");
+        email.setPayload(Map.of(
+                "fullName", user.getFullName(),
+                "action", action,
+                "at", java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Kolkata")).format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy, HH:mm 'IST'", java.util.Locale.ENGLISH))));
+        outbox.save(email);
+    }
+
     private void enqueue(String template, User user, String path, String rawToken, Duration validFor) {
         EmailOutbox email = new EmailOutbox();
         email.setToEmail(user.getEmail());

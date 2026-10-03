@@ -1,0 +1,11 @@
+Two-factor authentication [[${p.action}]]
+
+Hello [[${p.fullName}]],
+
+Two-factor authentication on your Amanah Connect account was [[${p.action}]].
+[# th:if="${p.at != null and p.at != ''}"]When: [[${p.at}]]
+[/]
+If this was not you, reset your password straight away and contact support.
+
+--
+[(${footerText})]

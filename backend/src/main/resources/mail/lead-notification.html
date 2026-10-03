@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading('New lead')}"></h1>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<tr th:replace="~{mail/fragments.html :: row('Name', ${p.name})}"></tr>
+<tr th:replace="~{mail/fragments.html :: row('Email', ${p.email})}"></tr>
+<th:block th:if="${p.phone != null and p.phone != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Phone', ${p.phone})}"></tr>
+</th:block>
+<th:block th:if="${p.communityName != null and p.communityName != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Community', ${p.communityName})}"></tr>
+</th:block>
+<th:block th:if="${p.size != null and p.size != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Size', ${p.size})}"></tr>
+</th:block>
+</table>
+<th:block th:if="${p.message != null and p.message != ''}">
+<div th:replace="~{mail/fragments.html :: quote(${p.message})}"></div>
+</th:block>
+</th:block>
+</body>
+</html>

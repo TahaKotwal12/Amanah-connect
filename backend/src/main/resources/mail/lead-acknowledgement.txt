@@ -1,0 +1,10 @@
+Thanks for getting in touch
+
+Hello [[${p.name}]],
+
+We have received your message and will reply within one working day.
+
+In the meantime, you can reply to this email with anything you would like us to know.
+
+--
+[(${footerText})]

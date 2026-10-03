@@ -1,0 +1,16 @@
+A reminder about your invoice
+
+Dear [[${p.memberName}]],
+
+This is a friendly reminder that an invoice from [[${p.communityName}]] is coming due.
+
+Invoice:     [[${p.invoiceNo}]]
+Balance due: [[${fmt.m(p.balance, p.currency)}]]
+Due date:    [[${fmt.d(p.dueDate)}]]
+[# th:if="${p.payLink != null}"]
+Pay with UPI: [[${p.payLink}]]
+[/]
+If you have already paid, thank you: please ignore this reminder.
+
+--
+[(${footerText})]

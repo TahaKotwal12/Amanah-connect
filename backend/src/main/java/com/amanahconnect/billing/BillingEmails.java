@@ -24,6 +24,8 @@ public class BillingEmails {
 
     public static final String BILL = "member-bill";
     public static final String RECEIPT = "member-receipt";
+    public static final String PAYMENT_REMINDER = "payment-reminder";
+    public static final String OVERDUE_NOTICE = "overdue-notice";
 
     public enum Outcome { QUEUED, NO_ADDRESS, NO_CONSENT, QUOTA, DISABLED }
 
@@ -72,6 +74,24 @@ public class BillingEmails {
             payload.put("payLink", payLink == null ? null : payLink.url());
             payload.put("contactEmail", community.getContactEmail());
             return queue(member.getEmail(), BILL, payload);
+        }
+
+        /** A reminder that an invoice is coming due or is overdue. Always needs an address and consent. */
+        public Outcome reminder(Invoice invoice, com.amanahconnect.reminder.ReminderKind kind, PayLinkView payLink, long daysOverdue) {
+            Member member = invoice.getMember();
+            Outcome gate = gate(member, true);
+            if (gate != null) return gate;
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("communityName", community.getName());
+            payload.put("memberName", member.getFullName());
+            payload.put("invoiceNo", invoice.getInvoiceNo());
+            payload.put("currency", community.getCurrency());
+            payload.put("balance", InvoiceStatusRules.balance(invoice.getAmount(), invoice.getAmountPaid()).toString());
+            payload.put("dueDate", invoice.getDueDate().toString());
+            if (kind == com.amanahconnect.reminder.ReminderKind.OVERDUE) payload.put("daysOverdue", daysOverdue);
+            payload.put("payLink", payLink == null ? null : payLink.url());
+            payload.put("contactEmail", community.getContactEmail());
+            return queue(member.getEmail(), kind == com.amanahconnect.reminder.ReminderKind.OVERDUE ? OVERDUE_NOTICE : PAYMENT_REMINDER, payload);
         }
 
         /** Receipt for a payment; automatic receipts also respect the community's receipt-email setting and plan feature. */

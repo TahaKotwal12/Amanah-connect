@@ -1,0 +1,8 @@
+Your subscription ends soon
+
+The [[${p.planName}]] subscription for [[${p.communityName}]] ends on [[${fmt.d(p.periodEnd)}]][(${p.daysLeft != null ? ' (in ' + p.daysLeft + ' days)' : ''})].
+
+To keep your community running without interruption, please renew before then. Contact us and we will help.
+
+--
+[(${footerText})]

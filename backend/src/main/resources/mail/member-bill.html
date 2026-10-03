@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading(|Invoice ${p.invoiceNo}|)}"></h1>
+<p th:replace="~{mail/fragments.html :: para(|Dear ${p.memberName},|)}"></p>
+<p th:replace="~{mail/fragments.html :: para(|${p.communityName} has issued the invoice below.|)}"></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<tr th:replace="~{mail/fragments.html :: row('Invoice', ${p.invoiceNo})}"></tr>
+<th:block th:if="${p.description != null and p.description != ''}">
+<tr th:replace="~{mail/fragments.html :: row('For', ${p.description})}"></tr>
+</th:block>
+<th:block th:if="${p.period != null and p.period != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Period', ${p.period})}"></tr>
+</th:block>
+<tr th:replace="~{mail/fragments.html :: row('Amount', ${fmt.m(p.amount, p.currency)})}"></tr>
+<th:block th:if="${p.balance != null and p.balance != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Balance due', ${fmt.m(p.balance, p.currency)})}"></tr>
+</th:block>
+<tr th:replace="~{mail/fragments.html :: row('Due date', ${fmt.d(p.dueDate)})}"></tr>
+</table>
+<th:block th:if="${p.payLink != null}">
+<table th:replace="~{mail/fragments.html :: button(${p.payLink}, 'Pay with UPI')}"></table>
+<p th:replace="~{mail/fragments.html :: linkfallback(${p.payLink})}"></p>
+</th:block>
+<p th:replace="~{mail/fragments.html :: muted('After you pay, the community confirms your payment and sends you a receipt. Paying through the link does not settle the invoice until it is confirmed.')}"></p>
+</th:block>
+</body>
+</html>

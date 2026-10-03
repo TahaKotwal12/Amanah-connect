@@ -1,0 +1,17 @@
+Your invoice is overdue
+
+Dear [[${p.memberName}]],
+
+An invoice from [[${p.communityName}]] has passed its due date and is still unpaid.
+
+Invoice:     [[${p.invoiceNo}]]
+Balance due: [[${fmt.m(p.balance, p.currency)}]]
+Was due on:  [[${fmt.d(p.dueDate)}]]
+[# th:if="${p.daysOverdue != null}"]Overdue:     [[${p.daysOverdue}]] days
+[/][# th:if="${p.payLink != null}"]
+Pay with UPI: [[${p.payLink}]]
+[/]
+If you have already paid, please let the community admin know so they can update your account.
+
+--
+[(${footerText})]

@@ -57,5 +57,10 @@ public class StorageConfig {
         public Optional<byte[]> get(String key) {
             throw unavailable();
         }
+
+        @Override
+        public Optional<byte[]> getRange(String key, long from, long toInclusive) {
+            throw unavailable();
+        }
     }
 }

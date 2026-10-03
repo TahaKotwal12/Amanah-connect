@@ -1,0 +1,13 @@
+Join [[${p.communityName}]]
+
+Hello[(${p.recipientName != null ? ' ' + p.recipientName : ''})],
+
+[[${p.communityName}]] has invited you to register as a member. It only takes a minute.
+
+Complete your registration: [[${p.link}]]
+[# th:if="${p.expiresAt != null and p.expiresAt != ''}"]
+This invitation works until [[${fmt.d(p.expiresAt)}]].
+[/]
+
+--
+[(${footerText})]

@@ -13,7 +13,9 @@ import com.amanahconnect.community.settings.SettingsDtos.SettingsView;
 import com.amanahconnect.community.settings.SettingsDtos.UpdateNotificationSettings;
 import com.amanahconnect.community.settings.SettingsDtos.UpdateSettingsRequest;
 import com.amanahconnect.file.ObjectStorage;
-import com.amanahconnect.file.StorageProperties;
+import com.amanahconnect.file.FileRejectedException;
+import com.amanahconnect.file.FileService;
+import com.amanahconnect.file.StoredFileKind;
 import com.amanahconnect.notification.NotificationSettings;
 import com.amanahconnect.notification.NotificationSettingsRepository;
 import java.util.ArrayList;
@@ -42,13 +44,12 @@ public class SettingsService {
     private static final Pattern UPI = Pattern.compile("^[a-zA-Z0-9][a-zA-Z0-9.\\-_]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,63}$");
     private static final Pattern PAYEE = Pattern.compile("^[\\p{L}\\p{N} .,&'()/-]{2,150}$");
     private static final Pattern GROUP_LABEL = Pattern.compile("^[\\p{L}\\p{N} .&'/-]{1,30}$");
-    private static final Map<String, String> LOGO_TYPES = Map.of("image/png", "png", "image/jpeg", "jpg", "image/webp", "webp");
 
     private final CommunityRepository communities;
     private final NotificationSettingsRepository notificationSettings;
     private final NamedParameterJdbcTemplate jdbc;
     private final ObjectStorage storage;
-    private final StorageProperties storageProperties;
+    private final FileService files;
     private final AuditService audit;
 
     public SettingsService(
@@ -56,13 +57,13 @@ public class SettingsService {
             NotificationSettingsRepository notificationSettings,
             NamedParameterJdbcTemplate jdbc,
             ObjectStorage storage,
-            StorageProperties storageProperties,
+            FileService files,
             AuditService audit) {
         this.communities = communities;
         this.notificationSettings = notificationSettings;
         this.jdbc = jdbc;
         this.storage = storage;
-        this.storageProperties = storageProperties;
+        this.files = files;
         this.audit = audit;
     }
 
@@ -111,19 +112,14 @@ public class SettingsService {
     // ---- logo ---------------------------------------------------------------------------------------
 
     public LogoUploadView logoUploadUrl(UUID communityId, LogoUploadRequest request) {
-        String type = request.contentType().trim().toLowerCase();
-        String extension = LOGO_TYPES.get(type);
-        if (extension == null) {
-            throw invalid("contentType", "must be image/png, image/jpeg or image/webp");
+        FileService.Upload upload;
+        try {
+            upload = files.prepareUpload(communityId, StoredFileKind.LOGO, request.contentType(), request.sizeBytes());
+        } catch (FileRejectedException e) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "One or more fields are invalid.", List.of(e.getMessage()));
         }
-        long max = storageProperties.logoMaxBytes();
-        if (request.sizeBytes() > max) {
-            throw invalid("sizeBytes", "must be at most " + max + " bytes");
-        }
-        String key = logoPrefix(communityId) + UUID.randomUUID() + "." + extension;
-        ObjectStorage.PresignedUpload upload = storage.presignUpload(key, type, request.sizeBytes());
-        audit.record("COMMUNITY_LOGO_UPLOAD_REQUESTED", "Community", communityId, null, Map.of("logoKey", key));
-        return new LogoUploadView(upload.url(), "PUT", upload.headers(), key, upload.expiresAt(), max);
+        audit.record("COMMUNITY_LOGO_UPLOAD_REQUESTED", "Community", communityId, null, Map.of("logoKey", upload.key()));
+        return new LogoUploadView(upload.uploadUrl(), upload.method(), upload.headers(), upload.key(), upload.expiresAt(), upload.maxBytes());
     }
 
     public SettingsView removeLogo(UUID communityId) {
@@ -132,7 +128,7 @@ public class SettingsService {
         if (old != null) {
             community.setLogoKey(null);
             communities.saveAndFlush(community);
-            deleteQuietly(old);
+            files.delete(communityId, old);
             audit.record("COMMUNITY_LOGO_REMOVED", "Community", communityId, Map.of("logoKey", old), null);
         }
         return view(community, notifications(communityId));
@@ -147,33 +143,16 @@ public class SettingsService {
             problems.add("logoKey: use DELETE /community/settings/logo to remove the logo");
             return;
         }
-        // The key must be one this community's upload-url call could have produced; never another community's file.
-        if (!key.startsWith(logoPrefix(communityId)) || !key.matches("^communities/[0-9a-f-]{36}/logo/[0-9a-f-]{36}\\.(png|jpg|webp)$")) {
-            problems.add("logoKey: not a logo uploaded for this community");
+        try {
+            files.accept(communityId, StoredFileKind.LOGO, key);
+        } catch (FileRejectedException e) {
+            problems.add("logoKey: " + e.getMessage());
             return;
         }
-        var info = storage.head(key);
-        if (info.isEmpty()) {
-            problems.add("logoKey: the file has not been uploaded");
-        } else if (!LOGO_TYPES.containsKey(info.get().contentType()) || info.get().size() > storageProperties.logoMaxBytes()) {
-            problems.add("logoKey: the uploaded file is not an acceptable logo (PNG, JPEG or WebP, at most " + storageProperties.logoMaxBytes() + " bytes)");
-            deleteQuietly(key);
-        } else if (!key.equals(community.getLogoKey())) {
+        if (!key.equals(community.getLogoKey())) {
             String old = community.getLogoKey();
             community.setLogoKey(key);
-            if (old != null) deleteQuietly(old);
-        }
-    }
-
-    private static String logoPrefix(UUID communityId) {
-        return "communities/" + communityId + "/logo/";
-    }
-
-    private void deleteQuietly(String key) {
-        try {
-            storage.delete(key);
-        } catch (RuntimeException e) {
-            log.warn("Could not delete storage object {}: {}", key, e.toString());
+            if (old != null) files.delete(communityId, old);
         }
     }
 

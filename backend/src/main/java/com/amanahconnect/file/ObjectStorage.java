@@ -23,6 +23,9 @@ public interface ObjectStorage {
 
     void delete(String key);
 
+    /** The first bytes of an object (inclusive range), enough to check its real type; empty if there is no such object. */
+    Optional<byte[]> getRange(String key, long from, long toInclusive);
+
     /** Stores bytes the server produced itself (a receipt PDF). */
     void put(String key, byte[] bytes, String contentType);
 

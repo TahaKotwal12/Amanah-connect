@@ -1,0 +1,19 @@
+Invoice [[${p.invoiceNo}]]
+
+Dear [[${p.memberName}]],
+
+[[${p.communityName}]] has issued the invoice below.
+
+Invoice:  [[${p.invoiceNo}]]
+[# th:if="${p.description != null and p.description != ''}"]For:      [[${p.description}]]
+[/][# th:if="${p.period != null and p.period != ''}"]Period:   [[${p.period}]]
+[/]Amount:   [[${fmt.m(p.amount, p.currency)}]]
+[# th:if="${p.balance != null and p.balance != ''}"]Balance:  [[${fmt.m(p.balance, p.currency)}]]
+[/]Due date: [[${fmt.d(p.dueDate)}]]
+[# th:if="${p.payLink != null}"]
+Pay with UPI: [[${p.payLink}]]
+[/]
+After you pay, the community confirms your payment and sends you a receipt. Paying through the link does not settle the invoice until it is confirmed.
+
+--
+[(${footerText})]

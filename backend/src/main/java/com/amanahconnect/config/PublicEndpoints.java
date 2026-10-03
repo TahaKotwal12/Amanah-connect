@@ -28,6 +28,9 @@ public final class PublicEndpoints {
         if (path.startsWith("/api/v1/public/")) {
             return true;
         }
+        if ("POST".equals(method) && path.equals("/api/v1/webhooks/ses")) {
+            return true;
+        }
         if ("GET".equals(method) && (path.equals("/api/v1/ping") || HEALTH.contains(path))) {
             return true;
         }

@@ -1,0 +1,10 @@
+New registration request
+
+[[${p.applicantName}]] has asked to join [[${p.communityName}]].
+[# th:if="${p.reviewLink != null}"]
+Review the request: [[${p.reviewLink}]]
+[/]
+Approve or reject it from the registrations page.
+
+--
+[(${footerText})]

@@ -264,6 +264,15 @@ public class InvoiceService {
         return session.bill(invoice, link, automatic);
     }
 
+    /** Queues a payment reminder or overdue notice (with a fresh payment link when UPI is set up). */
+    public BillingEmails.Outcome emailReminder(Community community, Invoice invoice, BillingEmails.Session session, com.amanahconnect.reminder.ReminderKind kind, long daysOverdue) {
+        PayLinkView link = null;
+        if (upi.tryBuild(community, invoice).isPresent()) {
+            link = payLinks.create(community.getId(), invoice.getId(), null);
+        }
+        return session.reminder(invoice, kind, link, daysOverdue);
+    }
+
     public Invoice find(UUID communityId, UUID id) {
         return tenantGuard.found(invoices.findByIdAndCommunityId(id, communityId));
     }

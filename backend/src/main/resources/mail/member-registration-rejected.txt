@@ -1,0 +1,10 @@
+About your registration
+
+Dear [[${p.memberName}]],
+
+Thank you for registering with [[${p.communityName}]]. We are not able to approve your registration at this time.
+
+If you think this is a mistake, please contact the community admin using the details below.
+
+--
+[(${footerText})]

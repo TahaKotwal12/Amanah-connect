@@ -132,6 +132,8 @@ public class SecurityConfig {
                                         .permitAll()
                                         .requestMatchers("/api/v1/public/**")
                                         .permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/api/v1/webhooks/ses")
+                                        .permitAll()
                                         .requestMatchers(
                                                 HttpMethod.POST,
                                                 "/api/v1/auth/login",

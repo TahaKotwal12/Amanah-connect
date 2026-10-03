@@ -23,12 +23,17 @@ public class MemberMail {
     }
 
     public Delivery send(Community community, Member member, String template, Map<String, Object> payload) {
-        if (member == null || member.getEmail() == null) return Delivery.NO_ADDRESS;
-        if (!member.isConsentEmail()) return Delivery.NO_CONSENT;
+        return member == null ? Delivery.NO_ADDRESS : sendTo(community, member.getEmail(), member.isConsentEmail(), template, payload);
+    }
+
+    /** For someone who is not (yet) a member, such as a person who registered through an invite link. */
+    public Delivery sendTo(Community community, String address, boolean consent, String template, Map<String, Object> payload) {
+        if (address == null || address.isBlank()) return Delivery.NO_ADDRESS;
+        if (!consent) return Delivery.NO_CONSENT;
         if (planLimits.emailQuotaRemaining(community.getId()) <= 0) return Delivery.QUOTA;
         EmailOutbox mail = new EmailOutbox();
         mail.setCommunityId(community.getId());
-        mail.setToEmail(member.getEmail());
+        mail.setToEmail(address);
         mail.setTemplate(template);
         mail.setPayload(payload);
         outbox.save(mail);

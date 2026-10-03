@@ -1,0 +1,13 @@
+New lead
+
+Name:      [[${p.name}]]
+Email:     [[${p.email}]]
+[# th:if="${p.phone != null and p.phone != ''}"]Phone:     [[${p.phone}]]
+[/][# th:if="${p.communityName != null and p.communityName != ''}"]Community: [[${p.communityName}]]
+[/][# th:if="${p.size != null}"]Size:      [[${p.size}]]
+[/][# th:if="${p.message != null and p.message != ''}"]
+[[${p.message}]]
+[/]
+
+--
+[(${footerText})]

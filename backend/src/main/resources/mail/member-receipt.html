@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading(|Receipt ${p.receiptNo}|)}"></h1>
+<p th:replace="~{mail/fragments.html :: para(|Dear ${p.memberName},|)}"></p>
+<p th:replace="~{mail/fragments.html :: para(|Thank you. ${p.communityName} has received your payment.|)}"></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<tr th:replace="~{mail/fragments.html :: row('Receipt', ${p.receiptNo})}"></tr>
+<tr th:replace="~{mail/fragments.html :: row('Amount received', ${fmt.m(p.amount, p.currency)})}"></tr>
+<th:block th:if="${p.amountInWords != null and p.amountInWords != ''}">
+<tr th:replace="~{mail/fragments.html :: row('In words', ${p.amountInWords})}"></tr>
+</th:block>
+<th:block th:if="${p.method != null and p.method != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Method', ${p.method})}"></tr>
+</th:block>
+<th:block th:if="${p.receivedOn != null and p.receivedOn != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Received on', ${fmt.d(p.receivedOn)})}"></tr>
+</th:block>
+<th:block th:if="${p.invoiceNo != null and p.invoiceNo != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Against invoice', ${p.invoiceNo})}"></tr>
+</th:block>
+<th:block th:if="${p.balance != null and p.balance != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Balance remaining', ${fmt.m(p.balance, p.currency)})}"></tr>
+</th:block>
+</table>
+<th:block th:if="${attached}"><p th:replace="~{mail/fragments.html :: muted('Your receipt is attached to this email as a PDF.')}"></p></th:block>
+<th:block th:unless="${attached}"><p th:replace="~{mail/fragments.html :: muted('To get a copy of the receipt as a PDF, please contact the community admin.')}"></p></th:block>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,15 @@
+Update on your complaint
+
+Dear [[${p.memberName}]],
+
+[[${p.communityName}]] has an update on your complaint.
+
+Complaint: [[${p.subject}]]
+Status:    [[${#strings.capitalize(#strings.toLowerCase(#strings.replace(p.status, '_', ' ')))}]]
+[# th:if="${p.message != null and p.message != ''}"]
+[[${p.message}]]
+[/]
+If you have questions, contact the community admin using the details below.
+
+--
+[(${footerText})]

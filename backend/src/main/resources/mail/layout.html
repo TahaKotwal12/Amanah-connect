@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:fragment="layout(content)">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="x-apple-disable-message-reformatting"/>
+<meta name="color-scheme" content="light"/>
+<title th:text="${subject}">Subject</title>
+<style>
+  @media only screen and (max-width: 620px) {
+    .container { width: 100% !important; }
+    .pad { padding-left: 20px !important; padding-right: 20px !important; }
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background-color:#F7F4EC;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F7F4EC;font-size:1px;line-height:1px;" th:text="${subject}"></div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F4EC;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+      <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background-color:#FFFFFF;border:1px solid #E3DED0;border-radius:8px;">
+        <tr>
+          <td class="pad" style="padding:20px 32px;border-bottom:4px solid #C9A227;border-radius:8px 8px 0 0;background-color:#FFFFFF;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td th:if="${brand.hasLogo()}" style="padding-right:14px;vertical-align:middle;"><img th:src="|cid:${logoCid}|" alt="" height="48" style="display:block;height:48px;width:auto;border:0;"/></td>
+                <td style="vertical-align:middle;font-family:Georgia,'Times New Roman',serif;font-size:22px;line-height:28px;font-weight:bold;color:#07363E;" th:text="${brand.name}">Community name</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="pad" style="padding:32px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:24px;color:#1F2D30;">
+            <div th:replace="${content}"></div>
+          </td>
+        </tr>
+        <tr>
+          <td class="pad" style="padding:20px 32px;background-color:#07363E;border-radius:0 0 8px 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#CFE3E5;">
+            <th:block th:if="${brand.memberFacing()}">
+              <p style="margin:0 0 8px;">You are receiving this email because you are a member of <strong style="color:#FFFFFF;" th:text="${brand.name}">Community</strong>.</p>
+              <p style="margin:0 0 8px;" th:if="${brand.contactEmail != null or brand.contactPhone != null}">
+                Contact <span th:text="${brand.name}">Community</span>:
+                <a th:if="${brand.contactEmail != null}" th:href="|mailto:${brand.contactEmail}|" th:text="${brand.contactEmail}" style="color:#FFFFFF;">admin@example.org</a>
+                <span th:if="${brand.contactEmail != null and brand.contactPhone != null}"> &middot; </span>
+                <span th:if="${brand.contactPhone != null}" th:text="${brand.contactPhone}">+91 98765 43210</span>
+              </p>
+              <p style="margin:0 0 8px;" th:if="${brand.address != null and brand.address != ''}" th:text="${brand.address}">Address</p>
+              <p style="margin:0 0 8px;">To stop receiving emails like this, or to correct your details, contact the community admin<span th:if="${brand.contactEmail != null}"> at <a th:href="|mailto:${brand.contactEmail}|" th:text="${brand.contactEmail}" style="color:#FFFFFF;">admin@example.org</a></span>.</p>
+              <p style="margin:0;color:#9FC3C6;">Sent with Amanah Connect.</p>
+            </th:block>
+            <th:block th:unless="${brand.memberFacing()}">
+              <p style="margin:0 0 8px;color:#FFFFFF;"><strong>Amanah Connect</strong> &middot; community management you can trust.</p>
+              <p style="margin:0;color:#9FC3C6;">This is an automated message. If you did not expect it, you can ignore it.</p>
+            </th:block>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

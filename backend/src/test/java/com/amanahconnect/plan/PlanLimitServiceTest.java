@@ -142,7 +142,7 @@ class PlanLimitServiceTest {
     // ---- emails -----------------------------------------------------------------------------
 
     @Test
-    void emailQuotaCountsTheCurrentCalendarMonthExcludingFailedMessages() {
+    void emailQuotaCountsTheCurrentIndiaCalendarMonthExcludingFailedMessages() {
         plan(limit(PlanLimitKeys.EMAILS_PER_MONTH, 500), Map.of());
         when(outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), any(), eq(EmailStatus.FAILED))).thenReturn(499L);
 
@@ -150,7 +150,36 @@ class PlanLimitServiceTest {
 
         ArgumentCaptor<Instant> since = ArgumentCaptor.forClass(Instant.class);
         verify(outbox).countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), since.capture(), eq(EmailStatus.FAILED));
-        assertThat(since.getValue()).isEqualTo(Instant.parse("2026-03-01T00:00:00Z"));
+        assertThat(since.getValue()).as("1 March 00:00 in India").isEqualTo(Instant.parse("2026-02-28T18:30:00Z"));
+    }
+
+    @Test
+    void theDailyLimitCountsFromMidnightIndiaTimeAndIsCheckedToo() {
+        plan(Map.of(PlanLimitKeys.EMAILS_PER_MONTH, 500, PlanLimitKeys.EMAILS_PER_DAY, 20), Map.of());
+        Instant monthStart = Instant.parse("2026-02-28T18:30:00Z");
+        Instant dayStart = Instant.parse("2026-03-16T18:30:00Z"); // 17 March 00:00 IST
+        when(outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), eq(monthStart), eq(EmailStatus.FAILED))).thenReturn(100L);
+        when(outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), eq(dayStart), eq(EmailStatus.FAILED))).thenReturn(18L);
+
+        assertThatCode(() -> service.checkEmailQuota(COMMUNITY, 2)).doesNotThrowAnyException();
+        assertThatThrownBy(() -> service.checkEmailQuota(COMMUNITY, 3))
+                .isInstanceOfSatisfying(PlanLimitExceededException.class, e -> {
+                    assertThat(e.getMessage()).contains("20 emails per day", "18");
+                    assertThat(e.properties()).containsEntry("limit", "emails_per_day");
+                });
+        assertThat(service.hasEmailQuota(COMMUNITY, 2)).isTrue();
+        assertThat(service.hasEmailQuota(COMMUNITY, 3)).isFalse();
+        assertThat(service.emailQuotaRemaining(COMMUNITY)).as("the tighter of the two").isEqualTo(2);
+    }
+
+    @Test
+    void theMonthlyLimitStillAppliesWhenTheDayHasRoom() {
+        plan(Map.of(PlanLimitKeys.EMAILS_PER_MONTH, 500, PlanLimitKeys.EMAILS_PER_DAY, 100), Map.of());
+        when(outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), eq(Instant.parse("2026-02-28T18:30:00Z")), any())).thenReturn(498L);
+        when(outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(eq(COMMUNITY), eq(Instant.parse("2026-03-16T18:30:00Z")), any())).thenReturn(1L);
+
+        assertThat(service.emailQuotaRemaining(COMMUNITY)).isEqualTo(2);
+        assertThatThrownBy(() -> service.checkEmailQuota(COMMUNITY, 3)).isInstanceOfSatisfying(PlanLimitExceededException.class, e -> assertThat(e.getMessage()).contains("500 emails per month"));
     }
 
     @Test

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading('New support message')}"></h1>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<tr th:replace="~{mail/fragments.html :: row('Subject', ${p.subject})}"></tr>
+<tr th:replace="~{mail/fragments.html :: row('From', ${p.senderName})}"></tr>
+<th:block th:if="${p.communityName != null and p.communityName != ''}">
+<tr th:replace="~{mail/fragments.html :: row('Community', ${p.communityName})}"></tr>
+</th:block>
+</table>
+<div th:replace="~{mail/fragments.html :: quote(${p.preview})}"></div>
+<th:block th:if="${p.unread != null and p.unread > 1}"><p th:replace="~{mail/fragments.html :: muted(|${p.unread} unread messages in this conversation.|)}"></p></th:block>
+<table th:replace="~{mail/fragments.html :: button(${brand.appUrl} + '/support', 'Open the conversation')}"></table>
+</th:block>
+</body>
+</html>

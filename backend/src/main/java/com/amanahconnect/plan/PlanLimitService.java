@@ -8,8 +8,6 @@ import com.amanahconnect.notification.EmailOutboxRepository;
 import com.amanahconnect.notification.EmailStatus;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -94,56 +92,80 @@ public class PlanLimitService {
     }
 
     /**
-     * Counts emails queued for this community in the current calendar month (UTC), excluding failed
-     * ones.
+     * Emails queued for the community this month and today (India calendar, failed ones not counted) against the plan's
+     * {@code emails_per_month} and optional {@code emails_per_day}; both are checked.
      *
      * @param additionalEmails how many emails are about to be queued (a bulk announcement)
      */
-    /**
-     * Whether the community may queue {@code additionalEmails} more this month. Unlike {@link #checkEmailQuota} it never
-     * throws, so a caller that merely wants to skip an optional email does not mark its own transaction rollback-only.
-     */
     public boolean hasEmailQuota(UUID communityId, int additionalEmails) {
         PlanSnapshot plan = load(communityId);
-        Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
-        if (limit == null) {
-            return true;
-        }
-        Instant monthStart = YearMonth.now(clock).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-        long current = outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, monthStart, EmailStatus.FAILED);
-        return current + additionalEmails <= limit;
+        return exceeded(communityId, plan, additionalEmails) == null;
     }
 
     public void checkEmailQuota(UUID communityId, int additionalEmails) {
         PlanSnapshot plan = load(communityId);
-        Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
-        if (limit == null) {
-            return;
-        }
-        Instant monthStart = YearMonth.now(clock).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-        long current =
-                outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, monthStart, EmailStatus.FAILED);
-        if (current + additionalEmails > limit) {
+        EmailWindow over = exceeded(communityId, plan, additionalEmails);
+        if (over != null) {
             throw new PlanLimitExceededException(
-                    "The %s plan allows %d emails per month and %d were already queued this month. The quota resets next month, or upgrade the plan."
-                            .formatted(plan.name(), limit, current),
-                    PlanLimitKeys.EMAILS_PER_MONTH,
-                    limit,
-                    current,
+                    over.daily
+                            ? "The %s plan allows %d emails per day and %d were already queued today. The quota resets tomorrow, or upgrade the plan."
+                                    .formatted(plan.name(), over.limit, over.current)
+                            : "The %s plan allows %d emails per month and %d were already queued this month. The quota resets next month, or upgrade the plan."
+                                    .formatted(plan.name(), over.limit, over.current),
+                    over.daily ? PlanLimitKeys.EMAILS_PER_DAY : PlanLimitKeys.EMAILS_PER_MONTH,
+                    over.limit,
+                    over.current,
                     plan.code());
         }
     }
 
-    /** Emails the community may still queue this month; {@link Long#MAX_VALUE} when the plan has no limit. */
+    /** Emails the community may still queue (the tighter of the day's and the month's allowance); {@link Long#MAX_VALUE} when the plan has no limit. */
     public long emailQuotaRemaining(UUID communityId) {
         PlanSnapshot plan = load(communityId);
-        Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
-        if (limit == null) {
-            return Long.MAX_VALUE;
+        long remaining = Long.MAX_VALUE;
+        Long monthly = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
+        if (monthly != null) remaining = Math.min(remaining, Math.max(0, monthly - queuedSince(communityId, monthStart())));
+        Long daily = limit(plan, PlanLimitKeys.EMAILS_PER_DAY);
+        if (daily != null) remaining = Math.min(remaining, Math.max(0, daily - queuedSince(communityId, dayStart())));
+        return remaining;
+    }
+
+    /** What the community has used and may use: for the usage view. A null limit means none. */
+    public record EmailUsage(long usedToday, Long dailyLimit, long usedThisMonth, Long monthlyLimit) {}
+
+    public EmailUsage emailUsage(UUID communityId) {
+        PlanSnapshot plan = load(communityId);
+        return new EmailUsage(queuedSince(communityId, dayStart()), limit(plan, PlanLimitKeys.EMAILS_PER_DAY), queuedSince(communityId, monthStart()), limit(plan, PlanLimitKeys.EMAILS_PER_MONTH));
+    }
+
+    private record EmailWindow(boolean daily, long limit, long current) {}
+
+    private EmailWindow exceeded(UUID communityId, PlanSnapshot plan, int additional) {
+        Long monthly = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
+        if (monthly != null) {
+            long current = queuedSince(communityId, monthStart());
+            if (current + additional > monthly) return new EmailWindow(false, monthly, current);
         }
-        Instant monthStart = YearMonth.now(clock).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-        long current = outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, monthStart, EmailStatus.FAILED);
-        return Math.max(0, limit - current);
+        Long daily = limit(plan, PlanLimitKeys.EMAILS_PER_DAY);
+        if (daily != null) {
+            long current = queuedSince(communityId, dayStart());
+            if (current + additional > daily) return new EmailWindow(true, daily, current);
+        }
+        return null;
+    }
+
+    private long queuedSince(UUID communityId, Instant since) {
+        return outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, since, EmailStatus.FAILED);
+    }
+
+    private static final java.time.ZoneId IST = java.time.ZoneId.of("Asia/Kolkata");
+
+    private Instant monthStart() {
+        return java.time.LocalDate.now(clock.withZone(IST)).withDayOfMonth(1).atStartOfDay(IST).toInstant();
+    }
+
+    private Instant dayStart() {
+        return java.time.LocalDate.now(clock.withZone(IST)).atStartOfDay(IST).toInstant();
     }
 
     /** Whether the plan includes a feature (absent means no). Never throws. */

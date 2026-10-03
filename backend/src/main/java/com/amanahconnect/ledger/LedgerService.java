@@ -9,8 +9,9 @@ import com.amanahconnect.common.money.Money;
 import com.amanahconnect.common.page.PageResponse;
 import com.amanahconnect.community.Community;
 import com.amanahconnect.community.CommunityRepository;
-import com.amanahconnect.file.ObjectStorage;
-import com.amanahconnect.file.StorageProperties;
+import com.amanahconnect.file.FileRejectedException;
+import com.amanahconnect.file.FileService;
+import com.amanahconnect.file.StoredFileKind;
 import com.amanahconnect.ledger.LedgerDtos.AttachmentUploadRequest;
 import com.amanahconnect.ledger.LedgerDtos.AttachmentUploadView;
 import com.amanahconnect.ledger.LedgerDtos.CategoryView;
@@ -47,14 +48,12 @@ public class LedgerService {
 
     private static final Logger log = LoggerFactory.getLogger(LedgerService.class);
     private static final ZoneId IST = ZoneId.of("Asia/Kolkata");
-    private static final Map<String, String> ATTACHMENT_TYPES = Map.of("image/png", "png", "image/jpeg", "jpg", "image/webp", "webp", "application/pdf", "pdf");
 
     private final LedgerCategoryRepository categories;
     private final LedgerEntryRepository entries;
     private final LedgerQueries queries;
     private final CommunityRepository communities;
-    private final ObjectStorage storage;
-    private final StorageProperties storageProperties;
+    private final FileService files;
     private final AuditService audit;
     private final TenantGuard tenantGuard;
     private final Clock clock;
@@ -65,8 +64,7 @@ public class LedgerService {
             LedgerEntryRepository entries,
             LedgerQueries queries,
             CommunityRepository communities,
-            ObjectStorage storage,
-            StorageProperties storageProperties,
+            FileService files,
             AuditService audit,
             TenantGuard tenantGuard,
             Clock clock,
@@ -75,8 +73,7 @@ public class LedgerService {
         this.entries = entries;
         this.queries = queries;
         this.communities = communities;
-        this.storage = storage;
-        this.storageProperties = storageProperties;
+        this.files = files;
         this.audit = audit;
         this.tenantGuard = tenantGuard;
         this.clock = clock;
@@ -182,10 +179,10 @@ public class LedgerService {
             String old = entry.getAttachmentKey();
             if (request.attachmentKey().isBlank()) {
                 entry.setAttachmentKey(null);
-                if (old != null) deleteQuietly(old);
+                if (old != null) files.delete(communityId, old);
             } else if (!request.attachmentKey().trim().equals(old)) {
                 entry.setAttachmentKey(acceptAttachment(communityId, request.attachmentKey().trim()));
-                if (old != null) deleteQuietly(old);
+                if (old != null) files.delete(communityId, old);
             }
         }
         entries.save(entry);
@@ -245,45 +242,21 @@ public class LedgerService {
     // ---- attachments -----------------------------------------------------------------------------------------------------------
 
     public AttachmentUploadView attachmentUploadUrl(UUID communityId, AttachmentUploadRequest request) {
-        String type = request.contentType().trim().toLowerCase();
-        String extension = ATTACHMENT_TYPES.get(type);
-        if (extension == null) {
-            throw invalid("contentType", "must be image/png, image/jpeg, image/webp or application/pdf");
+        FileService.Upload upload;
+        try {
+            upload = files.prepareUpload(communityId, StoredFileKind.LEDGER_ATTACHMENT, request.contentType(), request.sizeBytes());
+        } catch (FileRejectedException e) {
+            throw new ApiException(ErrorCode.VALIDATION_FAILED, "One or more fields are invalid.", List.of(e.getMessage()));
         }
-        long max = storageProperties.attachmentMaxBytes();
-        if (request.sizeBytes() == null || request.sizeBytes() < 1 || request.sizeBytes() > max) {
-            throw invalid("sizeBytes", "must be between 1 and " + max + " bytes");
-        }
-        String key = attachmentPrefix(communityId) + UUID.randomUUID() + "." + extension;
-        ObjectStorage.PresignedUpload upload = storage.presignUpload(key, type, request.sizeBytes());
-        audit.record("LEDGER_ATTACHMENT_UPLOAD_REQUESTED", "LedgerEntry", null, null, Map.of("attachmentKey", key));
-        return new AttachmentUploadView(upload.url(), "PUT", upload.headers(), key, upload.expiresAt(), max);
+        audit.record("LEDGER_ATTACHMENT_UPLOAD_REQUESTED", "LedgerEntry", null, null, Map.of("attachmentKey", upload.key()));
+        return new AttachmentUploadView(upload.uploadUrl(), upload.method(), upload.headers(), upload.key(), upload.expiresAt(), upload.maxBytes());
     }
 
     private String acceptAttachment(UUID communityId, String key) {
-        if (!key.startsWith(attachmentPrefix(communityId)) || !key.matches("^communities/[0-9a-f-]{36}/ledger/[0-9a-f-]{36}\\.(png|jpg|webp|pdf)$")) {
-            throw invalid("attachmentKey", "not an attachment uploaded for this community");
-        }
-        var info = storage.head(key);
-        if (info.isEmpty()) {
-            throw invalid("attachmentKey", "the file has not been uploaded");
-        }
-        if (!ATTACHMENT_TYPES.containsKey(info.get().contentType()) || info.get().size() > storageProperties.attachmentMaxBytes()) {
-            deleteQuietly(key);
-            throw invalid("attachmentKey", "the uploaded file is not acceptable (PNG, JPEG, WebP or PDF, at most " + storageProperties.attachmentMaxBytes() + " bytes)");
-        }
-        return key;
-    }
-
-    private static String attachmentPrefix(UUID communityId) {
-        return "communities/" + communityId + "/ledger/";
-    }
-
-    private void deleteQuietly(String key) {
         try {
-            storage.delete(key);
-        } catch (RuntimeException e) {
-            log.warn("Could not delete storage object {}: {}", key, e.toString());
+            return files.accept(communityId, StoredFileKind.LEDGER_ATTACHMENT, key).getObjectKey();
+        } catch (FileRejectedException e) {
+            throw invalid("attachmentKey", e.getMessage());
         }
     }
 

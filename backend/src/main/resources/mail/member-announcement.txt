@@ -1,0 +1,8 @@
+[# th:if="${p.test}"]THIS IS A TEST. Nobody else received it.
+
+[/][[${p.title}]]
+
+[(${p.bodyText})]
+
+--
+[(${footerText})]

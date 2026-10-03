@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public final class PlanDefinitionValidator {
 
-    static final Set<String> LIMIT_KEYS = Set.of(PlanLimitKeys.MAX_MEMBERS, PlanLimitKeys.STORAGE_MB, PlanLimitKeys.EMAILS_PER_MONTH);
+    static final Set<String> LIMIT_KEYS = Set.of(PlanLimitKeys.MAX_MEMBERS, PlanLimitKeys.STORAGE_MB, PlanLimitKeys.EMAILS_PER_MONTH, PlanLimitKeys.EMAILS_PER_DAY);
 
     private PlanDefinitionValidator() {}
 

@@ -1,0 +1,9 @@
+[# th:if="${p.test}"]THIS IS A TEST. Nobody else received it.
+
+[/][# th:if="${p.kind == 'OFFER'}"]SPECIAL OFFER
+[/][[${p.title}]]
+
+[(${p.bodyText})]
+
+--
+[(${footerText})]

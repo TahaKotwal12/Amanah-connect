@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<h1 th:fragment="heading(t)" th:text="${t}" style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:30px;font-weight:bold;color:#07363E;">Heading</h1>
+
+<p th:fragment="para(t)" th:text="${t}" style="margin:0 0 16px;">Paragraph</p>
+
+<p th:fragment="muted(t)" th:text="${t}" style="margin:0 0 16px;font-size:14px;line-height:21px;color:#5E6E70;">Small print</p>
+
+<table th:fragment="button(url, label)" role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 12px;">
+  <tr>
+    <td style="background-color:#037077;border-radius:6px;">
+      <a th:href="${url}" th:text="${label}" style="display:inline-block;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:20px;font-weight:bold;color:#FFFFFF;text-decoration:none;">Open</a>
+    </td>
+  </tr>
+</table>
+
+<p th:fragment="linkfallback(url)" style="margin:0 0 20px;font-size:13px;line-height:19px;color:#5E6E70;word-break:break-all;">If the button does not work, copy this link into your browser:<br/><a th:href="${url}" th:text="${url}" style="color:#037077;">https://example.org</a></p>
+
+<tr th:fragment="row(l, v)">
+  <td style="padding:10px 14px;border-bottom:1px solid #E3DED0;font-size:14px;line-height:20px;color:#5E6E70;width:38%;vertical-align:top;" th:text="${l}">Label</td>
+  <td style="padding:10px 14px;border-bottom:1px solid #E3DED0;font-size:15px;line-height:20px;color:#1F2D30;font-weight:bold;vertical-align:top;" th:text="${v}">Value</td>
+</tr>
+
+<div th:fragment="quote(t)" style="margin:0 0 20px;padding:12px 16px;border-left:4px solid #C9A227;background-color:#F7F4EC;font-size:15px;line-height:23px;color:#1F2D30;white-space:pre-line;" th:text="${t}">Quote</div>
+
+<div th:fragment="notice(t)" style="margin:0 0 20px;padding:10px 14px;border:1px solid #C9A227;border-radius:6px;background-color:#FBF6E4;font-size:14px;line-height:20px;color:#5A4A0A;" th:text="${t}">Notice</div>
+</body>
+</html>

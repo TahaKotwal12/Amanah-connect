@@ -1,0 +1,14 @@
+New support message
+
+Subject:   [[${p.subject}]]
+From:      [[${p.senderName}]]
+[# th:if="${p.communityName != null and p.communityName != ''}"]Community: [[${p.communityName}]]
+[/]
+[[${p.preview}]]
+[# th:if="${p.unread != null and p.unread > 1}"]
+[[${p.unread}]] unread messages in this conversation.
+[/]
+Open the conversation: [[${brand.appUrl}]]/support
+
+--
+[(${footerText})]

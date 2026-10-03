@@ -1,0 +1,12 @@
+Welcome to [[${p.communityName}]]
+
+Dear [[${p.memberName}]],
+
+You are now a member of [[${p.communityName}]]. We will use this email address to send you your bills, receipts and community news.
+[# th:if="${p.memberNo != null and p.memberNo != ''}"]
+Your member number: [[${p.memberNo}]]
+[/]
+Keep your member number handy when you contact the community.
+
+--
+[(${footerText})]

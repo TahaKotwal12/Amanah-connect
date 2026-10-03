@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading(|${p.communityName} has been suspended|)}"></h1>
+<p th:replace="~{mail/fragments.html :: para('While suspended, the community is read-only: you can view your data but not change it.')}"></p>
+<th:block th:if="${p.reason != null and p.reason != ''}">
+<div th:replace="~{mail/fragments.html :: quote(${p.reason})}"></div>
+</th:block>
+<p th:replace="~{mail/fragments.html :: muted('Contact support to have it reactivated.')}"></p>
+</th:block>
+</body>
+</html>

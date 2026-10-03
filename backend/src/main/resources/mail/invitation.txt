@@ -1,0 +1,13 @@
+You are invited to Amanah Connect
+
+Hello [[${p.fullName}]],
+
+You have been invited to manage a community on Amanah Connect. Set your password to get started:
+
+[[${p.link}]]
+[# th:if="${p.validForMinutes != null}"]
+This link works for [[${p.validForMinutes}]] minutes and can be used once.
+[/]
+
+--
+[(${footerText})]

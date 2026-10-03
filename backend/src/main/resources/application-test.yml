@@ -10,6 +10,10 @@ management:
     port: 0                            # random port; tests read it from local.management.port
 
 app:
+  email:
+    preview-enabled: true
+    sns:
+      topic-arns: arn:aws:sns:ap-south-1:123456789012:amanah-ses-events
   scheduling:
     enabled: false                     # tests call the jobs directly; the cron must never fire mid-test
   cors:

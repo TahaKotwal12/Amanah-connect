@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading('Your subscription has expired')}"></h1>
+<p th:replace="~{mail/fragments.html :: para(|The subscription for ${p.communityName} ended on ${fmt.d(p.periodEnd)}.|)}"></p>
+<p th:replace="~{mail/fragments.html :: para('Your data is safe. Renew to keep using all features; after a grace period the community is suspended.')}"></p>
+</th:block>
+</body>
+</html>
