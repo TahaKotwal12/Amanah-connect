@@ -176,19 +176,29 @@ public abstract class AbstractTenantIT extends AbstractAuthIT {
     protected void markCovered(String method, String path) {
         String plain = path.contains("?") ? path.substring(0, path.indexOf('?')) : path;
         var container = org.springframework.http.server.PathContainer.parsePath(plain);
-        // Matched by path pattern and method, so endpoints that only consume multipart (uploads) resolve too.
+        // Matched by path pattern and method (so endpoints that only consume multipart resolve too), choosing the most
+        // specific pattern the way Spring does: /members/counts beats /members/{id}.
+        HandlerMethod best = null;
+        org.springframework.web.util.pattern.PathPattern bestPattern = null;
         for (var entry : handlerMapping.getHandlerMethods().entrySet()) {
             var info = entry.getKey();
             boolean methodMatches = info.getMethodsCondition().getMethods().isEmpty()
                     || info.getMethodsCondition().getMethods().stream().anyMatch(m -> m.name().equals(method));
-            boolean pathMatches = info.getPathPatternsCondition() != null
-                    && info.getPathPatternsCondition().getPatterns().stream().anyMatch(p -> p.matches(container));
-            if (methodMatches && pathMatches) {
-                CrossTenantCoverage.markCovered(handlerKey(entry.getValue()));
-                return;
+            if (!methodMatches || info.getPathPatternsCondition() == null) {
+                continue;
+            }
+            for (var pattern : info.getPathPatternsCondition().getPatterns()) {
+                if (pattern.matches(container)
+                        && (bestPattern == null || org.springframework.web.util.pattern.PathPattern.SPECIFICITY_COMPARATOR.compare(pattern, bestPattern) < 0)) {
+                    best = entry.getValue();
+                    bestPattern = pattern;
+                }
             }
         }
-        throw new IllegalStateException("Could not resolve the handler for " + method + " " + path);
+        if (best == null) {
+            throw new IllegalStateException("Could not resolve the handler for " + method + " " + path);
+        }
+        CrossTenantCoverage.markCovered(handlerKey(best));
     }
 
     static String handlerKey(HandlerMethod handler) {

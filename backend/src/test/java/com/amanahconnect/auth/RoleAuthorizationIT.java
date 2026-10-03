@@ -64,10 +64,10 @@ class RoleAuthorizationIT extends AbstractAuthIT {
     void aCommunityAdminTokenPassesSecurityOnCommunityEndpoints() {
         String token = accessToken(users.communityAdmin(), false);
 
-        // No /community controller exists yet, so a request that gets past security ends in 404, not 401/403.
+        // A request that gets past security reaches the controller: an answer of 200, not 401 or 403.
         ApiClient.Response response = get("/api/v1/community/members", token);
 
-        assertThat(response.status()).isEqualTo(404);
+        assertThat(response.status()).isEqualTo(200);
         assertThat(get("/api/v1/auth/me", token).status()).isEqualTo(200);
     }
 
