@@ -86,7 +86,8 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
     @Test
     void seedsThreeDefaultPlansWithLimitsAndFeatures() {
         List<String> codes =
-                jdbc.queryForList("select code from plans order by sort_order", String.class);
+                // other tests add plans of their own; the seeded ones are the three with these codes
+                jdbc.queryForList("select code from plans where code in ('STARTER', 'GROWTH', 'ENTERPRISE') order by sort_order", String.class);
         assertThat(codes).containsExactly("STARTER", "GROWTH", "ENTERPRISE");
 
         assertThat(
@@ -114,8 +115,10 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
 
     @Test
     void seedsNoUsersAtAll() {
-        assertThat(jdbc.queryForObject("select count(*) from users", Long.class)).isZero();
-        assertThat(jdbc.queryForObject("select count(*) from community_users", Long.class)).isZero();
+        // Tests create users and links after the schema was migrated; anything older than the last migration was seeded by one.
+        String migrated = "(select max(installed_on) from flyway_schema_history)";
+        assertThat(jdbc.queryForObject("select count(*) from users where created_at <= " + migrated, Long.class)).isZero();
+        assertThat(jdbc.queryForObject("select count(*) from community_users where created_at <= " + migrated, Long.class)).isZero();
     }
 
     @Test

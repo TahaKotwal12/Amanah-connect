@@ -63,7 +63,7 @@ class OpenApiIT extends AbstractIntegrationTest {
 
         assertThat(untagged).isEmpty();
         assertThat(tags).containsExactlyInAnyOrder(
-                "Admin · Communities", "Admin · Plans", "Admin · Subscriptions", "Admin · Leads", "Admin · Import", "Admin · Stats", "Admin · Support desk", "Admin · Announcements");
+                "Admin · Communities", "Admin · Plans", "Admin · Subscriptions", "Admin · Leads", "Admin · Import", "Admin · Stats", "Admin · Support desk", "Admin · Announcements", "Admin · Email");
         assertThat(admin.get("security").get(0).has("bearerAuth")).isTrue();
         assertThat(admin.get("components").get("securitySchemes").get("bearerAuth").get("scheme").asString()).isEqualTo("bearer");
     }
