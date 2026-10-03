@@ -13,7 +13,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -175,15 +174,21 @@ public abstract class AbstractTenantIT extends AbstractAuthIT {
     }
 
     protected void markCovered(String method, String path) {
-        MockHttpServletRequest request = new MockHttpServletRequest(method, path.contains("?") ? path.substring(0, path.indexOf('?')) : path);
-        try {
-            var chain = handlerMapping.getHandler(request);
-            if (chain != null && chain.getHandler() instanceof HandlerMethod handler) {
-                CrossTenantCoverage.markCovered(handlerKey(handler));
+        String plain = path.contains("?") ? path.substring(0, path.indexOf('?')) : path;
+        var container = org.springframework.http.server.PathContainer.parsePath(plain);
+        // Matched by path pattern and method, so endpoints that only consume multipart (uploads) resolve too.
+        for (var entry : handlerMapping.getHandlerMethods().entrySet()) {
+            var info = entry.getKey();
+            boolean methodMatches = info.getMethodsCondition().getMethods().isEmpty()
+                    || info.getMethodsCondition().getMethods().stream().anyMatch(m -> m.name().equals(method));
+            boolean pathMatches = info.getPathPatternsCondition() != null
+                    && info.getPathPatternsCondition().getPatterns().stream().anyMatch(p -> p.matches(container));
+            if (methodMatches && pathMatches) {
+                CrossTenantCoverage.markCovered(handlerKey(entry.getValue()));
+                return;
             }
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not resolve the handler for " + method + " " + path, e);
         }
+        throw new IllegalStateException("Could not resolve the handler for " + method + " " + path);
     }
 
     static String handlerKey(HandlerMethod handler) {
