@@ -48,4 +48,10 @@ public class Complaint extends TenantEntity {
 
     @Column(name = "resolved_at")
     private Instant resolvedAt;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
+    @Column(name = "category", length = 60)
+    private String category;
 }

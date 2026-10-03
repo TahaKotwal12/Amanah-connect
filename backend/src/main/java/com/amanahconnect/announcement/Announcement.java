@@ -58,4 +58,30 @@ public class Announcement extends BaseEntity {
 
     @Column(name = "created_by", nullable = false, updatable = false)
     private UUID createdBy;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kind", nullable = false, length = 20)
+    private AnnouncementKind kind = AnnouncementKind.ANNOUNCEMENT;
+
+    /** Platform announcements only: also show as an in-app banner until {@code expiresAt}. */
+    @Column(name = "banner", nullable = false)
+    private boolean banner;
+
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
+    @Column(name = "recipients_total", nullable = false)
+    private int recipientsTotal;
+
+    @Column(name = "emails_queued", nullable = false)
+    private int emailsQueued;
+
+    @Column(name = "skipped_no_email", nullable = false)
+    private int skippedNoEmail;
+
+    @Column(name = "skipped_no_consent", nullable = false)
+    private int skippedNoConsent;
+
+    @Column(name = "skipped_quota", nullable = false)
+    private int skippedQuota;
 }

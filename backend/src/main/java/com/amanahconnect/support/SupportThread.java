@@ -35,4 +35,21 @@ public class SupportThread extends TenantEntity {
 
     @Column(name = "last_message_at", nullable = false)
     private Instant lastMessageAt = Instant.now();
+
+    @Column(name = "assigned_to")
+    private UUID assignedTo;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
+
+    /** The seq of the latest message; the next message takes this + 1, under the thread's row lock. */
+    @Column(name = "message_seq", nullable = false)
+    private long messageSeq;
+
+    /** When each side was last emailed about this thread (the debounce for bursts of messages). */
+    @Column(name = "community_notified_at")
+    private Instant communityNotifiedAt;
+
+    @Column(name = "platform_notified_at")
+    private Instant platformNotifiedAt;
 }

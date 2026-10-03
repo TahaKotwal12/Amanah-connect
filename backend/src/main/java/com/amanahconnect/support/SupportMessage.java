@@ -3,6 +3,8 @@ package com.amanahconnect.support;
 import com.amanahconnect.tenant.TenantEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -33,4 +35,20 @@ public class SupportMessage extends TenantEntity {
 
     @Column(name = "read_at")
     private Instant readAt;
+
+    @Column(name = "seq", nullable = false, updatable = false)
+    private long seq;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sender_side", nullable = false, updatable = false, length = 10)
+    private SupportSide senderSide;
+
+    @Column(name = "attachment_name", length = 200)
+    private String attachmentName;
+
+    @Column(name = "attachment_content_type", length = 100)
+    private String attachmentContentType;
+
+    @Column(name = "attachment_size")
+    private Long attachmentSize;
 }

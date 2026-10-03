@@ -25,6 +25,7 @@
     <bucket4j.version>8.20.0</bucket4j.version>
     <awssdk.version>2.55.10</awssdk.version>
     <openpdf.version>3.0.5</openpdf.version>
+    <html-sanitizer.version>20260924.2</html-sanitizer.version>
     <zxing.version>3.5.4</zxing.version>
     <totp.version>1.7.1</totp.version>
     <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
@@ -167,6 +168,13 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-csv</artifactId>
       <version>${commons-csv.version}</version>
+    </dependency>
+
+    <!-- Allow-list HTML sanitising for announcement bodies -->
+    <dependency>
+      <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+      <artifactId>owasp-java-html-sanitizer</artifactId>
+      <version>${html-sanitizer.version}</version>
     </dependency>
 
     <!-- PDF, QR, TOTP -->
