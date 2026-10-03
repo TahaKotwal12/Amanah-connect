@@ -66,6 +66,12 @@ public class InviteController {
         return service.list(communityId, state, SORT.toPageRequest(page));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Invite link detail", description = "State, expiry and use count. The link itself is never shown again.")
+    public InviteView get(@CurrentCommunity UUID communityId, @PathVariable UUID id) {
+        return service.get(communityId, id);
+    }
+
     @PostMapping("/{id}/revoke")
     @AuditHandledBy("InviteService records MEMBER_INVITE_REVOKED")
     @Operation(summary = "Revoke an invite link", description = "The link stops working at once.")

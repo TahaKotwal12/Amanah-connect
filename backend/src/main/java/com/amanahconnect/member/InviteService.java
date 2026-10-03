@@ -110,6 +110,11 @@ public class InviteService {
         return PageResponse.from(invites.searchByCommunityId(communityId, state == null ? "ALL" : state, clock.instant(), pageable), this::view);
     }
 
+    @Transactional(readOnly = true)
+    public InviteView get(UUID communityId, UUID id) {
+        return view(tenantGuard.found(invites.findByIdAndCommunityId(id, communityId)));
+    }
+
     public InviteView revoke(UUID communityId, UUID id) {
         MemberInvite invite = tenantGuard.found(invites.findByIdAndCommunityId(id, communityId));
         if (invite.getRevokedAt() != null) {

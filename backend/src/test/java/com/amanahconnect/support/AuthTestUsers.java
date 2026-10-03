@@ -45,11 +45,20 @@ public class AuthTestUsers {
     }
 
     public TestUser communityAdminOf(Community community) {
+        return communityAdminOf(community, CommunityRole.OWNER);
+    }
+
+    /** An additional (non-owner) admin of an existing community. */
+    public TestUser extraAdminOf(Community community) {
+        return communityAdminOf(community, CommunityRole.ADMIN);
+    }
+
+    private TestUser communityAdminOf(Community community, CommunityRole role) {
         TestUser user = create(UserRole.COMMUNITY_ADMIN, UserStatus.ACTIVE);
         CommunityUser link = new CommunityUser();
         link.setCommunityId(community.getId());
         link.setUser(users.getReferenceById(user.id()));
-        link.setRole(CommunityRole.OWNER);
+        link.setRole(role);
         communityUsers.save(link);
         return user;
     }
