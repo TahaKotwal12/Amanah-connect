@@ -16,7 +16,10 @@ public final class CsvWriter {
             if (i > 0) {
                 out.append(',');
             }
-            out.append(escape(cells[i] == null ? "" : cells[i].toString(), false));
+            // Numbers, dates and booleans cannot be formulas (a negative amount is "-12.50", not an attack); text can.
+            Object cell = cells[i];
+            boolean typed = cell instanceof Number || cell instanceof java.time.temporal.TemporalAccessor || cell instanceof Boolean || cell instanceof com.amanahconnect.common.money.Money;
+            out.append(escape(cell == null ? "" : cell.toString(), typed));
         }
         out.append("\r\n");
         return this;
