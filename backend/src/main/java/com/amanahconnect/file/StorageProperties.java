@@ -15,6 +15,8 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param attachmentMaxBytes largest receipt image or PDF attached to a ledger entry
  * @param uploadTtl how long a signed upload URL works
  * @param downloadTtl how long a signed download URL works
+ * @param accessKey static credentials, for MinIO and other local S3-compatible servers only; leave empty on AWS (the instance role is used)
+ * @param secretKey see {@code accessKey}
  */
 @ConfigurationProperties(prefix = "app.storage")
 public record StorageProperties(
@@ -24,4 +26,6 @@ public record StorageProperties(
         @DefaultValue("524288") long logoMaxBytes,
         @DefaultValue("5242880") long attachmentMaxBytes,
         @DefaultValue("PT10M") Duration uploadTtl,
-        @DefaultValue("PT10M") Duration downloadTtl) {}
+        @DefaultValue("PT10M") Duration downloadTtl,
+        @DefaultValue("") String accessKey,
+        @DefaultValue("") String secretKey) {}

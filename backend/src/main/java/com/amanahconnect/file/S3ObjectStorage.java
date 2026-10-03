@@ -29,6 +29,12 @@ final class S3ObjectStorage implements ObjectStorage {
         Region region = Region.of(properties.region());
         var clientBuilder = S3Client.builder().region(region);
         var presignerBuilder = S3Presigner.builder().region(region);
+        if (!properties.accessKey().isBlank() && !properties.secretKey().isBlank()) {
+            var credentials = software.amazon.awssdk.auth.credentials.StaticCredentialsProvider.create(
+                    software.amazon.awssdk.auth.credentials.AwsBasicCredentials.create(properties.accessKey(), properties.secretKey()));
+            clientBuilder.credentialsProvider(credentials);
+            presignerBuilder.credentialsProvider(credentials);
+        }
         if (!properties.endpoint().isBlank()) {
             URI endpoint = URI.create(properties.endpoint());
             S3Configuration pathStyle = S3Configuration.builder().pathStyleAccessEnabled(true).build();

@@ -2,7 +2,7 @@ package com.amanahconnect.mail;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.amanahconnect.billing.AbstractFinanceIT;
+import com.amanahconnect.support.AbstractDeskIT;
 import com.amanahconnect.support.FakeSmtpGateway;
 import java.time.Instant;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Helpers for tests of the email engine: queue a mail straight into the outbox, run the sender, read the row back. */
-public abstract class AbstractMailIT extends AbstractFinanceIT {
+public abstract class AbstractMailIT extends AbstractDeskIT {
 
     @Autowired protected EmailSender sender;
     @Autowired protected FakeSmtpGateway smtp;

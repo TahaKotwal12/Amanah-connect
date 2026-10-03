@@ -7,7 +7,7 @@ Read [`CLAUDE.md`](CLAUDE.md) (hard rules) and the
 ```
 backend/    Spring Boot 4.1 API (Java 21, Maven, PostgreSQL, Flyway)
 frontend/   React 19 + Vite + TypeScript (scaffold only for now)
-docker-compose.local.yml   Postgres 16 + Mailpit for local development
+docker-compose.local.yml   Postgres 16 + Mailpit + MinIO for local development
 .env.example               every environment variable the backend reads
 ```
 
@@ -19,7 +19,7 @@ wrapper (`./mvnw`).
 ## Run the backend locally
 
 ```bash
-docker compose -f docker-compose.local.yml up -d     # Postgres :5432, Mailpit SMTP :1025, UI :8025
+docker compose -f docker-compose.local.yml up -d     # Postgres :5432, Mailpit SMTP :1025 + UI :8025, MinIO :9000 (console :9001)
 cd backend
 SPRING_PROFILES_ACTIVE=local ./mvnw spring-boot:run
 ```
