@@ -96,6 +96,7 @@ public class SettingsService {
         applyUpi(community, request, problems);
         applyGroupLabel(community, request, problems);
         applyLogo(communityId, community, request, problems);
+        if (request.openingBalance() != null) community.setOpeningBalance(com.amanahconnect.common.money.Money.of(request.openingBalance()).amount());
         applyNotifications(notifications, request.notifications());
 
         if (!problems.isEmpty()) {
@@ -281,6 +282,7 @@ public class SettingsService {
                 c.getCity(), c.getState(), c.getPostalCode(), c.getCountry(), c.getDateOfEstablishment(), c.getLogoKey(), logoUrl,
                 c.getCurrency(), c.getFinancialYearStartMonth(), financialRecordsExist(c.getId()), c.getUpiId(), c.getUpiPayeeName(),
                 label instanceof String s && !s.isBlank() ? s : DEFAULT_GROUP_LABEL,
+                com.amanahconnect.common.money.Money.of(c.getOpeningBalance()),
                 new NotificationSettingsView(n.getDueReminderDaysBefore(), n.getOverdueReminderEveryDays(), n.isSendWelcome(), n.isSendReceipt()),
                 c.getVersion());
     }
@@ -304,6 +306,7 @@ public class SettingsService {
         map.put("upiId", c.getUpiId());
         map.put("upiPayeeName", c.getUpiPayeeName());
         map.put("memberGroupLabel", c.getSettings().get(GROUP_LABEL_KEY));
+        map.put("openingBalance", c.getOpeningBalance().toPlainString());
         map.put("dueReminderDaysBefore", n.getDueReminderDaysBefore());
         map.put("overdueReminderEveryDays", n.getOverdueReminderEveryDays());
         map.put("sendWelcomeEmail", n.isSendWelcome());

@@ -61,7 +61,7 @@ public class NumberingService {
         return first;
     }
 
-    static String format(CounterType type, String financialYear, long value) {
+    public static String format(CounterType type, String financialYear, long value) {
         return "%s-%s/%06d".formatted(type.prefix(), financialYear, value);
     }
 }

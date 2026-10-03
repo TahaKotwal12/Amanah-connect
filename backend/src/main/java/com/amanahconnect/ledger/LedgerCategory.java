@@ -26,6 +26,6 @@ public class LedgerCategory extends TenantEntity {
     private boolean active = true;
 
     /** Set on the categories the system posts to itself (payments, donations); they can be renamed, not hidden. */
-    @Column(name = "system_key", length = 30, updatable = false)
+    @Column(name = "system_key", length = 30)
     private String systemKey;
 }

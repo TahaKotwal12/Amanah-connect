@@ -134,6 +134,23 @@ public class PlanLimitService {
         }
     }
 
+    /** Emails the community may still queue this month; {@link Long#MAX_VALUE} when the plan has no limit. */
+    public long emailQuotaRemaining(UUID communityId) {
+        PlanSnapshot plan = load(communityId);
+        Long limit = limit(plan, PlanLimitKeys.EMAILS_PER_MONTH);
+        if (limit == null) {
+            return Long.MAX_VALUE;
+        }
+        Instant monthStart = YearMonth.now(clock).atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+        long current = outbox.countByCommunityIdAndCreatedAtGreaterThanEqualAndStatusNot(communityId, monthStart, EmailStatus.FAILED);
+        return Math.max(0, limit - current);
+    }
+
+    /** Whether the plan includes a feature (absent means no). Never throws. */
+    public boolean hasFeature(UUID communityId, String feature) {
+        return Boolean.TRUE.equals(load(communityId).features().get(feature));
+    }
+
     /** @throws PlanFeatureUnavailableException unless the plan's features enable it (absent means no) */
     public void requireFeature(UUID communityId, String feature) {
         PlanSnapshot plan = load(communityId);

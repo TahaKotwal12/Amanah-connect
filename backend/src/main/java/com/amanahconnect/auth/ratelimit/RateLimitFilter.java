@@ -28,6 +28,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private static final Duration MINUTE = Duration.ofMinutes(1);
     private static final Duration HOUR = Duration.ofHours(1);
     private static final java.util.regex.Pattern INVITE_VIEW = java.util.regex.Pattern.compile("^/api/v1/public/invites/[^/]+$");
+    private static final java.util.regex.Pattern PAY_VIEW = java.util.regex.Pattern.compile("^/api/v1/public/pay/[^/]+$");
     private static final java.util.regex.Pattern INVITE_REGISTER = java.util.regex.Pattern.compile("^/api/v1/public/invites/[^/]+/register$");
 
     private final RateLimitService limiter;
@@ -44,9 +45,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String requestPath = RequestPaths.of(request);
-        if ("GET".equals(request.getMethod()) && INVITE_VIEW.matcher(requestPath).matches()) {
+        boolean payView = "GET".equals(request.getMethod()) && PAY_VIEW.matcher(requestPath).matches();
+        if ("GET".equals(request.getMethod()) && (INVITE_VIEW.matcher(requestPath).matches() || payView)) {
             try {
-                limiter.consume("invite-view-ip:" + request.getRemoteAddr(), limits.inviteViewPerIpPerMinute(), MINUTE);
+                if (payView) {
+                    limiter.consume("pay-view-ip:" + request.getRemoteAddr(), limits.payViewPerIpPerMinute(), MINUTE);
+                } else {
+                    limiter.consume("invite-view-ip:" + request.getRemoteAddr(), limits.inviteViewPerIpPerMinute(), MINUTE);
+                }
             } catch (RateLimitedException e) {
                 response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(e.retryAfterSeconds()));
                 problems.write(response, ErrorCode.RATE_LIMITED, e.getMessage());

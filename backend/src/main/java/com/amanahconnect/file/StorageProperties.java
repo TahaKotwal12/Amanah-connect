@@ -12,6 +12,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
  * @param region AWS region
  * @param endpoint optional S3-compatible endpoint (MinIO, LocalStack) for local work
  * @param logoMaxBytes largest community logo accepted
+ * @param attachmentMaxBytes largest receipt image or PDF attached to a ledger entry
  * @param uploadTtl how long a signed upload URL works
  * @param downloadTtl how long a signed download URL works
  */
@@ -21,5 +22,6 @@ public record StorageProperties(
         @DefaultValue("ap-south-1") String region,
         @DefaultValue("") String endpoint,
         @DefaultValue("524288") long logoMaxBytes,
+        @DefaultValue("5242880") long attachmentMaxBytes,
         @DefaultValue("PT10M") Duration uploadTtl,
         @DefaultValue("PT10M") Duration downloadTtl) {}

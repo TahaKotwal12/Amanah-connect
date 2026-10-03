@@ -104,6 +104,9 @@ app:
     region: ${AWS_REGION:ap-south-1}
     endpoint: ${S3_ENDPOINT:}          # only for MinIO / LocalStack
     logo-max-bytes: 524288
+  billing:
+    pay-link-days: 60                  # how long a payment link in a bill email works
+    generation-max-members: 5000       # most invoices one generate call creates
   imports:
     max-rows-per-file: 5000
     max-file-bytes: 2097152            # 2 MB
@@ -115,3 +118,4 @@ app:
     lead-per-ip-per-hour: 5
     invite-view-per-ip-per-minute: 30
     invite-register-per-ip-per-hour: 10
+    pay-view-per-ip-per-minute: 60

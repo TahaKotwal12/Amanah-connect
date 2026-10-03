@@ -12,4 +12,5 @@ public record RateLimitProperties(
         @DefaultValue("5") int forgotPasswordPerIpPerHour,
         @DefaultValue("5") int leadPerIpPerHour,
         @DefaultValue("30") int inviteViewPerIpPerMinute,
-        @DefaultValue("10") int inviteRegisterPerIpPerHour) {}
+        @DefaultValue("10") int inviteRegisterPerIpPerHour,
+        @DefaultValue("60") int payViewPerIpPerMinute) {}

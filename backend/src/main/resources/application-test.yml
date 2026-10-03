@@ -24,3 +24,4 @@ app:
     lead-per-ip-per-hour: 100000
     invite-view-per-ip-per-minute: 100000
     invite-register-per-ip-per-hour: 100000
+    pay-view-per-ip-per-minute: 100000

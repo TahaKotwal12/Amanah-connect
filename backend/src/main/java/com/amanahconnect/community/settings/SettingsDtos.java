@@ -1,5 +1,7 @@
 package com.amanahconnect.community.settings;
 
+import com.amanahconnect.common.money.Money;
+import com.amanahconnect.common.money.MoneyAmount;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -9,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
@@ -44,6 +47,8 @@ public final class SettingsDtos {
             String upiPayeeName,
             /** What this community calls a member's group: "Flat", "Family", "Batch" ... */
             String memberGroupLabel,
+            /** The balance the community had before its first ledger entry. */
+            Money openingBalance,
             NotificationSettingsView notifications,
             long version) {}
 
@@ -73,6 +78,8 @@ public final class SettingsDtos {
             @Size(max = 100) String upiId,
             @Size(max = 150) String upiPayeeName,
             @Size(max = 30) String memberGroupLabel,
+            /** May be negative (an overdraft). Changing it moves every closing balance by the difference. */
+            @MoneyAmount BigDecimal openingBalance,
             @Valid UpdateNotificationSettings notifications,
             /** Optional: the version you last read; a stale one is refused with 409. */
             Long version) {}

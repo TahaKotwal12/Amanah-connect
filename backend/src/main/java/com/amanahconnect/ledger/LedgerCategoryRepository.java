@@ -10,4 +10,8 @@ public interface LedgerCategoryRepository extends TenantRepository<LedgerCategor
     List<LedgerCategory> findByCommunityIdAndActiveTrueOrderByNameAsc(UUID communityId);
 
     Optional<LedgerCategory> findByCommunityIdAndNameAndType(UUID communityId, String name, LedgerType type);
+
+    Optional<LedgerCategory> findByCommunityIdAndSystemKey(UUID communityId, String systemKey);
+
+    List<LedgerCategory> findByCommunityIdOrderByTypeAscNameAsc(UUID communityId);
 }

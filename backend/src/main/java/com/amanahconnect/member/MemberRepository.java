@@ -1,6 +1,7 @@
 package com.amanahconnect.member;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,14 @@ public interface MemberRepository extends TenantRepository<Member, UUID> {
     Page<Member> findByCommunityIdAndStatus(UUID communityId, MemberStatus status, Pageable pageable);
 
     long countByCommunityIdAndDeletedAtIsNull(UUID communityId);
+
+    List<Member> findByCommunityIdAndStatusAndDeletedAtIsNull(UUID communityId, MemberStatus status);
+
+    /** Members of one group, compared without regard to case. */
+    @Query("SELECT m FROM Member m WHERE m.communityId = :communityId AND m.deletedAt IS NULL AND m.status = :status AND lower(m.groupLabel) = :group")
+    List<Member> findGroupMembersByCommunityId(@Param("communityId") UUID communityId, @Param("status") MemberStatus status, @Param("group") String lowerCaseGroup);
+
+    List<Member> findByCommunityIdAndIdInAndDeletedAtIsNull(UUID communityId, java.util.Collection<UUID> ids);
 
     long countByCommunityIdAndDeletedAtIsNullAndStatus(UUID communityId, MemberStatus status);
 
