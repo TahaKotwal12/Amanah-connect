@@ -1,0 +1,25 @@
+Subject: Invoice INV-2026-27/000123 from Lotus Residents Welfare Association
+
+Invoice INV-2026-27/000123
+
+Dear Asha Rao,
+
+Lotus Residents Welfare Association has issued the invoice below.
+
+Invoice:  INV-2026-27/000123
+For:      Monthly maintenance
+Period:   2026-05
+Amount:   ₹1,500.00
+Balance:  ₹1,500.00
+Due date: 10 May 2026
+
+Pay with UPI: https://app.amanahconnect.example/pay/Zy9XwVuTsRqPoNmLkJiHgFeDcBa0987654321_-xYz
+
+After you pay, the community confirms your payment and sends you a receipt. Paying through the link does not settle the invoice until it is confirmed.
+
+--
+You are receiving this email because you are a member of Lotus Residents Welfare Association.
+Contact Lotus Residents Welfare Association: office@lotus-residents.example · +91 98765 43210
+12 Lotus Lane, Indiranagar, Bengaluru, Karnataka, 560038
+To stop receiving emails like this, or to correct your details, contact the community admin at office@lotus-residents.example.
+Sent with Amanah Connect.

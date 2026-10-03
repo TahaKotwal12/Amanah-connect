@@ -1,0 +1,23 @@
+Subject: Overdue: invoice INV-2026-27/000123 from Lotus Residents Welfare Association
+
+Your invoice is overdue
+
+Dear Asha Rao,
+
+An invoice from Lotus Residents Welfare Association has passed its due date and is still unpaid.
+
+Invoice:     INV-2026-27/000123
+Balance due: ₹500.00
+Was due on:  10 May 2026
+Overdue:     7 days
+
+Pay with UPI: https://app.amanahconnect.example/pay/Zy9XwVuTsRqPoNmLkJiHgFeDcBa0987654321_-xYz
+
+If you have already paid, please let the community admin know so they can update your account.
+
+--
+You are receiving this email because you are a member of Lotus Residents Welfare Association.
+Contact Lotus Residents Welfare Association: office@lotus-residents.example · +91 98765 43210
+12 Lotus Lane, Indiranagar, Bengaluru, Karnataka, 560038
+To stop receiving emails like this, or to correct your details, contact the community admin at office@lotus-residents.example.
+Sent with Amanah Connect.

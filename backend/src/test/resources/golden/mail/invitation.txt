@@ -1,0 +1,16 @@
+Subject: You are invited to Amanah Connect
+
+You are invited to Amanah Connect
+
+Hello Meera Nair,
+
+You have been invited to manage a community on Amanah Connect. Set your password to get started:
+
+https://app.amanahconnect.example/accept-invite?token=SAMPLE
+
+This link works for 4320 minutes and can be used once.
+
+
+--
+Amanah Connect · Community management you can trust.
+This is an automated message. If you did not expect it, you can ignore it.

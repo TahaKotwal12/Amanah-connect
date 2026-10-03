@@ -1,0 +1,24 @@
+Subject: Receipt RCP-2026-27/000045 from Lotus Residents Welfare Association
+
+Receipt RCP-2026-27/000045
+
+Dear Asha Rao,
+
+Thank you. Lotus Residents Welfare Association has received your payment.
+
+Receipt:         RCP-2026-27/000045
+Amount received: ₹1,000.00
+In words:        Rupees One Thousand Only
+Method:          UPI
+Received on:     12 May 2026
+Against invoice:  INV-2026-27/000123
+Balance remaining: ₹500.00
+
+Your receipt is attached to this email as a PDF.
+
+--
+You are receiving this email because you are a member of Lotus Residents Welfare Association.
+Contact Lotus Residents Welfare Association: office@lotus-residents.example · +91 98765 43210
+12 Lotus Lane, Indiranagar, Bengaluru, Karnataka, 560038
+To stop receiving emails like this, or to correct your details, contact the community admin at office@lotus-residents.example.
+Sent with Amanah Connect.

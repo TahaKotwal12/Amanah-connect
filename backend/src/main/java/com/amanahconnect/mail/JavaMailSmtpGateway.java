@@ -40,7 +40,7 @@ public class JavaMailSmtpGateway implements SmtpGateway {
         }
         try {
             MimeMessage message = build(impl, mail);
-            try (Transport transport = impl.getSession().getTransport(impl.getProtocol())) {
+            try (Transport transport = impl.getSession().getTransport(protocol(impl))) {
                 transport.connect(impl.getHost(), impl.getPort(), impl.getUsername(), impl.getPassword());
                 transport.sendMessage(message, message.getAllRecipients());
                 return messageId(transport);
@@ -52,6 +52,13 @@ public class JavaMailSmtpGateway implements SmtpGateway {
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new SmtpFailure(oneLine(e.toString()), false, e);
         }
+    }
+
+    /** The configured protocol, else the session's, else plain "smtp" (the sender leaves it null unless told). */
+    private static String protocol(JavaMailSenderImpl sender) {
+        if (sender.getProtocol() != null) return sender.getProtocol();
+        String fromSession = sender.getSession().getProperty("mail.transport.protocol");
+        return fromSession != null ? fromSession : "smtp";
     }
 
     private static MimeMessage build(JavaMailSenderImpl sender, OutgoingMail mail) throws MessagingException, UnsupportedEncodingException {
