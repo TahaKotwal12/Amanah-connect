@@ -106,6 +106,10 @@ public class Community extends BaseEntity {
     @Column(name = "financial_year_start_month", nullable = false)
     private short financialYearStartMonth = 4;
 
+    /** The balance before the first ledger entry. */
+    @Column(name = "opening_balance", nullable = false, precision = 14, scale = 2)
+    private java.math.BigDecimal openingBalance = java.math.BigDecimal.ZERO;
+
     /** Why the status last changed (suspension or archive reason). */
     @Column(name = "status_reason")
     private String statusReason;

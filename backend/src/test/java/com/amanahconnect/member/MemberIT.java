@@ -67,9 +67,9 @@ class MemberIT extends AbstractTenantIT {
     }
 
     private void invoice(Community community, UUID memberId, String status, String amount, String paid) {
-        jdbc.update("insert into invoices (id, community_id, member_id, invoice_no, kind, amount, amount_paid, due_date, status)"
-                        + " values (gen_random_uuid(), ?, ?, ?, 'MEMBERSHIP', ?::numeric, ?::numeric, current_date, ?)",
-                community.getId(), memberId, "T-" + TestData.unique(), amount, paid, status);
+        jdbc.update("insert into invoices (id, community_id, member_id, invoice_no, kind, amount, amount_paid, due_date, status, cancel_reason)"
+                        + " values (gen_random_uuid(), ?, ?, ?, 'MEMBERSHIP', ?::numeric, ?::numeric, current_date, ?, ?)",
+                community.getId(), memberId, "T-" + TestData.unique(), amount, paid, status, "CANCELLED".equals(status) ? "test" : null);
     }
 
     // ---- create -------------------------------------------------------------------------------------------

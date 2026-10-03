@@ -57,4 +57,20 @@ public class Invoice extends TenantEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fee_plan_id")
     private FeePlan feePlan;
+
+    @Column(name = "issued_on", nullable = false)
+    private LocalDate issuedOn = LocalDate.now();
+
+    /** What a manual invoice is for; generated invoices use the fee plan's name. */
+    @Column(name = "description", length = 200)
+    private String description;
+
+    @Column(name = "cancel_reason")
+    private String cancelReason;
+
+    @Column(name = "cancelled_at")
+    private java.time.Instant cancelledAt;
+
+    @Column(name = "cancelled_by")
+    private java.util.UUID cancelledBy;
 }

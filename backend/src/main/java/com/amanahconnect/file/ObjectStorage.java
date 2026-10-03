@@ -22,4 +22,10 @@ public interface ObjectStorage {
     Optional<ObjectInfo> head(String key);
 
     void delete(String key);
+
+    /** Stores bytes the server produced itself (a receipt PDF). */
+    void put(String key, byte[] bytes, String contentType);
+
+    /** The stored bytes, or empty if there is no such object. */
+    Optional<byte[]> get(String key);
 }

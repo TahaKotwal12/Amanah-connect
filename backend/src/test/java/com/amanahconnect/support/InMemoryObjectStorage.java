@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 public class InMemoryObjectStorage implements ObjectStorage {
 
     private final Map<String, ObjectInfo> objects = new ConcurrentHashMap<>();
+    private final Map<String, byte[]> contents = new ConcurrentHashMap<>();
+    /** Set to make every put fail, to prove that a storage outage never fails a payment. */
+    public volatile boolean failPuts;
     public final Map<String, Long> signedSizes = new ConcurrentHashMap<>();
 
     /** Simulates the browser's PUT to the signed URL. */
@@ -44,5 +47,20 @@ public class InMemoryObjectStorage implements ObjectStorage {
     @Override
     public void delete(String key) {
         objects.remove(key);
+        contents.remove(key);
+    }
+
+    @Override
+    public void put(String key, byte[] bytes, String contentType) {
+        if (failPuts) {
+            throw new IllegalStateException("storage is down");
+        }
+        objects.put(key, new ObjectInfo(bytes.length, contentType));
+        contents.put(key, bytes);
+    }
+
+    @Override
+    public Optional<byte[]> get(String key) {
+        return Optional.ofNullable(contents.get(key));
     }
 }

@@ -47,5 +47,15 @@ public class StorageConfig {
         public void delete(String key) {
             // nothing was ever stored
         }
+
+        @Override
+        public void put(String key, byte[] bytes, String contentType) {
+            throw unavailable();
+        }
+
+        @Override
+        public Optional<byte[]> get(String key) {
+            throw unavailable();
+        }
     }
 }

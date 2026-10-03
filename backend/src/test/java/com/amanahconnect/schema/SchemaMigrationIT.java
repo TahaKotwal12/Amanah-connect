@@ -29,7 +29,7 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
 
     static final Set<String> EXPECTED_TABLES =
             Set.of(
-                    "users", "refresh_tokens", "recovery_codes", "auth_tokens", "import_batches",
+                    "users", "refresh_tokens", "recovery_codes", "auth_tokens", "import_batches", "payment_links",
                     "plans", "communities", "community_users", "platform_subscriptions",
                     "members", "member_invites", "member_registrations",
                     "document_counters", "fee_plans", "invoices", "payment_records", "receipts",
@@ -50,7 +50,7 @@ class SchemaMigrationIT extends AbstractIntegrationTest {
                         "select version from flyway_schema_history where success order by installed_rank",
                         String.class);
 
-        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12");
+        assertThat(versions).containsExactly("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13");
     }
 
     @Test

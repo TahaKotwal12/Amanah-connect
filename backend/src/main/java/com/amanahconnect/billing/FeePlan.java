@@ -48,4 +48,12 @@ public class FeePlan extends TenantEntity {
 
     @Column(name = "active", nullable = false)
     private boolean active = true;
+
+    /** Bill automatically every period (the daily job). Off by default: nobody is billed without being asked. */
+    @Column(name = "auto_generate", nullable = false)
+    private boolean autoGenerate;
+
+    /** The period the daily job last billed, e.g. {@code 2026-10}. */
+    @Column(name = "last_generated_period", length = 30)
+    private String lastGeneratedPeriod;
 }

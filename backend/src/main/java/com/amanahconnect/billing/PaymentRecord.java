@@ -35,9 +35,20 @@ public class PaymentRecord extends TenantEntity {
     @JoinColumn(name = "invoice_id", updatable = false)
     private Invoice invoice;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "member_id", nullable = false, updatable = false)
+    /** Null for a donation from someone who is not a member (then {@code donorName} is set). */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", updatable = false)
     private Member member;
+
+    @Column(name = "donor_name", length = 150, updatable = false)
+    private String donorName;
+
+    @Column(name = "idempotency_key", length = 100, updatable = false)
+    private String idempotencyKey;
+
+    /** Fingerprint of the request that used the key, to tell a retry from a different request reusing it. */
+    @Column(name = "request_hash", length = 64, updatable = false)
+    private String requestHash;
 
     @Column(name = "amount", nullable = false, updatable = false, precision = 14, scale = 2)
     private BigDecimal amount;

@@ -35,7 +35,7 @@ public class LedgerEntry extends TenantEntity {
     private LedgerType type;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "category_id", nullable = false, updatable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private LedgerCategory category;
 
     @Column(name = "amount", nullable = false, updatable = false, precision = 14, scale = 2)

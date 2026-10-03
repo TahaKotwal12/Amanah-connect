@@ -72,6 +72,22 @@ final class S3ObjectStorage implements ObjectStorage {
     }
 
     @Override
+    public void put(String key, byte[] bytes, String contentType) {
+        client.putObject(
+                PutObjectRequest.builder().bucket(properties.bucket()).key(key).contentType(contentType).contentLength((long) bytes.length).build(),
+                software.amazon.awssdk.core.sync.RequestBody.fromBytes(bytes));
+    }
+
+    @Override
+    public Optional<byte[]> get(String key) {
+        try {
+            return Optional.of(client.getObjectAsBytes(GetObjectRequest.builder().bucket(properties.bucket()).key(key).build()).asByteArray());
+        } catch (NoSuchKeyException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
     public void delete(String key) {
         client.deleteObject(r -> r.bucket(properties.bucket()).key(key));
     }
