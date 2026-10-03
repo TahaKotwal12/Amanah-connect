@@ -30,6 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +58,7 @@ public class LedgerService {
     private final AuditService audit;
     private final TenantGuard tenantGuard;
     private final Clock clock;
+    private final EntityManager em;
 
     public LedgerService(
             LedgerCategoryRepository categories,
@@ -67,7 +69,8 @@ public class LedgerService {
             StorageProperties storageProperties,
             AuditService audit,
             TenantGuard tenantGuard,
-            Clock clock) {
+            Clock clock,
+            EntityManager em) {
         this.categories = categories;
         this.entries = entries;
         this.queries = queries;
@@ -77,6 +80,7 @@ public class LedgerService {
         this.audit = audit;
         this.tenantGuard = tenantGuard;
         this.clock = clock;
+        this.em = em;
     }
 
     // ---- categories -------------------------------------------------------------------------------------------------------
@@ -157,6 +161,7 @@ public class LedgerService {
             entry.setAttachmentKey(acceptAttachment(communityId, request.attachmentKey().trim()));
         }
         entries.save(entry);
+        em.flush();
         audit.record("LEDGER_ENTRY_CREATED", "LedgerEntry", entry.getId(), null, snapshot(entry));
         return get(communityId, entry.getId());
     }
@@ -184,6 +189,7 @@ public class LedgerService {
             }
         }
         entries.save(entry);
+        em.flush();
         audit.record("LEDGER_ENTRY_UPDATED", "LedgerEntry", id, before, snapshot(entry));
         return get(communityId, id);
     }
@@ -220,6 +226,7 @@ public class LedgerService {
         reversal.setReversalReason(request.reason().trim());
         reversal.setCreatedBy(AuditService.currentActorId());
         entries.save(reversal);
+        em.flush();
         Map<String, Object> after = snapshot(reversal);
         after.put("reason", request.reason().trim());
         audit.record("LEDGER_ENTRY_REVERSED", "LedgerEntry", reversal.getId(), Map.of("entryId", id.toString()), after);
