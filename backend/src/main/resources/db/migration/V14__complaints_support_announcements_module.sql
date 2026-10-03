@@ -17,8 +17,6 @@ ALTER TABLE support_threads
     ADD COLUMN message_seq           bigint      NOT NULL DEFAULT 0,
     ADD COLUMN community_notified_at timestamptz,
     ADD COLUMN platform_notified_at  timestamptz;
-ALTER TABLE support_threads
-    ADD CONSTRAINT ck_support_threads_closed_at CHECK (status <> 'CLOSED' OR closed_at IS NOT NULL);
 CREATE INDEX idx_support_threads_assigned_to ON support_threads (assigned_to);
 
 ALTER TABLE support_messages
@@ -40,7 +38,7 @@ SET message_seq = coalesce((SELECT max(seq) FROM support_messages m WHERE m.thre
 ALTER TABLE support_messages
     ALTER COLUMN seq SET NOT NULL,
     ALTER COLUMN sender_side SET NOT NULL,
-    ADD CONSTRAINT ck_support_messages_side CHECK (sender_side IN ('COMMUNITY', 'PLATFORM')),
+    ADD CONSTRAINT ck_support_messages_sender_side CHECK (sender_side IN ('COMMUNITY', 'PLATFORM')),
     ADD CONSTRAINT uq_support_messages_thread_seq UNIQUE (thread_id, seq),
     ADD CONSTRAINT ck_support_messages_attachment CHECK ((attachment_key IS NULL) = (attachment_content_type IS NULL));
 CREATE UNIQUE INDEX uq_support_messages_attachment ON support_messages (attachment_key) WHERE attachment_key IS NOT NULL;
