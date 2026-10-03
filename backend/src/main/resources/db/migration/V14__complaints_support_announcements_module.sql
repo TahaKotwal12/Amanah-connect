@@ -43,6 +43,7 @@ ALTER TABLE support_messages
     ADD CONSTRAINT ck_support_messages_side CHECK (sender_side IN ('COMMUNITY', 'PLATFORM')),
     ADD CONSTRAINT uq_support_messages_thread_seq UNIQUE (thread_id, seq),
     ADD CONSTRAINT ck_support_messages_attachment CHECK ((attachment_key IS NULL) = (attachment_content_type IS NULL));
+CREATE UNIQUE INDEX uq_support_messages_attachment ON support_messages (attachment_key) WHERE attachment_key IS NOT NULL;
 CREATE INDEX idx_support_messages_unread ON support_messages (community_id, sender_side) WHERE read_at IS NULL;
 
 -- ---- announcements ---------------------------------------------------------------------------------------------------
