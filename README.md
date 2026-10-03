@@ -109,6 +109,14 @@ their daily expiry job, demo-request leads and platform statistics. The public d
 `POST /api/v1/public/leads`. Details, decisions and limits are in [`docs/admin.md`](docs/admin.md).
 Run with the `local` profile and open `/swagger-ui.html` to browse the API grouped by area.
 
+## Community administration (COMMUNITY_ADMIN)
+
+Under `/api/v1/community/**`: settings (profile, logo, UPI, currency, financial year, notification
+preferences), members (search, CRUD, activate/deactivate, soft delete, CSV import and streamed export,
+dashboard counts) and invite links with self-registration review. The public side of invite links is
+`GET /api/v1/public/invites/{token}` and `POST /api/v1/public/invites/{token}/register`. Rules, decisions
+and limits are in [`docs/members.md`](docs/members.md).
+
 ## Testing against a Neon database
 
 Neon is PostgreSQL. You need **two** hostnames from the Neon console for the same database:
