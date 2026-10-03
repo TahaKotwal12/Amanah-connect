@@ -117,6 +117,23 @@ public abstract class AbstractFinanceIT extends AbstractTenantIT {
         return new BigDecimal(node.asString());
     }
 
+    protected ApiClient.BinaryResponse bytesA(String path) {
+        return api.getBytes(path, "Authorization", sessionA.bearer());
+    }
+
+    /** All the text of a PDF, as a reader would see it. */
+    protected String pdfText(byte[] pdf) {
+        try {
+            var reader = new org.openpdf.text.pdf.PdfReader(pdf);
+            var extractor = new org.openpdf.text.pdf.parser.PdfTextExtractor(reader);
+            StringBuilder text = new StringBuilder();
+            for (int page = 1; page <= reader.getNumberOfPages(); page++) text.append(extractor.getTextFromPage(page)).append('\n');
+            return text.toString();
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     protected long count(String sql, Object... args) {
         return jdbc.queryForObject(sql, Long.class, args);
     }

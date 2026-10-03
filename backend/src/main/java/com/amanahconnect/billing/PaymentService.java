@@ -159,7 +159,7 @@ public class PaymentService {
         audit.record("PAYMENT_RECORDED", "PaymentRecord", payment.getId(), null, after);
 
         queueReceiptEmail(community, receipt, payment, InvoiceStatusRules.balance(invoice.getAmount(), paidNow).amount());
-        afterCommit(() -> pdfService.generateAndStoreQuietly(communityId, receipt.getId()));
+        afterCommit(() -> pdfService.generateAndStore(communityId, receipt.getId()));
         return new PaymentResult(Views.payment(payment, Set.of()), Views.invoice(invoice), false);
     }
 
@@ -231,7 +231,7 @@ public class PaymentService {
 
         Receipt receipt = original.getReceipt();
         if (receipt != null) {
-            afterCommit(() -> pdfService.generateAndStoreQuietly(communityId, receipt.getId())); // re-render with the REVERSED banner
+            afterCommit(() -> pdfService.generateAndStore(communityId, receipt.getId())); // re-render with the REVERSED banner
         }
         return new PaymentResult(Views.payment(reversal, Set.of()), invoiceView, false);
     }
@@ -288,7 +288,7 @@ public class PaymentService {
         if (member != null) {
             queueReceiptEmail(community, receipt, payment, null);
         }
-        afterCommit(() -> pdfService.generateAndStoreQuietly(communityId, receipt.getId()));
+        afterCommit(() -> pdfService.generateAndStore(communityId, receipt.getId()));
         return new PaymentResult(Views.payment(payment, Set.of()), null, false);
     }
 
@@ -340,7 +340,7 @@ public class PaymentService {
                     try {
                         task.run();
                     } catch (RuntimeException e) {
-                        log.warn("Post-commit task failed: {}", e.toString());
+                        log.warn("Post-commit task failed (the payment is recorded; the receipt PDF is rendered on demand): {}", e.toString());
                     }
                 }
             });

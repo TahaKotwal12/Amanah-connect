@@ -94,15 +94,6 @@ public class ReceiptPdfService {
         receipts.save(receipt);
     }
 
-    /** Best effort, never throws: a storage outage must not turn a recorded payment into an error. */
-    public void generateAndStoreQuietly(UUID communityId, UUID receiptId) {
-        try {
-            generateAndStore(communityId, receiptId);
-        } catch (RuntimeException e) {
-            log.warn("Receipt {} PDF was not stored ({}); it will be rendered on demand", receiptId, e.toString());
-        }
-    }
-
     byte[] render(UUID communityId, Receipt receipt) {
         PaymentRecord payment = receipt.getPaymentRecord();
         Community community = communities.findById(communityId).orElseThrow(NotFoundException::new);

@@ -61,6 +61,29 @@ public final class ApiClient {
         return send("POST", path, body == null ? null : JSON.writeValueAsString(body), headers);
     }
 
+    /** A response whose body is bytes (a PDF, a PNG): the string form of a binary body would be corrupted. */
+    public record BinaryResponse(int status, HttpHeaders headers, byte[] body) {
+        public String header(String name) {
+            return headers.firstValue(name).orElse(null);
+        }
+    }
+
+    public BinaryResponse getBytes(String path, String... headers) {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create("http://localhost:" + port + path)).GET();
+        for (int i = 0; i + 1 < headers.length; i += 2) {
+            request.header(headers[i], headers[i + 1]);
+        }
+        try {
+            HttpResponse<byte[]> response = HTTP.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+            return new BinaryResponse(response.statusCode(), response.headers(), response.body());
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        }
+    }
+
     public Response get(String path, String... headers) {
         return send("GET", path, null, headers);
     }
