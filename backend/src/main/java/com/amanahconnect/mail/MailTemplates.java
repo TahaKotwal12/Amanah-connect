@@ -38,6 +38,7 @@ public class MailTemplates {
         add("subscription-expired", Audience.ADMIN, p -> "Your subscription has expired", false, "communityName", "periodEnd");
         add("community-suspended", Audience.ADMIN, p -> s(p, "communityName") + " has been suspended", false, "communityName");
         add("community-activated", Audience.ADMIN, p -> s(p, "communityName") + " is active", false, "communityName");
+        add("data-export-ready", Audience.ADMIN, p -> "Your community data is ready to download", true, "communityName", "link", "expiresAt");
         add("platform-announcement", Audience.ADMIN, p -> (Boolean.TRUE.equals(p.get("test")) ? "[TEST] " : "") + s(p, "title"), false, "title", "bodyHtml");
 
         // platform to a prospect, and to its own team

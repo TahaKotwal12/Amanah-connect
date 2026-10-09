@@ -1,0 +1,20 @@
+Subject: Your community data is ready to download
+
+Your community data is ready
+
+Hello Meera Nair,
+
+The download of all the data of Lotus Residents Welfare Association is ready: a ZIP file with one spreadsheet (CSV) per table.
+
+Download your data: https://app.amanahconnect.example/api/v1/public/exports/AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-aBc
+
+Size: 2.4 MB
+Link works until: 14 May 2026
+
+This file contains the personal details of your members. Keep it safe and delete it when you no longer need it. Anyone with the link can download it until it expires.
+
+If you did not ask for this, tell us straight away.
+
+--
+Amanah Connect · Community management you can trust.
+This is an automated message. If you did not expect it, you can ignore it.

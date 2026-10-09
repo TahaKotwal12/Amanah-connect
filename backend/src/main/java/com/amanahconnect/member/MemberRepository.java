@@ -68,4 +68,8 @@ public interface MemberRepository extends TenantRepository<Member, UUID> {
             @Param("pattern") String pattern,
             @Param("digits") String digits,
             Pageable pageable);
+
+    /** For erasure: the member, deleted or not, locked so two requests cannot both erase. */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    Optional<Member> findWithLockByIdAndCommunityId(UUID id, UUID communityId);
 }

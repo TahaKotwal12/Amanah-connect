@@ -85,6 +85,11 @@ final class S3ObjectStorage implements ObjectStorage {
     }
 
     @Override
+    public void putFile(String key, java.nio.file.Path file, String contentType) {
+        client.putObject(PutObjectRequest.builder().bucket(properties.bucket()).key(key).contentType(contentType).build(), software.amazon.awssdk.core.sync.RequestBody.fromFile(file));
+    }
+
+    @Override
     public Optional<byte[]> get(String key) {
         try {
             return Optional.of(client.getObjectAsBytes(GetObjectRequest.builder().bucket(properties.bucket()).key(key).build()).asByteArray());

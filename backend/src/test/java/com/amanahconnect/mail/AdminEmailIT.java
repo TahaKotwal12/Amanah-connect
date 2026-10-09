@@ -23,7 +23,7 @@ class AdminEmailIT extends AbstractMailIT {
         assertThat(r.status()).as(r.body()).isEqualTo(200);
         List<String> names = new ArrayList<>();
         r.json().forEach(t -> names.add(t.get("name").asString()));
-        assertThat(names).hasSize(22).contains("member-bill", "password-reset", "lead-notification");
+        assertThat(names).hasSize(23).contains("member-bill", "password-reset", "lead-notification");
         JsonNode bill = null;
         for (JsonNode t : r.json()) if (t.get("name").asString().equals("member-bill")) bill = t;
         assertThat(bill.get("audience").asString()).isEqualTo("MEMBER");
@@ -52,7 +52,7 @@ class AdminEmailIT extends AbstractMailIT {
     void everyTemplateCanBePreviewed() {
         for (String name : List.of("member-welcome", "member-invite", "member-registration-approved", "member-registration-rejected", "member-bill", "payment-reminder", "overdue-notice",
                 "member-receipt", "member-announcement", "complaint-update", "password-reset", "invitation", "two-factor-changed", "member-registration-received", "support-message",
-                "subscription-expiring", "subscription-expired", "community-suspended", "community-activated", "platform-announcement", "lead-acknowledgement", "lead-notification")) {
+                "subscription-expiring", "subscription-expired", "community-suspended", "community-activated", "platform-announcement", "lead-acknowledgement", "lead-notification", "data-export-ready")) {
             assertThat(asSuper("GET", E + "/templates/" + name + "/preview", null).status()).as(name).isEqualTo(200);
             assertThat(asSuper("GET", E + "/templates/" + name + "/preview?format=text", null).status()).as(name + " text").isEqualTo(200);
         }

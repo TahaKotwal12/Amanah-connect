@@ -117,6 +117,10 @@ dashboard counts) and invite links with self-registration review. The public sid
 `GET /api/v1/public/invites/{token}` and `POST /api/v1/public/invites/{token}/register`. Rules, decisions
 and limits are in [`docs/members.md`](docs/members.md).
 
+Read side: `GET /community/dashboard` (cached 30 s), the audit trail (`/community/audit`, and
+`/admin/audit` with CSV export for platform staff), community data export as a ZIP of CSVs by email
+link, and member erasure. See [`docs/read-side.md`](docs/read-side.md).
+
 ## Testing against a Neon database
 
 Neon is PostgreSQL. You need **two** hostnames from the Neon console for the same database:

@@ -66,6 +66,18 @@ public class InMemoryObjectStorage implements ObjectStorage {
     }
 
     @Override
+    public void putFile(String key, java.nio.file.Path file, String contentType) {
+        if (failPuts) {
+            throw new IllegalStateException("storage is down");
+        }
+        try {
+            put(key, java.nio.file.Files.readAllBytes(file), contentType);
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public Optional<byte[]> getRange(String key, long from, long toInclusive) {
         ObjectInfo info = objects.get(key);
         if (info == null) return Optional.empty();

@@ -117,6 +117,9 @@ app:
     ses-configuration-set: ${SES_CONFIGURATION_SET:}
     sns:
       topic-arns: ${SES_SNS_TOPIC_ARNS:}   # comma separated; the bounce/complaint webhook accepts only these topics
+  dashboard:
+    cache-seconds: 30                  # one community's dashboard is reused this long
+    upcoming-days: 14
   support:
     email-reminder-minutes: 30         # a burst of chat messages sends one email; unread ones are re-mailed after this long
   imports:

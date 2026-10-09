@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:replace="~{mail/layout.html :: layout(~{::content})}">
+<body>
+<th:block th:fragment="content">
+<h1 th:replace="~{mail/fragments.html :: heading('Your community data is ready')}"></h1>
+<p th:replace="~{mail/fragments.html :: para(|Hello ${p.fullName},|)}"></p>
+<p th:replace="~{mail/fragments.html :: para(|The download of all the data of ${p.communityName} is ready: a ZIP file with one spreadsheet (CSV) per table.|)}"></p>
+<th:block th:if="${p.link != null}">
+<table th:replace="~{mail/fragments.html :: button(${p.link}, 'Download your data')}"></table>
+<p th:replace="~{mail/fragments.html :: linkfallback(${p.link})}"></p>
+</th:block>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;border:1px solid #E3DED0;border-radius:6px;">
+<th:block th:if="${p.sizeText != null}"><tr th:replace="~{mail/fragments.html :: row('Size', ${p.sizeText})}"></tr></th:block>
+<th:block th:if="${p.expiresAt != null}"><tr th:replace="~{mail/fragments.html :: row('Link works until', ${fmt.d(p.expiresAt)})}"></tr></th:block>
+</table>
+<div th:replace="~{mail/fragments.html :: notice('This file contains the personal details of your members. Keep it safe and delete it when you no longer need it. Anyone with the link can download it until it expires.')}"></div>
+<p th:replace="~{mail/fragments.html :: muted('If you did not ask for this, tell us straight away.')}"></p>
+</th:block>
+</body>
+</html>

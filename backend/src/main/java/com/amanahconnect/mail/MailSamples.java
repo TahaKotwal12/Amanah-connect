@@ -100,6 +100,13 @@ public final class MailSamples {
             case "subscription-expired" -> p.put("periodEnd", "2026-06-30");
             case "community-suspended" -> p.put("reason", "Your subscription expired and was not renewed.");
             case "community-activated" -> p.put("reason", "");
+            case "data-export-ready" -> {
+                p.put("fullName", "Meera Nair");
+                p.put("link", "https://app.amanahconnect.example/api/v1/public/exports/AbCdEfGhIjKlMnOpQrStUvWxYz0123456789_-aBc");
+                p.put("expiresAt", "2026-05-14T10:00:00Z");
+                p.put("hours", 48);
+                p.put("sizeText", "2.4 MB");
+            }
             case "platform-announcement" -> {
                 p.put("title", "20% off yearly plans until 30 June");
                 p.put("kind", "OFFER");

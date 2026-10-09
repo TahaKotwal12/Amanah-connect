@@ -176,6 +176,12 @@
       <artifactId>angus-mail</artifactId>
     </dependency>
 
+    <!-- Short-lived (30 s) cache for the dashboard aggregates -->
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+
     <!-- Allow-list HTML sanitising for announcement bodies -->
     <dependency>
       <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>

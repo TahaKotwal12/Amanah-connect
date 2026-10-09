@@ -69,4 +69,11 @@ public class Member extends TenantEntity {
 
     @Column(name = "deleted_by")
     private java.util.UUID deletedBy;
+
+    /** When the member's personal data was erased (right to erasure). Their financial records stay. */
+    @Column(name = "anonymised_at")
+    private Instant anonymisedAt;
+
+    @Column(name = "anonymised_by")
+    private java.util.UUID anonymisedBy;
 }

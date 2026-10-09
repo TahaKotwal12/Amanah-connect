@@ -1,0 +1,17 @@
+Your community data is ready
+
+Hello [[${p.fullName}]],
+
+The download of all the data of [[${p.communityName}]] is ready: a ZIP file with one spreadsheet (CSV) per table.
+[# th:if="${p.link != null}"]
+Download your data: [[${p.link}]]
+[/][# th:if="${p.sizeText != null}"]
+Size: [[${p.sizeText}]][/]
+[# th:if="${p.expiresAt != null}"]Link works until: [[${fmt.d(p.expiresAt)}]][/]
+
+This file contains the personal details of your members. Keep it safe and delete it when you no longer need it. Anyone with the link can download it until it expires.
+
+If you did not ask for this, tell us straight away.
+
+--
+[(${footerText})]

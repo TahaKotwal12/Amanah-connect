@@ -282,7 +282,7 @@ public class ComplaintService {
 
     private static Map<String, Object> snapshot(Complaint c) {
         Map<String, Object> map = new LinkedHashMap<>();
-        map.put("subject", c.getSubject());
+        map.put("subjectLength", c.getSubject().length()); // the text itself can name a person and the audit trail cannot be edited
         map.put("status", c.getStatus().name());
         map.put("priority", c.getPriority().name());
         map.put("category", c.getCategory());

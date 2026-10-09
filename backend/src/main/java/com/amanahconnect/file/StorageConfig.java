@@ -59,6 +59,11 @@ public class StorageConfig {
         }
 
         @Override
+        public void putFile(String key, java.nio.file.Path file, String contentType) {
+            throw unavailable();
+        }
+
+        @Override
         public Optional<byte[]> getRange(String key, long from, long toInclusive) {
             throw unavailable();
         }

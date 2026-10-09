@@ -42,6 +42,11 @@ public final class CsvWriter {
         return this;
     }
 
+    /** One cell, quoted if needed; text that could run as a formula gets the apostrophe unless {@code typed} says it is a number or date. */
+    public static String cell(String value, boolean typed) {
+        return escape(value == null ? "" : value, typed);
+    }
+
     static String escape(String value, boolean trustedNumeric) {
         String cell = value;
         if (!trustedNumeric && !cell.isEmpty() && "=+-@\t\r".indexOf(cell.charAt(0)) >= 0) {

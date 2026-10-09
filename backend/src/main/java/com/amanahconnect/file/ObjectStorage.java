@@ -29,6 +29,9 @@ public interface ObjectStorage {
     /** Stores bytes the server produced itself (a receipt PDF). */
     void put(String key, byte[] bytes, String contentType);
 
+    /** Stores a file the server produced (a data export) without holding it in memory. */
+    void putFile(String key, java.nio.file.Path file, String contentType);
+
     /** The stored bytes, or empty if there is no such object. */
     Optional<byte[]> get(String key);
 }

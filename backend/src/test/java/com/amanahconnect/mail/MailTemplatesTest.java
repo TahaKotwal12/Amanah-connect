@@ -70,7 +70,7 @@ class MailTemplatesTest {
     void everyNameTheCodeQueuesIsARegisteredTemplate() {
         List<String> queued = List.of(
                 MemberEmails.WELCOME, "member-invite", PublicInviteService.REGISTRATION_RECEIVED, "member-registration-approved", "member-registration-rejected",
-                AuthEmails.TEMPLATE_PASSWORD_RESET, AuthEmails.TEMPLATE_INVITATION, "two-factor-changed",
+                AuthEmails.TEMPLATE_PASSWORD_RESET, AuthEmails.TEMPLATE_INVITATION, "two-factor-changed", "data-export-ready",
                 BillingEmails.BILL, BillingEmails.RECEIPT, BillingEmails.PAYMENT_REMINDER, BillingEmails.OVERDUE_NOTICE,
                 AnnouncementDispatcher.MEMBER_TEMPLATE, AnnouncementDispatcher.ADMIN_TEMPLATE, "complaint-update", SupportEmails.TEMPLATE,
                 PlatformEmails.COMMUNITY_SUSPENDED, PlatformEmails.COMMUNITY_ACTIVATED, PlatformEmails.SUBSCRIPTION_EXPIRING, PlatformEmails.SUBSCRIPTION_EXPIRED,
@@ -92,7 +92,7 @@ class MailTemplatesTest {
     @Test
     void onlyTemplatesWithTokensInTheirLinksAreMarkedSensitive() {
         assertThat(templates.all().stream().filter(MailTemplate::sensitive).map(MailTemplate::name))
-                .containsExactlyInAnyOrder("member-invite", "member-bill", "payment-reminder", "overdue-notice", "password-reset", "invitation");
+                .containsExactlyInAnyOrder("member-invite", "member-bill", "payment-reminder", "overdue-notice", "password-reset", "invitation", "data-export-ready");
     }
 
     // ---- rules every email follows --------------------------------------------------------------------------------------
