@@ -51,14 +51,14 @@ jobs:
 
       - name: Upload coverage report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: backend-coverage
           path: backend/target/site/jacoco
 
       - name: Upload test reports on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: backend-test-reports
           path: |
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-check-report
           path: backend/target/dependency-check-report.*
