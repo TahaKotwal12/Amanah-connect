@@ -16,6 +16,7 @@ public final class AuthDtos {
 
     // ---- requests ---------------------------------------------------------------------------
 
+    @io.swagger.v3.oas.annotations.media.Schema(example = "{\"email\":\"admin@lotus-residents.example\",\"password\":\"correct horse battery staple\"}")
     public record LoginRequest(
             @NotBlank @Size(max = 254) String email, @NotBlank @Size(max = 200) String password) {
         @Override

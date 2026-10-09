@@ -1,6 +1,9 @@
 # Integration tests. The database comes from Testcontainers (@ServiceConnection),
 # so no datasource settings are needed here.
 spring:
+  datasource:
+    hikari:
+      leak-detection-threshold: 20000   # a connection held for 20 s in a test is a leak; it is logged with the stack that took it
   mail:
     host: localhost
     port: 1025
@@ -10,6 +13,8 @@ management:
     port: 0                            # random port; tests read it from local.management.port
 
 app:
+  observability:
+    gauge-cache-seconds: 0             # tests read gauges right after changing data
   email:
     preview-enabled: true
     sns:

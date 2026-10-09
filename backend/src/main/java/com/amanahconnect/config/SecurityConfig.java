@@ -120,6 +120,7 @@ public class SecurityConfig {
                 .addFilterAfter(new MfaSetupEnforcementFilter(problems), BearerTokenAuthenticationFilter.class)
                 .addFilterAfter(new AdminAccountFilter(users, problems), MfaSetupEnforcementFilter.class)
                 .addFilterAfter(new TenantContextFilter(tenantResolver, problems), AdminAccountFilter.class)
+                .addFilterAfter(new com.amanahconnect.observability.LogContextFilter(), TenantContextFilter.class)
                 .authorizeHttpRequests(
                         auth ->
                                 auth.requestMatchers(HttpMethod.GET, "/api/v1/ping")

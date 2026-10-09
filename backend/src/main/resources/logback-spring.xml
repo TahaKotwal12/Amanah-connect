@@ -7,6 +7,8 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder class="net.logstash.logback.encoder.LogstashEncoder">
         <includeMdcKeyName>requestId</includeMdcKeyName>
+        <includeMdcKeyName>userHash</includeMdcKeyName>
+        <includeMdcKeyName>communityId</includeMdcKeyName>
         <customFields>{"service":"amanah-connect-api"}</customFields>
         <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
           <maxDepthPerThrowable>30</maxDepthPerThrowable>
@@ -20,7 +22,7 @@
   <springProfile name="!prod">
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
-        <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%X{requestId:-no-req}] %cyan(%logger{36}) - %msg%n</pattern>
+        <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%X{requestId:-no-req}%X{userHash:+ u=}%X{userHash:-}%X{communityId:+ c=}%X{communityId:-}] %cyan(%logger{36}) - %msg%n</pattern>
       </encoder>
     </appender>
   </springProfile>

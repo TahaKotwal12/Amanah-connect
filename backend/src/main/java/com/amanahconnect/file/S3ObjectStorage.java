@@ -41,8 +41,14 @@ final class S3ObjectStorage implements ObjectStorage {
             clientBuilder.endpointOverride(endpoint).serviceConfiguration(pathStyle);
             presignerBuilder.endpointOverride(endpoint).serviceConfiguration(pathStyle);
         }
+        // No call may hang a worker thread: one attempt gets 30 s, all retries together 5 minutes (a large export upload).
+        clientBuilder.overrideConfiguration(c -> c.apiCallAttemptTimeout(Duration.ofSeconds(30)).apiCallTimeout(Duration.ofMinutes(5)));
         this.client = clientBuilder.build();
         this.presigner = presignerBuilder.build();
+    }
+
+    S3Client client() {
+        return client;
     }
 
     @Override

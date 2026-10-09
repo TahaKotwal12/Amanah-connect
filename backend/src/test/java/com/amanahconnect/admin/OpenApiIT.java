@@ -87,4 +87,49 @@ class OpenApiIT extends AbstractIntegrationTest {
         response.json().get("urls").forEach(u -> names.add(u.get("name").asString()));
         assertThat(names).contains("Admin (SUPER_ADMIN)", "Public", "Authentication");
     }
+
+    @Test
+    void theCommunityGroupCoversTheWholeCommunityApiAndRequiresABearerToken() {
+        JsonNode community = doc("community");
+        long operations = 0;
+        List<String> unsecured = new ArrayList<>();
+        for (var path : community.get("paths").properties()) {
+            assertThat(path.getKey()).startsWith("/api/v1/community/");
+            if (path.getKey().contains("/test-support/")) continue; // endpoints that exist only in the test context
+            for (var op : path.getValue().properties()) {
+                if (!List.of("get", "post", "put", "patch", "delete").contains(op.getKey())) continue;
+                operations++;
+                assertThat(op.getValue().has("summary")).as(op.getKey() + " " + path.getKey() + " has a summary").isTrue();
+            }
+        }
+        assertThat(operations).isGreaterThanOrEqualTo(80);
+        assertThat(community.get("security").get(0).has("bearerAuth")).isTrue();
+        assertThat(unsecured).isEmpty();
+    }
+
+    @Test
+    void errorsAreDescribedAsProblemJsonWithAnExample() {
+        JsonNode community = doc("community");
+        JsonNode notFound = community.get("paths").get("/api/v1/community/members/{id}").get("get").get("responses").get("404");
+        assertThat(notFound.get("content").has("application/problem+json")).isTrue();
+        assertThat(notFound.get("content").get("application/problem+json").get("example").get("code").asString()).isEqualTo("NOT_FOUND");
+        assertThat(community.get("components").get("schemas").has("Problem")).isTrue();
+        JsonNode create = community.get("paths").get("/api/v1/community/members").get("post").get("responses");
+        assertThat(create.has("400")).isTrue();
+        assertThat(create.has("401")).isTrue();
+        assertThat(create.has("403")).isTrue();
+    }
+
+    @Test
+    void keyRequestsCarryRealisticExamples() {
+        JsonNode community = doc("community");
+        String member = community.get("components").get("schemas").get("CreateMemberRequest").toString();
+        String invoice = community.get("components").get("schemas").get("CreateInvoiceRequest").toString();
+        String payment = community.get("components").get("schemas").get("RecordPaymentRequest").toString();
+        assertThat(member).contains("Asha Rao");
+        assertThat(invoice).contains("1500.00").contains("MAINTENANCE");
+        assertThat(payment).contains("UTR412345678901");
+        JsonNode auth = doc("auth");
+        assertThat(auth.get("components").get("schemas").get("LoginRequest").toString()).contains("admin@lotus-residents.example");
+    }
 }

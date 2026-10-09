@@ -121,6 +121,12 @@ Read side: `GET /community/dashboard` (cached 30 s), the audit trail (`/communit
 `/admin/audit` with CSV export for platform staff), community data export as a ZIP of CSVs by email
 link, and member erasure. See [`docs/read-side.md`](docs/read-side.md).
 
+Operating it: [`docs/architecture.md`](docs/architecture.md), [`docs/security.md`](docs/security.md),
+[`docs/runbook.md`](docs/runbook.md) (deploy, rollback, restore, rotate secrets, incidents),
+[`docs/performance.md`](docs/performance.md) and the generated [`docs/data-model.md`](docs/data-model.md).
+Build modes: `./mvnw verify` (everything), `./mvnw -Pci verify` (adds the coverage floor, what CI runs),
+`./mvnw -Pfast verify` (unit tests only, no Docker), `./mvnw -Psecurity verify` (OWASP dependency-check).
+
 ## Testing against a Neon database
 
 Neon is PostgreSQL. You need **two** hostnames from the Neon console for the same database:

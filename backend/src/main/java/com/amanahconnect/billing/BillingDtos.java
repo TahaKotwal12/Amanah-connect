@@ -86,6 +86,7 @@ public final class BillingDtos {
 
     public record InvoiceDetail(InvoiceView invoice, List<PaymentView> payments) {}
 
+    @io.swagger.v3.oas.annotations.media.Schema(example = "{\"memberId\":\"3f2b8c1e-6d7a-4c58-9a55-2d1a0e8c9b11\",\"kind\":\"MAINTENANCE\",\"description\":\"Maintenance, April 2026\",\"amount\":\"1500.00\",\"dueDate\":\"2026-04-10\",\"sendEmail\":true}")
     public record CreateInvoiceRequest(
             @NotNull UUID memberId,
             @NotNull FeeKind kind,
@@ -110,6 +111,7 @@ public final class BillingDtos {
 
     public record CancelInvoiceRequest(@NotBlank @Size(max = 500) String reason) {}
 
+    @io.swagger.v3.oas.annotations.media.Schema(example = "{\"feePlanId\":\"7a0e2f54-1b3c-4d8e-8f6a-5c9d2e1f0a47\",\"period\":\"2026-04\",\"sendEmails\":true}")
     public record GenerateInvoicesRequest(
             @NotNull UUID feePlanId,
             /** Defaults to the current period; required for a one-time plan. */
@@ -138,6 +140,7 @@ public final class BillingDtos {
 
     // ---- payments ----------------------------------------------------------------------------------------------
 
+    @io.swagger.v3.oas.annotations.media.Schema(example = "{\"amount\":\"1500.00\",\"method\":\"UPI\",\"reference\":\"UTR412345678901\",\"receivedOn\":\"2026-04-08\"}")
     public record RecordPaymentRequest(
             @NotNull @MoneyAmount(positive = true) BigDecimal amount,
             @NotNull PaymentMethod method,

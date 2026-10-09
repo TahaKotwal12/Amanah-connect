@@ -2,6 +2,8 @@
 # No profile is active by default on purpose: a missing SPRING_PROFILES_ACTIVE must fail
 # fast (no datasource URL) instead of silently running with local settings.
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s   # in-flight requests get this long to finish on SIGTERM
   profiles:
     active: local
   application:
@@ -14,6 +16,9 @@ spring:
       connection-timeout: 10000        # 10 s
       idle-timeout: 600000             # 10 min
       max-lifetime: 1500000            # 25 min; Neon closes idle connections, recycle before it does
+      keepalive-time: 120000           # 2 min; ping idle connections so a proxy/Neon does not silently drop them
+      validation-timeout: 3000         # a connection that does not answer a validity check in 3 s is replaced
+      initialization-fail-timeout: 60000   # at startup keep retrying for up to 60 s (a Neon compute waking from suspend), then fail
   jpa:
     open-in-view: false
     hibernate:
@@ -22,11 +27,16 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 250   # logged by org.hibernate.SQL_SLOW with the SQL (never the bound values)
   flyway:
     locations: classpath:db/migration
     validate-on-migrate: true
     clean-disabled: true
-    connect-retries: 3                 # tolerate a Neon compute waking from suspend
+    connect-retries: 10                # tolerate a Neon compute waking from suspend ...
+    connect-retries-interval: 5s       # ... for about a minute
   servlet:
     multipart:
       max-file-size: 10MB
@@ -40,6 +50,9 @@ spring:
 server:
   port: 8080
   shutdown: graceful
+  tomcat:
+    connection-timeout: 10s            # a client that opens a socket and says nothing is dropped
+    keep-alive-timeout: 30s
   error:
     include-message: never
     include-stacktrace: never
@@ -63,10 +76,10 @@ management:
         liveness:
           include: livenessState
         readiness:
-          include: readinessState,db   # SMTP is deliberately not part of readiness
+          include: readinessState,db,storage   # SMTP is deliberately not part of readiness; storage only exists when app.health.storage-enabled=true
   health:
     mail:
-      enabled: false
+      enabled: false                   # never probe SMTP from a health check
   info:
     build:
       enabled: true
@@ -78,6 +91,10 @@ springdoc:
     enabled: false
 
 app:
+  health:
+    storage-enabled: false             # true: readiness also needs the S3 bucket reachable
+  limits:
+    max-body-bytes: 1048576            # largest non-upload request body (1 MB)
   cors:
     allowed-origins: []
   auth:

@@ -291,6 +291,7 @@ class EmailSenderIT extends AbstractMailIT {
         assertThat(lock.name()).isEqualTo("emailOutboxJob");
 
         UUID id = queueSample(communityA.getId(), email(), "member-welcome");
+        jdbc.update("update shedlock set lock_until = now() - interval '1 second' where name = 'emailOutboxJob'"); // another test may have just run the job, which holds the lock for a few seconds (expire it; ShedLock caches that the row exists, so do not delete it)
         var held = lockProvider.lock(new LockConfiguration(Instant.now(), "emailOutboxJob", Duration.ofMinutes(5), Duration.ZERO));
         assertThat(held).isPresent();
         try {

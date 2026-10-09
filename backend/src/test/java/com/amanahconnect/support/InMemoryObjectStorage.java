@@ -17,6 +17,7 @@ public class InMemoryObjectStorage implements ObjectStorage {
     private final Map<String, byte[]> contents = new ConcurrentHashMap<>();
     /** Set to make every put fail, to prove that a storage outage never fails a payment. */
     public volatile boolean failPuts;
+    public volatile boolean failHeads;
     public final Map<String, Long> signedSizes = new ConcurrentHashMap<>();
 
     /** Simulates the browser's PUT to the signed URL. */
@@ -41,6 +42,9 @@ public class InMemoryObjectStorage implements ObjectStorage {
 
     @Override
     public Optional<ObjectInfo> head(String key) {
+        if (failHeads) {
+            throw new IllegalStateException("storage is down");
+        }
         return Optional.ofNullable(objects.get(key));
     }
 

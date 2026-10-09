@@ -87,7 +87,7 @@ public class ReceiptService {
         if (from != null) { where.append(" AND p.received_on >= :from"); params.addValue("from", from); }
         if (to != null) { where.append(" AND p.received_on <= :to"); params.addValue("to", to); }
         if (reversed != null) {
-            where.append(reversed ? " AND" : " AND NOT").append(" EXISTS (SELECT 1 FROM payment_records rv WHERE rv.community_id = r.community_id AND rv.reversed_of = p.id)");
+            where.append(reversed ? " AND" : " AND NOT").append(" EXISTS (SELECT 1 FROM payment_records rv WHERE rv.community_id = :c AND rv.reversed_of = p.id)");
         }
         if (q != null && !q.isBlank()) {
             where.append(" AND (lower(r.receipt_no) LIKE :q ESCAPE '\\' OR lower(coalesce(m.full_name, p.donor_name)) LIKE :q ESCAPE '\\' OR lower(coalesce(i.invoice_no, '')) LIKE :q ESCAPE '\\')");

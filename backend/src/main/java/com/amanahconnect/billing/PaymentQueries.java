@@ -46,7 +46,7 @@ public class PaymentQueries {
         var items = jdbc.query(
                 "SELECT p.id, p.invoice_id, i.invoice_no, p.member_id, m.member_no, coalesce(m.full_name, p.donor_name) AS payer, p.amount, p.method, p.reference, p.received_on,"
                         + " p.reversed_of, p.reversal_reason, p.receipt_id, r.receipt_no, p.created_at,"
-                        + " EXISTS (SELECT 1 FROM payment_records rv WHERE rv.community_id = p.community_id AND rv.reversed_of = p.id) AS reversed"
+                        + " EXISTS (SELECT 1 FROM payment_records rv WHERE rv.community_id = :c AND rv.reversed_of = p.id) AS reversed"
                         + " FROM payment_records p LEFT JOIN invoices i ON i.id = p.invoice_id AND i.community_id = p.community_id"
                         + " LEFT JOIN members m ON m.id = p.member_id AND m.community_id = p.community_id LEFT JOIN receipts r ON r.id = p.receipt_id AND r.community_id = p.community_id"
                         + where + orderBy(page.getSort()) + " LIMIT :limit OFFSET :offset",

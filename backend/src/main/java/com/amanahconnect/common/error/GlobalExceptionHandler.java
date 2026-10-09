@@ -41,6 +41,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            org.springframework.http.converter.HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        for (Throwable t = ex; t != null; t = t.getCause() == t ? null : t.getCause()) {
+            if (t instanceof com.amanahconnect.common.web.RequestSizeLimitFilter.BodyTooLargeException) {
+                ProblemDetail problem = Problems.of(ErrorCode.PAYLOAD_TOO_LARGE, "The request body is too large.");
+                return super.handleExceptionInternal(ex, problem, headers, org.springframework.http.HttpStatus.CONTENT_TOO_LARGE, request);
+            }
+        }
+        return super.handleHttpMessageNotReadable(ex, headers, status, request);
+    }
+
+    @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex,
             Object body,

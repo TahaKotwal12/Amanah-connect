@@ -40,6 +40,7 @@ public final class MemberDtos {
     }
 
     /** The member number is generated, never supplied. */
+    @io.swagger.v3.oas.annotations.media.Schema(example = "{\"fullName\":\"Asha Rao\",\"email\":\"asha.rao@example.com\",\"phone\":\"+91 98765 43210\",\"group\":\"Block A\",\"consentEmail\":true}")
     public record CreateMemberRequest(
             @NotBlank @Size(max = 150) String fullName,
             @Email @Size(max = 254) String email,
