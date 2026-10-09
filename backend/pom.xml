@@ -25,7 +25,7 @@
     <coverage.services.min>0.75</coverage.services.min>
     <springdoc.version>3.1.1</springdoc.version>
     <shedlock.version>7.10.1</shedlock.version>
-    <bucket4j.version>8.20.0</bucket4j.version>
+    <bucket4j.version>8.21.0</bucket4j.version>
     <awssdk.version>2.55.10</awssdk.version>
     <openpdf.version>3.0.5</openpdf.version>
     <html-sanitizer.version>20260924.2</html-sanitizer.version>
