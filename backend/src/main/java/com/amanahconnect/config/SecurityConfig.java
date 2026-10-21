@@ -200,7 +200,7 @@ public class SecurityConfig {
                         HttpHeaders.CONTENT_TYPE,
                         "X-Request-Id",
                         "X-Requested-With"));
-        config.setExposedHeaders(List.of("X-Request-Id"));
+        config.setExposedHeaders(List.of("X-Request-Id", "Content-Disposition", "Content-Length", "X-Export-Rows", "X-Export-Truncated"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

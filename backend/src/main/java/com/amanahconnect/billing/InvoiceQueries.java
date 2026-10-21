@@ -1,11 +1,14 @@
 package com.amanahconnect.billing;
 
+import com.amanahconnect.billing.BillingDtos.InvoiceTotals;
 import com.amanahconnect.billing.BillingDtos.InvoiceView;
+import com.amanahconnect.billing.BillingDtos.ReminderView;
 import com.amanahconnect.common.money.Money;
 import com.amanahconnect.common.page.PageResponse;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +40,10 @@ public class InvoiceQueries {
         this.jdbc = jdbc;
     }
 
-    public PageResponse<InvoiceView> search(UUID communityId, InvoiceFilter f, Pageable page) {
+    /** The WHERE clause (and its parameters) shared by the list and its totals. */
+    private record Where(String sql, MapSqlParameterSource params) {}
+
+    private static Where where(UUID communityId, InvoiceFilter f) {
         MapSqlParameterSource params = new MapSqlParameterSource("c", communityId);
         StringBuilder where = new StringBuilder(" WHERE i.community_id = :c");
         if (f.status() != null) { where.append(" AND i.status = :status"); params.addValue("status", f.status().name()); }
@@ -52,10 +58,44 @@ public class InvoiceQueries {
             where.append(" AND (lower(coalesce(i.invoice_no, '')) LIKE :q ESCAPE '\\' OR lower(m.full_name) LIKE :q ESCAPE '\\' OR lower(m.member_no) LIKE :q ESCAPE '\\')");
             params.addValue("q", "%" + f.q().trim().toLowerCase().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%");
         }
-        Long total = jdbc.queryForObject("SELECT count(*) FROM invoices i LEFT JOIN members m ON m.id = i.member_id AND m.community_id = i.community_id" + where, params, Long.class);
+        return new Where(where.toString(), params);
+    }
+
+    private static final String COUNT_FROM = "FROM invoices i LEFT JOIN members m ON m.id = i.member_id AND m.community_id = i.community_id";
+
+    public PageResponse<InvoiceView> search(UUID communityId, InvoiceFilter f, Pageable page) {
+        Where w = where(communityId, f);
+        MapSqlParameterSource params = w.params();
+        Long total = jdbc.queryForObject("SELECT count(*) " + COUNT_FROM + w.sql(), params, Long.class);
         params.addValue("limit", page.getPageSize()).addValue("offset", page.getOffset());
-        var items = jdbc.query(SELECT + where + orderBy(page.getSort()) + " LIMIT :limit OFFSET :offset", params, (rs, row) -> map(rs));
+        var items = jdbc.query(SELECT + w.sql() + orderBy(page.getSort()) + " LIMIT :limit OFFSET :offset", params, (rs, row) -> map(rs));
         return new PageResponse<>(items, total == null ? 0 : total, page.getPageNumber(), page.getPageSize());
+    }
+
+    /**
+     * Sums over everything the filter matches, not just one page. Cancelled invoices are counted but add nothing to the
+     * money columns (they are not owed), unless the filter asks for cancelled ones specifically.
+     */
+    public InvoiceTotals totals(UUID communityId, InvoiceFilter f) {
+        Where w = where(communityId, f);
+        String live = f.status() == InvoiceStatus.CANCELLED ? "TRUE" : "i.status <> 'CANCELLED'";
+        return jdbc.queryForObject(
+                "SELECT count(*) AS n, coalesce(sum(i.amount) FILTER (WHERE " + live + "), 0) AS amount,"
+                        + " coalesce(sum(i.amount_paid) FILTER (WHERE " + live + "), 0) AS paid " + COUNT_FROM + w.sql(),
+                w.params(),
+                (rs, row) -> {
+                    Money amount = Money.of(rs.getBigDecimal("amount"));
+                    Money paid = Money.of(rs.getBigDecimal("paid"));
+                    return new InvoiceTotals(rs.getLong("n"), amount, paid, amount.minus(paid));
+                });
+    }
+
+    /** The reminders sent for one invoice, oldest first. */
+    public List<ReminderView> reminders(UUID communityId, UUID invoiceId) {
+        return jdbc.query(
+                "SELECT kind, reminder_date FROM invoice_reminders WHERE community_id = :c AND invoice_id = :i ORDER BY reminder_date, created_at",
+                new MapSqlParameterSource("c", communityId).addValue("i", invoiceId),
+                (rs, row) -> new ReminderView(rs.getString("kind"), rs.getObject("reminder_date", LocalDate.class)));
     }
 
     private static String orderBy(Sort sort) {

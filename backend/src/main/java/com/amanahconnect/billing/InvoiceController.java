@@ -4,8 +4,10 @@ import com.amanahconnect.audit.AuditHandledBy;
 import com.amanahconnect.billing.BillingDtos.CancelInvoiceRequest;
 import com.amanahconnect.billing.BillingDtos.CreateInvoiceRequest;
 import com.amanahconnect.billing.BillingDtos.GenerateInvoicesRequest;
+import com.amanahconnect.billing.BillingDtos.GeneratePreview;
 import com.amanahconnect.billing.BillingDtos.GenerateResult;
 import com.amanahconnect.billing.BillingDtos.InvoiceDetail;
+import com.amanahconnect.billing.BillingDtos.InvoiceTotals;
 import com.amanahconnect.billing.BillingDtos.InvoiceView;
 import com.amanahconnect.billing.BillingDtos.IssueInvoiceRequest;
 import com.amanahconnect.billing.BillingDtos.PayLinkView;
@@ -78,10 +80,33 @@ public class InvoiceController {
         return invoices.list(communityId, new InvoiceFilter(status, memberId, feePlanId, kind, period, dueFrom, dueTo, q, outstandingOnly), SORT.toPageRequest(page));
     }
 
+    @GetMapping("/totals")
+    @Operation(summary = "Totals for a filter", description = "The same filters as the list. Count, amount, paid and balance over everything that matches, not one page. Cancelled invoices are counted but add nothing to the money (unless the filter is status=CANCELLED).")
+    public InvoiceTotals totals(
+            @CurrentCommunity UUID communityId,
+            @RequestParam(required = false) InvoiceStatus status,
+            @RequestParam(required = false) UUID memberId,
+            @RequestParam(required = false) UUID feePlanId,
+            @RequestParam(required = false) FeeKind kind,
+            @RequestParam(required = false) @Size(max = 30) String period,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueTo,
+            @RequestParam(required = false) @Size(max = 100) String q,
+            @RequestParam(defaultValue = "false") boolean outstandingOnly) {
+        return invoices.totals(communityId, new InvoiceFilter(status, memberId, feePlanId, kind, period, dueFrom, dueTo, q, outstandingOnly));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Invoice detail", description = "The invoice and every payment row against it (including reversals).")
     public InvoiceDetail get(@CurrentCommunity UUID communityId, @PathVariable UUID id) {
         return invoices.get(communityId, id);
+    }
+
+    @PostMapping("/generate/preview")
+    @AuditHandledBy("a preview writes nothing; the real run is audited as INVOICES_GENERATED")
+    @Operation(summary = "Preview billing a fee plan", description = "What /generate would do for the same body: how many invoices, for what total, and how many members are already billed or inactive. Creates and emails nothing.")
+    public GeneratePreview generatePreview(@CurrentCommunity UUID communityId, @Valid @RequestBody GenerateInvoicesRequest body) {
+        return generation.preview(communityId, body);
     }
 
     @PostMapping("/generate")

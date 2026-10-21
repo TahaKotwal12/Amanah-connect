@@ -95,6 +95,12 @@ public class MemberController {
         return service.get(communityId, id);
     }
 
+    @GetMapping("/{id}/communications")
+    @Operation(summary = "Emails sent to a member", description = "The emails the system sent or tried to send to the member's address (receipts, reminders, welcome, announcements), newest first, at most 50. Status is PENDING, SENT or FAILED.")
+    public java.util.List<MemberService.CommunicationView> communications(@CurrentCommunity UUID communityId, @PathVariable UUID id) {
+        return service.communications(communityId, id);
+    }
+
     @PostMapping
     @AuditHandledBy("MemberService records MEMBER_CREATED")
     @Operation(summary = "Create a member", description = "The member number is generated from the community's prefix. 402 when the plan's member limit is reached; 409 DUPLICATE_EMAIL unless allowDuplicateEmail is true. Sends the welcome email when it is switched on and the member has an address and consent.")

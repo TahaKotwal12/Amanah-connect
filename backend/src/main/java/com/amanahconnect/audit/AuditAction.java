@@ -16,6 +16,7 @@ public final class AuditAction {
     public static final String PASSWORD_CHANGED = "PASSWORD_CHANGED";
     public static final String INVITATION_CREATED = "INVITATION_CREATED";
     public static final String INVITATION_ACCEPTED = "INVITATION_ACCEPTED";
+    public static final String INVITATION_REVOKED = "INVITATION_REVOKED";
     public static final String TWO_FACTOR_SETUP_STARTED = "TWO_FACTOR_SETUP_STARTED";
     public static final String TWO_FACTOR_ENABLED = "TWO_FACTOR_ENABLED";
     public static final String TWO_FACTOR_DISABLED = "TWO_FACTOR_DISABLED";

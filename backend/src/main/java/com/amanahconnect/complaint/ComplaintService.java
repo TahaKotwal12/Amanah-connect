@@ -13,6 +13,7 @@ import com.amanahconnect.community.CommunityUserRepository;
 import com.amanahconnect.complaint.ComplaintDtos.AddCommentRequest;
 import com.amanahconnect.complaint.ComplaintDtos.ChangeStatusRequest;
 import com.amanahconnect.complaint.ComplaintDtos.CommentView;
+import com.amanahconnect.complaint.ComplaintDtos.AssigneeView;
 import com.amanahconnect.complaint.ComplaintDtos.ComplaintCounts;
 import com.amanahconnect.complaint.ComplaintDtos.ComplaintView;
 import com.amanahconnect.complaint.ComplaintDtos.CreateComplaintRequest;
@@ -255,6 +256,16 @@ public class ComplaintService {
 
     private Member liveMember(UUID communityId, UUID memberId) {
         return tenantGuard.found(members.findByIdAndCommunityIdAndDeletedAtIsNull(memberId, communityId));
+    }
+
+    /** The active admins of this community: who a complaint can be assigned to. */
+    @Transactional(readOnly = true)
+    public List<AssigneeView> assignees(UUID communityId) {
+        return communityUsers.findByCommunityId(communityId).stream()
+                .filter(link -> link.getUser().getStatus() == UserStatus.ACTIVE)
+                .map(link -> new AssigneeView(link.getUser().getId(), link.getUser().getFullName(), link.getUser().getEmail()))
+                .sorted(java.util.Comparator.comparing(AssigneeView::fullName, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     /** The assignee must be an active admin of this community. A stranger and a nobody get the same answer. */

@@ -354,7 +354,22 @@ class ComplaintIT extends AbstractFinanceIT {
                 () -> assertThat(jdbc.queryForObject("select status from complaints where id = ?", String.class, b3)).isEqualTo(before3));
         assertCreateCannotTargetOtherTenant(C, new LinkedHashMap<>(Map.of("subject", "Mine", "description", "x")), r -> id(r.json()), C + "/%s");
         assertTenantSingleton("GET", C + "/counts", null, () -> call(sessionB, "GET", C + "/counts", null).body());
+        assertTenantSingleton("GET", C + "/assignees", null, () -> call(sessionB, "GET", C + "/assignees", null).body());
         assertThat(call(sessionA, "GET", C + "/counts", null).json().get("total").asLong()).as("B's complaints are not counted").isEqualTo(1);
+    }
+
+    @Test
+    void listsOnlyThisCommunitysAdminsToAssignTo() {
+        AuthTestUsers.TestUser mine = users.extraAdminOf(communityA);
+        AuthTestUsers.TestUser theirs = users.extraAdminOf(communityB);
+
+        ApiClient.Response response = call(sessionA, "GET", C + "/assignees", null);
+
+        assertThat(response.status()).isEqualTo(200);
+        java.util.List<String> ids = new java.util.ArrayList<>();
+        response.json().forEach(node -> ids.add(node.get("id").asText()));
+        assertThat(ids).contains(mine.id().toString()).doesNotContain(theirs.id().toString());
+        assertThat(response.json().get(0).has("fullName")).isTrue();
     }
 
     @Test

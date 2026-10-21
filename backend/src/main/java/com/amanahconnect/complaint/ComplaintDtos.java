@@ -65,6 +65,9 @@ public final class ComplaintDtos {
         }
     }
 
+    /** An admin a complaint can be assigned to. */
+    public record AssigneeView(UUID id, String fullName, String email) {}
+
     public record CommentView(UUID id, UUID authorId, String authorName, String body, Visibility visibility, Instant createdAt, String emailOutcome) {}
 
     public record ComplaintCounts(

@@ -84,7 +84,27 @@ public final class BillingDtos {
             long version,
             Instant createdAt) {}
 
-    public record InvoiceDetail(InvoiceView invoice, List<PaymentView> payments) {}
+    /** One reminder email queued for an invoice (DUE_SOON or OVERDUE) and the day it was claimed. */
+    public record ReminderView(String kind, LocalDate on) {}
+
+    /** The invoice, every payment row against it (including reversals) and the reminders sent. */
+    public record InvoiceDetail(InvoiceView invoice, List<PaymentView> payments, List<ReminderView> reminders) {}
+
+    /** Sums over everything a list filter matches. Cancelled invoices are counted but not summed (unless asked for). */
+    public record InvoiceTotals(long count, Money amount, Money amountPaid, Money balance) {}
+
+    /** What billing a fee plan for a period would do, without doing it. */
+    public record GeneratePreview(
+            UUID feePlanId,
+            String feePlanName,
+            String period,
+            LocalDate dueDate,
+            int eligibleMembers,
+            int willCreate,
+            int alreadyBilled,
+            int skippedInactive,
+            Money amountEach,
+            Money totalToBill) {}
 
     @io.swagger.v3.oas.annotations.media.Schema(example = "{\"memberId\":\"3f2b8c1e-6d7a-4c58-9a55-2d1a0e8c9b11\",\"kind\":\"MAINTENANCE\",\"description\":\"Maintenance, April 2026\",\"amount\":\"1500.00\",\"dueDate\":\"2026-04-10\",\"sendEmail\":true}")
     public record CreateInvoiceRequest(

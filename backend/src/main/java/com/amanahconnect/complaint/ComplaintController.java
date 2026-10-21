@@ -6,6 +6,7 @@ import com.amanahconnect.common.page.PageQuery;
 import com.amanahconnect.common.page.PageResponse;
 import com.amanahconnect.common.page.SortWhitelist;
 import com.amanahconnect.complaint.ComplaintDtos.AddCommentRequest;
+import com.amanahconnect.complaint.ComplaintDtos.AssigneeView;
 import com.amanahconnect.complaint.ComplaintDtos.ChangeStatusRequest;
 import com.amanahconnect.complaint.ComplaintDtos.CommentView;
 import com.amanahconnect.complaint.ComplaintDtos.ComplaintCounts;
@@ -81,6 +82,12 @@ public class ComplaintController {
     @Operation(summary = "Dashboard counts", description = "Totals by status, active (open plus in progress), SLA-breached, urgent, unassigned and assigned to me, plus active complaints by category and priority.")
     public ComplaintCounts counts(@CurrentCommunity UUID communityId) {
         return service.counts(communityId);
+    }
+
+    @GetMapping("/assignees")
+    @Operation(summary = "Who a complaint can be assigned to", description = "The active admins of this community, by name.")
+    public List<AssigneeView> assignees(@CurrentCommunity UUID communityId) {
+        return service.assignees(communityId);
     }
 
     @GetMapping("/{id}")

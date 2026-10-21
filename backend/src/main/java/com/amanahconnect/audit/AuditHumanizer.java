@@ -84,6 +84,8 @@ public final class AuditHumanizer {
             case "SUBSCRIPTION_EXPIRED" -> "The subscription expired";
             case "INVITATION_CREATED" -> "An admin was invited";
             case "INVITATION_ACCEPTED" -> "An admin accepted an invitation";
+            case "INVITATION_REVOKED" -> "An admin invitation was revoked";
+            case "OVERDUE_REMINDERS_SENT" -> "Overdue payment reminders were sent";
             case "PASSWORD_CHANGED" -> "An admin changed their password";
             case "TWO_FACTOR_ENABLED" -> "An admin turned on two-factor authentication";
             case "TWO_FACTOR_DISABLED" -> "An admin turned off two-factor authentication";

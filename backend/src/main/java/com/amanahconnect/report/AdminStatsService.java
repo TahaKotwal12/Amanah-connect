@@ -35,6 +35,26 @@ public class AdminStatsService {
             long newLeads,
             long openSupportThreads) {}
 
+    /** One calendar month (IST): revenue by paid date, cancelled payments excluded; communities created that month. */
+    public record MonthPoint(String month, Money revenue, long newCommunities) {}
+
+    public record Monthly(String currency, java.util.List<MonthPoint> months) {}
+
+    private static final int MAX_MONTHS = 36;
+
+    private static final String MONTHLY_SQL =
+            """
+            SELECT to_char(m.month_start, 'YYYY-MM') AS month,
+                   (SELECT coalesce(sum(s.amount), 0) FROM platform_subscriptions s
+                     WHERE s.status <> 'CANCELLED' AND s.paid_on >= m.month_start
+                       AND s.paid_on < (m.month_start + interval '1 month')::date) AS revenue,
+                   (SELECT count(*) FROM communities c
+                     WHERE (c.created_at AT TIME ZONE 'Asia/Kolkata')::date >= m.month_start
+                       AND (c.created_at AT TIME ZONE 'Asia/Kolkata')::date < (m.month_start + interval '1 month')::date) AS new_communities
+              FROM generate_series(CAST(:first AS date), CAST(:last AS date), interval '1 month') AS m(month_start)
+             ORDER BY m.month_start
+            """;
+
     private static final String SQL =
             """
             SELECT
@@ -85,5 +105,17 @@ public class AdminStatsService {
                 properties.expiringWindowDays(),
                 rs.getLong("new_leads"),
                 rs.getLong("open_threads")));
+    }
+
+    /** The last {@code months} calendar months ending with the current one, oldest first, zero-filled. */
+    public Monthly monthly(int months) {
+        int count = Math.max(1, Math.min(months, MAX_MONTHS));
+        LocalDate last = LocalDate.now(clock.withZone(IST)).withDayOfMonth(1);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("first", last.minusMonths(count - 1L))
+                .addValue("last", last);
+        java.util.List<MonthPoint> points = jdbc.query(MONTHLY_SQL, params, (rs, row) ->
+                new MonthPoint(rs.getString("month"), Money.of(rs.getBigDecimal("revenue")), rs.getLong("new_communities")));
+        return new Monthly("INR", points);
     }
 }

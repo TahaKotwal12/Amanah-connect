@@ -2,6 +2,7 @@ package com.amanahconnect.billing;
 
 import com.amanahconnect.audit.AuditService;
 import com.amanahconnect.billing.BillingDtos.GenerateInvoicesRequest;
+import com.amanahconnect.billing.BillingDtos.GeneratePreview;
 import com.amanahconnect.billing.BillingDtos.GenerateResult;
 import com.amanahconnect.common.FinancialYear;
 import com.amanahconnect.common.error.ApiException;
@@ -164,6 +165,51 @@ public class InvoiceGenerationService {
         after.put("lastInvoiceNo", last);
         audit.record("INVOICES_GENERATED", AuditService.currentActorId(), communityId, "FeePlan", plan.getId(), null, after);
         return result;
+    }
+
+    /**
+     * What {@link #generate} would do for the same request, without creating or emailing anything and without taking the
+     * lock: the numbers are a forecast, and the real run is still the authority (it bills exactly those not yet billed).
+     */
+    @Transactional(readOnly = true)
+    public GeneratePreview preview(UUID communityId, GenerateInvoicesRequest request) {
+        FeePlan plan = feePlans.find(communityId, request.feePlanId());
+        if (!plan.isActive()) {
+            throw new ApiException(ErrorCode.FEE_PLAN_INACTIVE, "This fee plan is switched off. Switch it on before billing it.");
+        }
+        Community community = invoiceService.community(communityId);
+        int fyMonth = community.getFinancialYearStartMonth();
+        LocalDate today = LocalDate.now(clock.withZone(IST));
+        String periodText = request.period();
+        FeePeriods.Period period = periodText == null || periodText.isBlank()
+                ? FeePeriods.current(plan.getFrequency(), today, fyMonth)
+                : FeePeriods.parse(plan.getFrequency(), periodText, fyMonth);
+        if (period == null) {
+            throw invalid("period", "required for a one-time plan");
+        }
+        LocalDate due = request.dueDate() != null ? request.dueDate() : FeePeriods.dueDate(period, plan.getDueDay());
+        if (due == null) {
+            throw invalid("dueDate", "required for a one-time plan");
+        }
+        List<Member> audience = audience(communityId, plan);
+        List<Member> eligible = audience.stream().filter(m -> m.getStatus() == MemberStatus.ACTIVE).toList();
+        if (eligible.size() > properties.generationMaxMembers()) {
+            throw invalid("feePlanId", "too many members for one run (" + eligible.size() + "); bill a group instead");
+        }
+        Set<UUID> alreadyBilledIds = billedMembers(communityId, plan.getId(), period.label());
+        int alreadyBilled = (int) eligible.stream().filter(m -> alreadyBilledIds.contains(m.getId())).count();
+        int willCreate = eligible.size() - alreadyBilled;
+        return new GeneratePreview(
+                plan.getId(),
+                plan.getName(),
+                period.label(),
+                due,
+                eligible.size(),
+                willCreate,
+                alreadyBilled,
+                audience.size() - eligible.size(),
+                com.amanahconnect.common.money.Money.of(plan.getAmount()),
+                com.amanahconnect.common.money.Money.of(plan.getAmount()).times(java.math.BigDecimal.valueOf(willCreate)));
     }
 
     private List<Member> audience(UUID communityId, FeePlan plan) {

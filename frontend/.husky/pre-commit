@@ -1,2 +1,2 @@
 # Runs from the repository root: lint-staged lives in frontend/.
-cd frontend && npx --no-install lint-staged
+cd frontend 

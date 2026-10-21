@@ -103,6 +103,28 @@ public class MemberService {
         return MemberView.of(find(communityId, id));
     }
 
+    /** One email the system sent (or tried to send) to a member. The template is the internal name. */
+    public record CommunicationView(UUID id, String template, String status, java.time.Instant createdAt, java.time.Instant sentAt) {}
+
+    /** The emails sent to the member's address, newest first (at most 50). Empty when the member has no email. */
+    @Transactional(readOnly = true)
+    public List<CommunicationView> communications(UUID communityId, UUID id) {
+        Member member = find(communityId, id);
+        if (member.getEmail() == null || member.getEmail().isBlank()) {
+            return List.of();
+        }
+        return jdbc.query(
+                "SELECT id, template, status, created_at, sent_at FROM email_outbox"
+                        + " WHERE community_id = :c AND lower(to_email::text) = lower(:e) ORDER BY created_at DESC LIMIT 50",
+                new MapSqlParameterSource().addValue("c", communityId).addValue("e", member.getEmail()),
+                (rs, i) -> new CommunicationView(
+                        rs.getObject("id", UUID.class),
+                        rs.getString("template"),
+                        rs.getString("status"),
+                        rs.getTimestamp("created_at").toInstant(),
+                        rs.getTimestamp("sent_at") == null ? null : rs.getTimestamp("sent_at").toInstant()));
+    }
+
     @Transactional(readOnly = true)
     public MemberCounts counts(UUID communityId) {
         LocalDate today = LocalDate.now(clock.withZone(IST));

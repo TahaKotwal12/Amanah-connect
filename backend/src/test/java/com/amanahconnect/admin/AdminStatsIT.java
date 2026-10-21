@@ -104,6 +104,35 @@ class AdminStatsIT extends AbstractAdminIT {
         assertThat(after.get("openSupportThreads").asLong() - before.get("openSupportThreads").asLong()).isEqualTo(2);
     }
 
+    @Test
+    void monthlySeriesIsOldestFirstZeroFilledAndCountsPaymentsAndNewCommunities() {
+        var response = adminGet(ADMIN + "/stats/monthly?months=12");
+        assertThat(response.status()).as(response.body()).isEqualTo(200);
+        JsonNode before = response.json();
+        assertThat(before.get("months")).hasSize(12);
+        assertThat(before.get("currency").asString()).isEqualTo("INR");
+        assertThat(before.get("months").get(11).get("month").asString()).isEqualTo(TODAY.toString().substring(0, 7));
+        assertThat(before.get("months").get(0).get("month").asString()).isEqualTo(TODAY.withDayOfMonth(1).minusMonths(11).toString().substring(0, 7));
+
+        Plan plan = data.plan("STARTER");
+        Community community = data.communityOn(plan);
+        paid(community, plan, TODAY, "321.50", "ACTIVE", "M1-" + TestData.unique());
+        paid(community, plan, TODAY, "999.00", "CANCELLED", "M2-" + TestData.unique());
+
+        JsonNode after = adminGet(ADMIN + "/stats/monthly?months=12").json();
+        JsonNode now = after.get("months").get(11);
+        assertThat(now.get("revenue").isString()).as("money is a string").isTrue();
+        assertThat(new BigDecimal(now.get("revenue").asString()).subtract(new BigDecimal(before.get("months").get(11).get("revenue").asString())))
+                .as("cancelled payments are not revenue").isEqualByComparingTo("321.50");
+        assertThat(now.get("newCommunities").asLong() - before.get("months").get(11).get("newCommunities").asLong()).isEqualTo(1);
+    }
+
+    @Test
+    void monthlySeriesClampsTheNumberOfMonths() {
+        assertThat(adminGet(ADMIN + "/stats/monthly?months=500").json().get("months")).hasSize(36);
+        assertThat(adminGet(ADMIN + "/stats/monthly?months=0").json().get("months")).hasSize(1);
+    }
+
     private long delta(JsonNode before, JsonNode after, String group, String field) {
         return after.get(group).get(field).asLong() - before.get(group).get(field).asLong();
     }

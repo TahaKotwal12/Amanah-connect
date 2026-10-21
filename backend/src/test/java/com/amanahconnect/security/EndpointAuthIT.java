@@ -28,6 +28,7 @@ class EndpointAuthIT extends AbstractDeskIT {
             "GET /api/v1/public/pay/{token}",                     // member pays a bill from the emailed link
             "GET /api/v1/public/exports/{token}",                 // emailed data-export link
             "POST /api/v1/public/leads",                          // landing-page contact form
+            "GET /api/v1/public/plans",                           // plans and prices on the landing page
             "POST /api/v1/webhooks/ses",                          // signed SNS notifications
             "POST /api/v1/auth/login", "POST /api/v1/auth/login/2fa", "POST /api/v1/auth/refresh", "POST /api/v1/auth/logout",
             "POST /api/v1/auth/password/forgot", "POST /api/v1/auth/password/reset", "POST /api/v1/auth/accept-invite");

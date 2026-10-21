@@ -101,6 +101,11 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
+    public BillingDtos.InvoiceTotals totals(UUID communityId, InvoiceFilter filter) {
+        return queries.totals(communityId, filter);
+    }
+
+    @Transactional(readOnly = true)
     public InvoiceDetail get(UUID communityId, UUID id) {
         Invoice invoice = find(communityId, id);
         List<PaymentRecord> rows = payments.findByCommunityIdAndInvoiceId(communityId, id);
@@ -109,7 +114,7 @@ public class InvoiceService {
         List<PaymentView> views = rows.stream()
                 .sorted(java.util.Comparator.comparing(PaymentRecord::getCreatedAt).thenComparing(PaymentRecord::getId))
                 .map(p -> Views.payment(p, reversed)).toList();
-        return new InvoiceDetail(Views.invoice(invoice), views);
+        return new InvoiceDetail(Views.invoice(invoice), views, queries.reminders(communityId, id));
     }
 
     // ---- manual invoices ----------------------------------------------------------------------------------------------
