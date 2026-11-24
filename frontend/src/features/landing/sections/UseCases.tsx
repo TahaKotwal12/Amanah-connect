@@ -43,7 +43,7 @@ export default function UseCases() {
         <SectionHeading
           id="solutions-title"
           eyebrow="Solutions"
-          title="Everything your community runs on"
+          title="Everything Your Community Needs in One Platform"
           intro="The same few jobs come up in every community. Amanah Connect handles each of them in one place."
         />
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-6">

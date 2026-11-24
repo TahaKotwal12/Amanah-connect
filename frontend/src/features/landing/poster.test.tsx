@@ -19,8 +19,8 @@ const shell = [
 describe('renderPoster', () => {
   it('is the real first screen: headline, calls to action, proof points', () => {
     const html = renderPoster()
-    expect(html).toContain('Run your community with clarity, care and complete transparency.')
-    expect(html).toContain('Request a demo')
+    expect(html).toContain('Simplifying Community Management with Trust and Transparency')
+    expect(html).toContain('Request a Demo')
     expect(html).toContain('Members never need to log in')
     expect(html).toContain('Sample data') // the mock says it is a mock
   })

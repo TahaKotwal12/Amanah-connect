@@ -1,5 +1,35 @@
-import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { cn } from '@/shared/utils/cn'
+
+/**
+ * One section that cannot be downloaded (a deploy replaced its file, or the connection dropped) must
+ * not take the whole page down with it: the rest stays, and this part offers a reload.
+ */
+class SectionBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  override state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  override render() {
+    if (!this.state.failed) return this.props.children
+    return (
+      <div role="alert" className="container py-16 text-center">
+        <p className="text-ink">This section could not be loaded.</p>
+        <button
+          type="button"
+          className="mt-3 font-semibold text-brand-700 underline underline-offset-2"
+          onClick={() => {
+            window.location.reload()
+          }}
+        >
+          Reload the page
+        </button>
+      </div>
+    )
+  }
+}
 
 interface DeferredSectionProps {
   /** The anchor target. It exists from the start, so /#pricing works before the content has loaded. */
@@ -56,7 +86,11 @@ export function DeferredSection({ id, minHeight, children, className }: Deferred
       className={cn('scroll-mt-20', className)}
       style={near ? undefined : { minHeight }}
     >
-      {near ? <Suspense fallback={<div style={{ minHeight }} />}>{children}</Suspense> : null}
+      {near ? (
+        <SectionBoundary>
+          <Suspense fallback={<div style={{ minHeight }} />}>{children}</Suspense>
+        </SectionBoundary>
+      ) : null}
     </div>
   )
 }

@@ -53,7 +53,7 @@ test('landing page boots with brand assets, tokens and PWA metadata', async ({ p
 
   await expect(page).toHaveTitle(/Amanah Connect/)
   await expect(
-    page.getByRole('heading', { level: 1, name: /Run your community with clarity/ }),
+    page.getByRole('heading', { level: 1, name: /Simplifying Community Management/ }),
   ).toBeVisible()
 
   // The logo mark in the navbar is a real, decoded image (AVIF, WebP or PNG, whichever the browser takes).

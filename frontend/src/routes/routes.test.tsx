@@ -34,7 +34,7 @@ afterEach(() => {
 
 /** [path, heading the placeholder renders] for every page, grouped by who may see it. */
 const publicPages: Array<[string, string]> = [
-  [paths.home, 'Run your community with clarity, care and complete transparency.'],
+  [paths.home, 'Simplifying Community Management with Trust and Transparency'],
   [paths.privacy, 'Privacy policy'],
   [paths.terms, 'Terms of service'],
   [paths.login, 'Sign in'],

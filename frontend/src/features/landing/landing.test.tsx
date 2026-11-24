@@ -41,7 +41,8 @@ describe('the whole landing page', () => {
 
     // Without IntersectionObserver (jsdom) the deferred sections mount straight away.
     const headings = [
-      'Everything your community runs on',
+      'Everything Your Community Needs in One Platform',
+      'Designed for Every Community',
       'Built for the people who keep a community running',
       'An amanah is something held in trust',
       'Up and running in three steps',
@@ -49,6 +50,7 @@ describe('the whole landing page', () => {
       'Simple plans, no surprises',
       'Questions people ask first',
       'See it with your own community in mind',
+      'Get in Touch',
       'Ready to run your community with more clarity?',
     ]
     for (const name of headings) {
@@ -72,7 +74,7 @@ describe('the whole landing page', () => {
     )
     const solutions = await screen.findByRole(
       'region',
-      { name: 'Everything your community runs on' },
+      { name: 'Everything Your Community Needs in One Platform' },
       { timeout: 5000 },
     )
     expect(within(solutions).getAllByRole('heading', { level: 3 })).toHaveLength(5)
@@ -105,7 +107,7 @@ describe('Navbar', () => {
       </MemoryRouter>,
     )
     const bar = screen.getByRole('navigation', { name: 'Sections' })
-    for (const label of ['Solutions', 'Features', 'Security', 'Pricing', 'FAQ']) {
+    for (const label of ['Solutions', 'Features', 'Security', 'Pricing', 'FAQ', 'Contact']) {
       expect(within(bar).getByRole('link', { name: label })).toHaveAttribute(
         'href',
         `/#${label.toLowerCase()}`,
@@ -116,7 +118,7 @@ describe('Navbar', () => {
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }))
     const drawer = screen.getByRole('dialog', { name: 'Menu' })
-    expect(within(drawer).getAllByRole('link')).toHaveLength(7)
+    expect(within(drawer).getAllByRole('link')).toHaveLength(8)
     await user.click(within(drawer).getByRole('link', { name: 'Pricing' }))
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: 'Menu' })).not.toBeInTheDocument()

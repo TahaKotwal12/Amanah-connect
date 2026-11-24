@@ -5,6 +5,8 @@ export const SECTION_LINKS = [
   { id: 'security', label: 'Security' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'faq', label: 'FAQ' },
+  { id: 'contact', label: 'Contact' },
 ] as const
 
 export const DEMO_ID = 'demo'
+export const CONTACT_ID = 'contact'

@@ -19,14 +19,14 @@ test('the landing page paints from the HTML, then the live page takes over witho
   // Before any script runs, the headline is already in the document.
   const response = await page.request.get('/')
   expect(await response.text()).toContain(
-    'Run your community with clarity, care and complete transparency.',
+    'Simplifying Community Management with Trust and Transparency',
   )
 
   await page.goto('/')
   await expect(page.locator('#poster')).toBeHidden({ timeout: 10_000 }) // handed over to React
   const headings = page.getByRole('heading', { level: 1 })
   await expect(headings).toHaveCount(1)
-  await expect(headings).toHaveText(/Run your community with clarity/)
+  await expect(headings).toHaveText(/Simplifying Community Management/)
   expect(failures.filter((text) => !text.includes('401'))).toEqual([])
 })
 
