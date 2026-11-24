@@ -1,0 +1,20 @@
+{
+  "name": "amanah-control-panel",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Start and stop the Amanah Connect UAT server from a web page (deployed on Vercel).",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.mjs",
+    "check": "tsc --noEmit",
+    "test": "node --test test/logic.test.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "3.1176.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "@vercel/node": "31.0.2",
+    "typescript": "5.9.3"
+  }
+}

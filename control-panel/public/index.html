@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#07363E" />
+    <title>Amanah Connect server control</title>
+    <link rel="icon" href="/logo.png" />
+    <style>
+      :root {
+        --brand-50: #eef8f8;
+        --brand-600: #037077;
+        --brand-900: #07363e;
+        --brand-950: #04262c;
+        --gold: #c9a227;
+        --ink: #0f2a2e;
+        --muted: #5b6f72;
+        --danger: #b42318;
+        --ok: #2b6a0d;
+        --warn: #b54708;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color: var(--ink);
+        background: var(--brand-950);
+      }
+      main {
+        width: 100%;
+        max-width: 440px;
+        background: #fff;
+        border-radius: 8px;
+        padding: 28px 24px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+      header { text-align: center; margin-bottom: 20px; }
+      header img { width: 56px; height: 56px; }
+      h1 { margin: 8px 0 2px; font-size: 1.3rem; color: var(--brand-900); }
+      header p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+      label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+      input {
+        width: 100%;
+        font: inherit;
+        padding: 12px;
+        border: 1px solid #9fb3b5;
+        border-radius: 6px;
+      }
+      input:focus-visible, button:focus-visible, a:focus-visible {
+        outline: 3px solid var(--gold);
+        outline-offset: 2px;
+      }
+      .status {
+        margin: 20px 0;
+        padding: 16px;
+        border-radius: 8px;
+        background: var(--brand-50);
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .dot { width: 14px; height: 14px; border-radius: 50%; margin-top: 4px; flex: none; background: var(--muted); }
+      .dot.ready { background: var(--ok); }
+      .dot.busy { background: var(--warn); animation: pulse 1.2s ease-in-out infinite; }
+      .dot.off { background: var(--muted); }
+      .dot.bad { background: var(--danger); }
+      @keyframes pulse { 50% { opacity: 0.3; } }
+      @media (prefers-reduced-motion: reduce) { .dot.busy { animation: none; } }
+      .status strong { display: block; font-size: 1.05rem; }
+      .status span { color: var(--muted); font-size: 0.92rem; }
+      .actions { display: grid; gap: 10px; }
+      button, .open {
+        font: inherit;
+        font-weight: 600;
+        padding: 13px 16px;
+        min-height: 48px;
+        border-radius: 6px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+      }
+      #start { background: var(--gold); color: var(--ink); }
+      #stop { background: #fff; color: var(--danger); border-color: var(--danger); }
+      .open { background: var(--brand-600); color: #fff; display: block; }
+      button:disabled { opacity: 0.45; cursor: not-allowed; }
+      [hidden] { display: none !important; }
+      .error { color: var(--danger); font-weight: 600; font-size: 0.92rem; margin: 10px 0 0; }
+      .note { color: var(--muted); font-size: 0.82rem; margin: 18px 0 0; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="/logo.png" alt="" width="56" height="56" />
+        <h1>Amanah Connect</h1>
+        <p>Server control</p>
+      </header>
+
+      <div>
+        <label for="code">Access code</label>
+        <input id="code" type="password" autocomplete="current-password" spellcheck="false" />
+      </div>
+
+      <div class="status" role="status" aria-live="polite">
+        <span id="dot" class="dot off" aria-hidden="true"></span>
+        <div>
+          <strong id="title">Enter the access code</strong>
+          <span id="detail">Then the server's state appears here.</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a id="open" class="open" href="#" target="_blank" rel="noopener" hidden>Open Amanah Connect</a>
+        <button id="start" type="button" disabled>Start the server</button>
+        <button id="stop" type="button" disabled>Shut the server down</button>
+      </div>
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <p class="note">
+        Turning the server off when you are not using it saves running costs. Your data is kept
+        safely and is there again when you start it.
+      </p>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id)
+      const codeInput = $('code')
+      let timer = null
+      let busy = false
+
+      try { codeInput.value = sessionStorage.getItem('code') || '' } catch { /* private mode */ }
+
+      const VIEW = {
+        stopped:     { dot: 'off',   title: 'The server is off',            detail: 'Press Start when you want to use it.' },
+        starting:    { dot: 'busy',  title: 'Starting the server…',         detail: 'This usually takes about two minutes.' },
+        booting:     { dot: 'busy',  title: 'Almost ready…',                detail: 'The application is warming up. One more minute.' },
+        ready:       { dot: 'ready', title: 'The server is on and ready',   detail: 'You can open Amanah Connect now.' },
+        stopping:    { dot: 'busy',  title: 'Shutting down…',               detail: 'You can start it again in a minute or two.' },
+        unavailable: { dot: 'bad',   title: 'The server cannot be used',    detail: 'Please contact support.' },
+      }
+
+      function showError(message) {
+        $('error').textContent = message || ''
+        $('error').hidden = !message
+      }
+
+      function render(status) {
+        const view = VIEW[status.phase] || VIEW.unavailable
+        $('dot').className = 'dot ' + view.dot
+        $('title').textContent = view.title
+        $('detail').textContent = view.detail
+        $('start').disabled = busy || status.phase !== 'stopped'
+        $('stop').disabled = busy || !['starting', 'booting', 'ready'].includes(status.phase)
+        const link = $('open')
+        link.hidden = status.phase !== 'ready' || !status.siteUrl
+        if (!link.hidden) link.href = status.siteUrl
+      }
+
+      async function call(action) {
+        const response = await fetch('/api/' + action, {
+          method: 'POST',
+          headers: { 'x-access-code': codeInput.value },
+        })
+        const body = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          const error = new Error(body.error || 'Something went wrong. Please try again.')
+          error.status = response.status
+          throw error
+        }
+        return body
+      }
+
+      async function refresh() {
+        if (!codeInput.value) return
+        try {
+          render(await call('status'))
+          showError('')
+        } catch (error) {
+          showError(error.message)
+          if (error.status === 401) {
+            stopPolling()
+            $('title').textContent = 'Access code needed'
+            $('detail').textContent = 'Check the code and try again.'
+            $('dot').className = 'dot off'
+            $('start').disabled = true
+            $('stop').disabled = true
+          }
+        }
+      }
+
+      function startPolling() {
+        stopPolling()
+        void refresh()
+        timer = setInterval(() => { if (!document.hidden) void refresh() }, 5000)
+      }
+      function stopPolling() { if (timer) clearInterval(timer); timer = null }
+
+      async function act(action) {
+        busy = true
+        $('start').disabled = true
+        $('stop').disabled = true
+        try {
+          render(await call(action))
+          showError('')
+        } catch (error) {
+          showError(error.message)
+        } finally {
+          busy = false
+          void refresh()
+        }
+      }
+
+      $('start').addEventListener('click', () => void act('start'))
+      $('stop').addEventListener('click', () => {
+        if (confirm('Shut the server down? Nobody can use Amanah Connect until it is started again.')) {
+          void act('stop')
+        }
+      })
+
+      // The code is checked when it is entered (Enter, or leaving the field), not on every key.
+      let checked = ''
+      function submitCode() {
+        try { sessionStorage.setItem('code', codeInput.value) } catch { /* ignore */ }
+        if (codeInput.value && codeInput.value !== checked) {
+          checked = codeInput.value
+          startPolling()
+        }
+      }
+      codeInput.addEventListener('change', submitCode)
+      codeInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') submitCode() })
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) void refresh() })
+      if (codeInput.value) startPolling()
+    </script>
+  </body>
+</html>
