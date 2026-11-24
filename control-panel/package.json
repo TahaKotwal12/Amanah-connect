@@ -3,7 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "description": "Start and stop the Amanah Connect UAT server from a web page (deployed on Vercel).",
-  "type": "module",
   "scripts": {
     "dev": "node dev-server.mjs",
     "check": "tsc --noEmit",
