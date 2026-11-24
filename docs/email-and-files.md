@@ -98,3 +98,45 @@ Everything that goes to object storage goes through `FileService`.
 * **Local**: MinIO (`S3_BUCKET`, `S3_ENDPOINT`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`); production uses the EC2 instance role.
 
 Files stored before this release (logos, ledger attachments) are not in `stored_files`, so they are not counted until replaced.
+
+### Where the files live: local disk (phase 1) or S3
+
+`app.storage.local-path` (env `STORAGE_LOCAL_PATH`) chooses the backend:
+
+| Setting | Files are kept |
+|---|---|
+| `local-path` set | in that folder on this server's disk (phase 1: no S3 account needed) |
+| `local-path` empty, `bucket` set | in S3 or an S3-compatible service (MinIO) |
+| neither | nowhere: anything that needs a file answers `503 STORAGE_UNAVAILABLE` |
+
+With local disk there are no presigned S3 links, so the same two steps go through this application:
+
+* **Upload**: the "presigned" URL points at `PUT /api/v1/public/files/upload?key=…&exp=…&size=…&type=…&sig=…`. The signature is an
+  HMAC-SHA256 over the action, the key, the expiry, the exact size and the exact content type, so the link allows one file of one
+  size and type to one key for 10 minutes. A longer body is refused, never truncated. The file is written to a temporary name and
+  moved into place, so a half upload is never visible.
+* **Download**: `GET /api/v1/public/files/download?key=…&exp=…&sig=…`, signed the same way, valid 10 minutes, served with
+  `X-Content-Type-Options: nosniff` and `Cache-Control: no-store`.
+* **Safety**: the signature is the permission (these two URLs have no login, and are listed in `EndpointAuthIT`). A key can never
+  leave the folder: keys with `..`, `\`, a leading `/`, an empty part or a NUL byte are refused before any file is touched. The folder
+  itself is never served.
+* **Signing key**: set `STORAGE_SIGNING_KEY` to a long random secret (32+ characters). If it is empty a random key is made at every
+  start, which is safe but makes links issued before a restart stop working.
+
+**Back this folder up together with the database.** Receipts, logos and attachments exist only here. A receipt PDF can be rebuilt on
+demand if its file is lost, but logos and attachments cannot.
+
+### SMTP (mail)
+
+Bills and receipts are sent by the outbox worker through any SMTP server. Set these environment variables (or the matching
+`spring.mail.*` properties in your gitignored `application-dev.yml`):
+
+```
+MAIL_HOST=smtp.example.com        MAIL_PORT=587
+MAIL_USER=…                       MAIL_PASSWORD=…
+MAIL_FROM="Your Community <no-reply@your-domain>"
+```
+
+The password is never logged or committed. Port 587 uses STARTTLS (the default). Port 465 (Hostinger) uses SSL from the first
+byte: also set `MAIL_SSL=true` and `MAIL_STARTTLS=false`. Hostinger only lets you send **from the mailbox you log in with**, so
+`MAIL_FROM` must be that mailbox (for example `Amanah Connect <taha@amanahconnect.co.in>`).

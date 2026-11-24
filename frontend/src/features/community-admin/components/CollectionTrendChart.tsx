@@ -72,7 +72,11 @@ export default function CollectionTrendChart({
       </p>
       <div className="mt-3 h-64" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <BarChart
+            accessibilityLayer={false}
+            data={rows}
+            margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+          >
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" interval="preserveStartEnd" {...axisProps} />
             <YAxis

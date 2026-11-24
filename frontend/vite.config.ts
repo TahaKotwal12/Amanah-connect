@@ -1,5 +1,6 @@
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
+import { visualizer } from 'rollup-plugin-visualizer'
 import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
 import { poster } from './vite-plugin-poster.ts'
@@ -15,7 +16,22 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [react(), siteMeta(env.VITE_SITE_URL ?? ''), poster()],
+    plugins: [
+      react(),
+      siteMeta(env.VITE_SITE_URL ?? ''),
+      poster(),
+      // `npm run analyze` writes reports/bundle.html: a treemap of what is in each chunk (gzip sizes).
+      ...(process.env.ANALYZE
+        ? [
+            visualizer({
+              filename: 'reports/bundle.html',
+              gzipSize: true,
+              template: 'treemap',
+              emitFile: false,
+            }),
+          ]
+        : []),
+    ],
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
@@ -32,6 +48,8 @@ export default defineConfig(({ mode }) => {
       // /assets/* as immutable. 'hidden' emits .map files without a sourceMappingURL comment:
       // upload them to the error tracker and do not copy them into the Nginx image.
       sourcemap: 'hidden',
+      // dist/.vite/manifest.json lists each chunk and what it imports: scripts/check-bundle.mjs reads it.
+      manifest: true,
       target: 'es2023',
     },
     test: {

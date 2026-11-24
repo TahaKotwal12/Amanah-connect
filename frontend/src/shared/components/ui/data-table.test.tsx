@@ -6,6 +6,7 @@ import { expectNoA11yViolations } from '@/test/a11y'
 import { clearViewportMock, mockViewport } from '@/test/render'
 import {
   DataTable,
+  VIRTUALIZE_AFTER_ROWS,
   createDataTableColumns,
   paramsToSorting,
   sortingToParams,
@@ -215,5 +216,45 @@ describe('table helpers', () => {
     expect(pageWindow(0, 20)).toEqual([0, 1, 'gap', 19])
     expect(pageWindow(10, 20)).toEqual([0, 'gap', 9, 10, 11, 'gap', 19])
     expect(pageWindow(19, 20)).toEqual([0, 'gap', 18, 19])
+  })
+})
+
+describe('DataTable virtualisation', () => {
+  const many: Row[] = Array.from({ length: 150 }, (_, i) => ({
+    id: String(i),
+    name: `Member ${i}`,
+    amount: '10.00',
+  }))
+  // jsdom has no layout: give the scroll area a height so the virtualiser can tell what is in view.
+  // The scroll area is 500px tall and every row measures 57px.
+  const spies: { mockRestore: () => void }[] = []
+  beforeEach(() => {
+    spies.push(
+      vi.spyOn(Element.prototype, 'clientHeight', 'get').mockReturnValue(500),
+      vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(57),
+    )
+  })
+  afterEach(() => {
+    spies.splice(0).forEach((spy) => {
+      spy.mockRestore()
+    })
+  })
+
+  it('renders only the rows in view when a page is long, and reports the real size', async () => {
+    setup({ data: many, rowCount: 150, pagination: { pageIndex: 0, pageSize: 150 } })
+    const table = screen.getByRole('table', { name: 'Members' })
+    expect(await within(table).findByText('Member 0')).toBeInTheDocument()
+    const rendered = within(table).getAllByRole('row').length
+    expect(rendered).toBeLessThan(60)
+    expect(table).toHaveAttribute('aria-rowcount', '151')
+    expect(within(table).queryByText('Member 149')).not.toBeInTheDocument()
+  })
+
+  it('keeps the plain table (every row) at or under the threshold', () => {
+    const few = many.slice(0, VIRTUALIZE_AFTER_ROWS)
+    setup({ data: few, rowCount: few.length, pagination: { pageIndex: 0, pageSize: 50 } })
+    const table = screen.getByRole('table', { name: 'Members' })
+    expect(within(table).getAllByRole('row')).toHaveLength(VIRTUALIZE_AFTER_ROWS + 1)
+    expect(table).not.toHaveAttribute('aria-rowcount')
   })
 })

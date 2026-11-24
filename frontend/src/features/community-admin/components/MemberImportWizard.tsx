@@ -134,7 +134,7 @@ export function MemberImportWizard({ open, onOpenChange }: MemberImportWizardPro
                 accept=".csv,text/csv"
                 aria-describedby={`${inputId}-hint`}
                 onChange={(event) => choose(event.target.files?.[0])}
-                className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded file:border file:border-brand-600 file:bg-white file:px-4 file:font-medium file:text-brand-700"
+                className="block w-full text-sm file:me-3 file:min-h-11 file:rounded file:border file:border-brand-600 file:bg-white file:px-4 file:font-medium file:text-brand-700"
               />
               <p id={`${inputId}-hint`} className="text-xs text-muted">
                 Columns: member_no, full_name, email, phone, group, status, joined_on,

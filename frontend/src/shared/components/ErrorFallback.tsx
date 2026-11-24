@@ -20,16 +20,19 @@ export function ErrorFallback({
   fullScreen = true,
 }: ErrorFallbackProps) {
   return (
-    <div
-      role="alert"
+    // The error screen replaces the whole page, so it is the page's one main landmark.
+    <main
+      id="main"
       className={cn(
         'flex flex-col items-center justify-center gap-4 bg-ivory px-6 py-16 text-center',
         fullScreen && 'min-h-screen',
       )}
     >
-      <p className="eyebrow">Amanah Connect</p>
-      <h1 className="text-3xl">{title}</h1>
-      <p className="max-w-prose text-muted">{message}</p>
+      <div role="alert" className="grid justify-items-center gap-4">
+        <p className="eyebrow">Amanah Connect</p>
+        <h1 className="text-3xl">{title}</h1>
+        <p className="max-w-prose text-muted">{message}</p>
+      </div>
       <div className="flex flex-wrap justify-center gap-3">
         <button
           type="button"
@@ -45,6 +48,6 @@ export function ErrorFallback({
           Go to the home page
         </a>
       </div>
-    </div>
+    </main>
   )
 }

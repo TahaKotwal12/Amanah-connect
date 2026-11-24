@@ -26,7 +26,7 @@ export function DashboardMock() {
     <div
       role="img"
       aria-label="Illustration of the Amanah Connect dashboard, showing collected dues, outstanding dues, a monthly chart and recent payments, with sample figures."
-      className="w-full max-w-md rounded-card bg-white p-4 text-left shadow-lift ring-1 ring-brand-100 sm:p-5"
+      className="w-full max-w-md rounded-card bg-white p-4 text-start shadow-lift ring-1 ring-brand-100 sm:p-5"
     >
       <div aria-hidden="true">
         <div className="flex items-center justify-between gap-2">

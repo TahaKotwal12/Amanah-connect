@@ -112,6 +112,7 @@ function refreshMoney(client: QueryClient) {
     client.invalidateQueries({ queryKey: communityAdminKeys.payments.all }),
     client.invalidateQueries({ queryKey: communityAdminKeys.receipts.all }),
     client.invalidateQueries({ queryKey: communityAdminKeys.defaulters.all }),
+    client.invalidateQueries({ queryKey: communityAdminKeys.expenseShares.all }),
     client.invalidateQueries({ queryKey: communityAdminKeys.ledger.all }),
     client.invalidateQueries({ queryKey: communityAdminKeys.dashboard() }),
     client.invalidateQueries({ queryKey: communityAdminKeys.members.all }),

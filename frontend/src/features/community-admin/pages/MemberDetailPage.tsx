@@ -266,26 +266,26 @@ export default function MemberDetailPage() {
                         </span>
                       </p>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
+                        <table className="w-full text-start text-sm">
                           <caption className="sr-only">Invoices</caption>
                           <thead>
                             <tr className="border-b border-brand-100 text-muted">
-                              <th scope="col" className="py-2 pr-4 font-medium">
+                              <th scope="col" className="py-2 pe-4 font-medium">
                                 Invoice
                               </th>
-                              <th scope="col" className="py-2 pr-4 font-medium">
+                              <th scope="col" className="py-2 pe-4 font-medium">
                                 For
                               </th>
-                              <th scope="col" className="py-2 pr-4 font-medium">
+                              <th scope="col" className="py-2 pe-4 font-medium">
                                 Due
                               </th>
-                              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                              <th scope="col" className="py-2 pe-4 text-end font-medium">
                                 Amount
                               </th>
-                              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                              <th scope="col" className="py-2 pe-4 text-end font-medium">
                                 Paid
                               </th>
-                              <th scope="col" className="py-2 pr-4 text-right font-medium">
+                              <th scope="col" className="py-2 pe-4 text-end font-medium">
                                 Balance
                               </th>
                               <th scope="col" className="py-2 font-medium">
@@ -296,16 +296,16 @@ export default function MemberDetailPage() {
                           <tbody>
                             {page.items.map((invoice) => (
                               <tr key={invoice.id} className="border-b border-brand-50">
-                                <td className="py-2 pr-4">{invoice.invoiceNo}</td>
-                                <td className="py-2 pr-4">{invoice.description}</td>
-                                <td className="py-2 pr-4">{formatDate(invoice.dueDate)}</td>
-                                <td className="py-2 pr-4 text-right tabular-nums">
+                                <td className="py-2 pe-4">{invoice.invoiceNo}</td>
+                                <td className="py-2 pe-4">{invoice.description}</td>
+                                <td className="py-2 pe-4">{formatDate(invoice.dueDate)}</td>
+                                <td className="py-2 pe-4 text-end tabular-nums">
                                   {money(invoice.amount)}
                                 </td>
-                                <td className="py-2 pr-4 text-right tabular-nums">
+                                <td className="py-2 pe-4 text-end tabular-nums">
                                   {money(invoice.amountPaid)}
                                 </td>
-                                <td className="py-2 pr-4 text-right tabular-nums">
+                                <td className="py-2 pe-4 text-end tabular-nums">
                                   {money(invoice.balance)}
                                 </td>
                                 <td className="py-2">
@@ -346,20 +346,20 @@ export default function MemberDetailPage() {
               >
                 {(page) => (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
+                    <table className="w-full text-start text-sm">
                       <caption className="sr-only">Payments</caption>
                       <thead>
                         <tr className="border-b border-brand-100 text-muted">
-                          <th scope="col" className="py-2 pr-4 font-medium">
+                          <th scope="col" className="py-2 pe-4 font-medium">
                             Received
                           </th>
-                          <th scope="col" className="py-2 pr-4 font-medium">
+                          <th scope="col" className="py-2 pe-4 font-medium">
                             For
                           </th>
-                          <th scope="col" className="py-2 pr-4 font-medium">
+                          <th scope="col" className="py-2 pe-4 font-medium">
                             Method
                           </th>
-                          <th scope="col" className="py-2 pr-4 text-right font-medium">
+                          <th scope="col" className="py-2 pe-4 text-end font-medium">
                             Amount
                           </th>
                           <th scope="col" className="py-2 font-medium">
@@ -370,17 +370,17 @@ export default function MemberDetailPage() {
                       <tbody>
                         {page.items.map((payment) => (
                           <tr key={payment.id} className="border-b border-brand-50">
-                            <td className="py-2 pr-4">{formatDate(payment.receivedOn)}</td>
-                            <td className="py-2 pr-4">
+                            <td className="py-2 pe-4">{formatDate(payment.receivedOn)}</td>
+                            <td className="py-2 pe-4">
                               {payment.invoiceNo ?? payment.kind.toLowerCase()}
                               {payment.reversed ? (
-                                <span className="ml-2">
+                                <span className="ms-2">
                                   <StatusBadge status="reversed" />
                                 </span>
                               ) : null}
                             </td>
-                            <td className="py-2 pr-4">{payment.method}</td>
-                            <td className="py-2 pr-4 text-right tabular-nums">
+                            <td className="py-2 pe-4">{payment.method}</td>
+                            <td className="py-2 pe-4 text-end tabular-nums">
                               {money(payment.amount)}
                             </td>
                             <td className="py-2">{payment.receiptNo ?? ''}</td>

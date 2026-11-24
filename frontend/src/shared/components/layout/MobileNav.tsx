@@ -1,6 +1,7 @@
 import { Ellipsis } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router'
+import { prefetchRoute } from '@/routes/prefetch'
 import { cn } from '@/shared/utils/cn'
 import {
   Sheet,
@@ -32,7 +33,14 @@ export function MobileNav({ nav }: { nav: readonly NavItem[] }) {
       className="fixed inset-x-0 bottom-0 z-40 flex border-t border-brand-100 bg-white md:hidden"
     >
       {inBar.map((item) => (
-        <NavLink key={item.to} to={item.to} className={itemClasses}>
+        <NavLink
+          key={item.to}
+          to={item.to}
+          onPointerDown={() => {
+            prefetchRoute(item.to)
+          }}
+          className={itemClasses}
+        >
           <item.icon aria-hidden="true" className="size-5" />
           {item.label}
         </NavLink>

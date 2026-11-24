@@ -23,19 +23,31 @@ interface AvatarProps extends VariantProps<typeof avatarVariants> {
   name: string
   src?: string | null
   className?: string
+  /** The name is written out next to the avatar: hide it from assistive technology. */
+  decorative?: boolean
 }
 
-export function Avatar({ name, src, size, className }: AvatarProps) {
+export function Avatar({ name, src, size, className, decorative = false }: AvatarProps) {
   return (
     <AvatarPrimitive.Root
-      className={cn(avatarVariants({ size }), className)}
-      role="img"
-      aria-label={name.trim() || 'Unknown user'}
+      className={cn(
+        avatarVariants({ size }),
+        // Decorative: the initials are drawn by CSS, so they are not text in the page. A control
+        // whose accessible name is its own label would otherwise fail "label in name" (WCAG 2.5.3)
+        // because the visible letters are not part of that name.
+        decorative && 'after:content-[attr(data-initials)]',
+        className,
+      )}
+      {...(decorative
+        ? { 'aria-hidden': true, 'data-initials': initialsOf(name) }
+        : { role: 'img', 'aria-label': name.trim() || 'Unknown user' })}
     >
       {src ? <AvatarPrimitive.Image src={src} alt="" className="size-full object-cover" /> : null}
-      <AvatarPrimitive.Fallback aria-hidden="true" delayMs={src ? 300 : 0}>
-        {initialsOf(name)}
-      </AvatarPrimitive.Fallback>
+      {decorative ? null : (
+        <AvatarPrimitive.Fallback aria-hidden="true" delayMs={src ? 300 : 0}>
+          {initialsOf(name)}
+        </AvatarPrimitive.Fallback>
+      )}
     </AvatarPrimitive.Root>
   )
 }

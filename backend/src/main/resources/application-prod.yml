@@ -20,8 +20,13 @@ spring:
     password: ${MAIL_PASSWORD}
     properties:
       mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-      mail.smtp.starttls.required: true
+      # Port 587 uses STARTTLS (the defaults). Port 465 (Hostinger) uses SSL from the first byte:
+      # set MAIL_SSL=true and MAIL_STARTTLS=false. Either way the connection must be encrypted
+      # and the server's certificate must match its host name.
+      mail.smtp.ssl.enable: ${MAIL_SSL:false}
+      mail.smtp.ssl.checkserveridentity: true
+      mail.smtp.starttls.enable: ${MAIL_STARTTLS:true}
+      mail.smtp.starttls.required: ${MAIL_STARTTLS:true}
 
 server:
   forward-headers-strategy: native     # behind Nginx on the same host

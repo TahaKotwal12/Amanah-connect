@@ -29,14 +29,14 @@ export function AuditDiff({
   }
   return (
     <div>
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-start text-sm">
         <caption className="sr-only">What changed</caption>
         <thead className="text-muted">
           <tr>
-            <th scope="col" className="py-1 pr-4 font-medium">
+            <th scope="col" className="py-1 pe-4 font-medium">
               Field
             </th>
-            <th scope="col" className="py-1 pr-4 font-medium">
+            <th scope="col" className="py-1 pe-4 font-medium">
               Change
             </th>
             <th scope="col" className="py-1 font-medium">
@@ -47,10 +47,10 @@ export function AuditDiff({
         <tbody>
           {(changes.length > 0 ? changes : lines).map((line) => (
             <tr key={line.key} className="border-t border-brand-100 align-top">
-              <th scope="row" className="py-1.5 pr-4 font-mono text-xs font-medium">
+              <th scope="row" className="py-1.5 pe-4 font-mono text-xs font-medium">
                 {line.key}
               </th>
-              <td className="py-1.5 pr-4">
+              <td className="py-1.5 pe-4">
                 <span
                   className={
                     line.kind === 'added'

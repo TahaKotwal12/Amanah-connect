@@ -134,7 +134,7 @@ export function InvoicesTab({ currency = 'INR' }: { currency?: string }) {
               aria-pressed={selected}
               onClick={() => list.setFilter('status', tab.value)}
               className={cn(
-                'inline-flex min-h-11 items-center rounded border px-3 text-sm font-medium',
+                'inline-flex min-h-11 min-w-11 items-center justify-center rounded border px-3 text-sm font-medium',
                 selected
                   ? 'border-brand-600 bg-brand-600 text-white'
                   : 'border-brand-200 bg-white text-brand-900 hover:border-brand-500',
@@ -208,9 +208,11 @@ export function InvoicesTab({ currency = 'INR' }: { currency?: string }) {
                 >
                   Record payment
                 </DropdownMenuItem>
+                {/* UPI and QR codes are off in phase 1 (cash only):
                 <DropdownMenuItem onSelect={() => setAction({ kind: 'qr', invoice: row })}>
                   Show QR code
                 </DropdownMenuItem>
+                */}
                 <DropdownMenuItem
                   disabled={!write.allowed}
                   onSelect={() => setAction({ kind: 'resend', invoice: row })}

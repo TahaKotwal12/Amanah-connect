@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/utils/cn'
 
 interface PageSpinnerProps {
@@ -8,7 +9,8 @@ interface PageSpinnerProps {
 }
 
 /** Centered loading indicator for route chunks and session bootstrap. */
-export function PageSpinner({ label = 'Loading', fullScreen = false }: PageSpinnerProps) {
+export function PageSpinner({ label, fullScreen = false }: PageSpinnerProps) {
+  const { t } = useTranslation()
   return (
     <div
       role="status"
@@ -22,7 +24,7 @@ export function PageSpinner({ label = 'Loading', fullScreen = false }: PageSpinn
         aria-hidden="true"
         className="size-9 animate-spin rounded-full border-[3px] border-brand-100 border-t-brand-600"
       />
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label ?? t('loading')}</span>
     </div>
   )
 }

@@ -16,7 +16,7 @@ export function SelectTrigger({
     <SelectPrimitive.Trigger
       className={cn(
         fieldClasses,
-        'items-center justify-between gap-2 text-left data-[placeholder]:text-muted',
+        'items-center justify-between gap-2 text-start data-[placeholder]:text-muted',
         className,
       )}
       {...props}
@@ -60,12 +60,12 @@ export function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        'relative flex min-h-10 cursor-pointer select-none items-center rounded py-2 pl-8 pr-3 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-brand-50 data-[disabled]:opacity-50',
+        'relative flex min-h-10 cursor-pointer select-none items-center rounded py-2 pe-3 ps-8 text-sm outline-none data-[disabled]:pointer-events-none data-[highlighted]:bg-brand-50 data-[disabled]:opacity-50',
         className,
       )}
       {...props}
     >
-      <span className="absolute left-2 flex size-4 items-center justify-center">
+      <span className="absolute start-2 flex size-4 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Check aria-hidden="true" className="size-4 text-brand-600" />
         </SelectPrimitive.ItemIndicator>

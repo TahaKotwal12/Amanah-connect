@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { logout } from '@/lib/session'
 import { paths } from '@/routes/paths'
+import { prefetchWhenIdle } from '@/routes/prefetch'
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery'
 import { useSidebarCollapsed } from '@/shared/hooks/useSidebarCollapsed'
 import { useAuthStore } from '@/store/authStore'
@@ -49,6 +50,10 @@ export function AppShell({
   const [collapsed, toggleCollapsed] = useSidebarCollapsed()
   // One navigation at a time: rendering both would give screen readers two 'Main' landmarks.
   const isDesktop = useMediaQuery('(min-width: 768px)')
+
+  // Once the first page is up and the browser is idle, fetch the code of the next few pages people
+  // usually open, so those clicks feel instant. (Hover and focus on a link prefetch that page too.)
+  useEffect(() => prefetchWhenIdle(nav.slice(1, 4).map((item) => item.to)), [nav])
 
   async function signOut() {
     await logout()

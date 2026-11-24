@@ -83,7 +83,7 @@ export function TopBar({
               {notificationCount > 0 ? (
                 <span
                   aria-hidden="true"
-                  className="absolute right-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-4 text-white"
+                  className="absolute end-1.5 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold leading-4 text-white"
                 >
                   {notificationCount > 9 ? '9+' : notificationCount}
                 </span>

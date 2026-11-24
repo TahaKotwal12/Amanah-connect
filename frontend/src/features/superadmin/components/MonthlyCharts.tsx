@@ -106,7 +106,11 @@ export default function MonthlyCharts({ series }: MonthlyChartsProps) {
         column={{ header: 'Revenue', value: (row) => formatMoney(row.revenue) }}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <BarChart
+            accessibilityLayer={false}
+            data={rows}
+            margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+          >
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" interval="preserveStartEnd" {...axisProps} />
             <YAxis
@@ -138,7 +142,11 @@ export default function MonthlyCharts({ series }: MonthlyChartsProps) {
         column={{ header: 'New communities', value: (row) => String(row.newCommunities) }}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <BarChart
+            accessibilityLayer={false}
+            data={rows}
+            margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+          >
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" interval="preserveStartEnd" {...axisProps} />
             <YAxis

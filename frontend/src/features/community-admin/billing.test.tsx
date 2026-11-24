@@ -107,7 +107,9 @@ const detail = (over: Partial<InvoiceDetail> = {}): InvoiceDetail => ({
 
 // ---- generate invoices ------------------------------------------------------------------------
 
-describe('generate invoices wizard', () => {
+// Phase 1 (cash only, bills come from dividing an expense): this screen is switched off. The test stays so it
+// can be turned back on (change describe.skip to describe) when the feature returns.
+describe.skip('generate invoices wizard', () => {
   const preview = (over: Partial<GeneratePreview> = {}): GeneratePreview => ({
     feePlanId: 'fp1',
     feePlanName: 'Monthly maintenance',
@@ -265,7 +267,7 @@ describe('record payment', () => {
 
     const config = record.mock.calls[0]![0]
     expect(config.headers.get('Idempotency-Key')).toMatch(/^[0-9a-f-]{36}$/)
-    expect(body(config)).toMatchObject({ amount: '500.00', method: 'UPI', expectedVersion: 0 })
+    expect(body(config)).toMatchObject({ amount: '500.00', method: 'CASH', expectedVersion: 0 })
   })
 
   it('reuses the same key when the same request is retried, and a new one when it changed', async () => {
@@ -333,7 +335,8 @@ describe('invoice detail', () => {
     expect(items[2]).toHaveTextContent('An overdue notice was queued')
   })
 
-  it('says payments are confirmed by hand and explains a missing UPI id', async () => {
+  // UPI and QR codes are off in phase 1.
+  it.skip('says payments are confirmed by hand and explains a missing UPI id', async () => {
     api({
       'GET /community/invoices/inv1': ok(paid),
       'GET /community/invoices/inv1/qr': () => problem(409, 'UPI_NOT_CONFIGURED'),
@@ -376,7 +379,9 @@ describe('invoice detail', () => {
 
 // ---- defaulters -------------------------------------------------------------------------------
 
-describe('defaulters', () => {
+// Phase 1 (cash only, bills come from dividing an expense): this screen is switched off. The test stays so it
+// can be turned back on (change describe.skip to describe) when the feature returns.
+describe.skip('defaulters', () => {
   it('shows the count before reminding everyone overdue', async () => {
     const remind = vi.fn<MockHandler>(() => ({
       status: 200,
@@ -493,7 +498,9 @@ describe('budget', () => {
 
 // ---- reports ----------------------------------------------------------------------------------
 
-describe('reports', () => {
+// Phase 1 (cash only, bills come from dividing an expense): this screen is switched off. The test stays so it
+// can be turned back on (change describe.skip to describe) when the feature returns.
+describe.skip('reports', () => {
   const planWith = (features: Record<string, boolean>) =>
     ok({
       planCode: 'STARTER',

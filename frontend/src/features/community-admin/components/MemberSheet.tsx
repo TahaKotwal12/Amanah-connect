@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { isApiError, toApiError } from '@/lib/apiError'
 import { todayInIst } from '@/lib/dates'
+import { useFormDraft } from '@/lib/drafts'
 import { notify } from '@/lib/notify'
 import { Button } from '@/shared/components/ui/button'
 import { Checkbox } from '@/shared/components/ui/checkbox'
@@ -52,9 +53,12 @@ export function MemberSheet({ open, onOpenChange, member, onSaved }: MemberSheet
   const original = member ? memberToForm(member) : EMPTY_MEMBER
   const form = useZodForm(memberSchema, { defaultValues: original })
 
+  // Only a new member keeps a draft: editing starts from the saved member.
+  const { initial, discard } = useFormDraft(form, 'member:new', open && !member)
+
   useEffect(() => {
-    if (open) form.reset(member ? memberToForm(member) : EMPTY_MEMBER)
-  }, [open, member, form])
+    if (open) form.reset(member ? memberToForm(member) : initial(EMPTY_MEMBER))
+  }, [open, member, form, initial])
 
   const watched = useWatch({ control: form.control }) as MemberInput
   const busy = create.isPending || update.isPending
@@ -64,6 +68,7 @@ export function MemberSheet({ open, onOpenChange, member, onSaved }: MemberSheet
     if (!next) {
       setFormError(null)
       setDuplicate(false)
+      discard()
     }
     onOpenChange(next)
   }
@@ -87,6 +92,7 @@ export function MemberSheet({ open, onOpenChange, member, onSaved }: MemberSheet
       // Not close(): the mutation is still "pending" in this render, and close() ignores that.
       setFormError(null)
       setDuplicate(false)
+      discard()
       onOpenChange(false)
     } catch (error) {
       if (isApiError(error) && error.code === 'DUPLICATE_EMAIL') {

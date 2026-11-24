@@ -163,7 +163,7 @@ function PaymentForm({
   const form = useZodForm(schema, {
     defaultValues: {
       amount: normalizeMoney(invoice.balance),
-      method: 'UPI',
+      method: 'CASH',
       reference: '',
       receivedOn: todayInIst(),
     } satisfies RecordPaymentInput,
@@ -238,8 +238,8 @@ function PaymentForm({
           </div>
         </dl>
         <p className="text-sm text-muted">
-          Record only money you have already received and checked in your bank or UPI app. This does
-          not collect anything.
+          Record only cash you have already received from the member. This does not collect
+          anything; it records the payment and sends the member their receipt.
         </p>
 
         {formError ? (
@@ -286,7 +286,7 @@ function PaymentForm({
           control={form.control}
           name="reference"
           label="Reference"
-          description="The UPI or bank reference, or the cheque number."
+          description="Anything you want to remember about this payment, for example who handed it over."
         >
           {({ field, control }) => <Input {...field} {...control} autoComplete="off" />}
         </FormField>

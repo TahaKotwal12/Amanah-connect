@@ -34,6 +34,7 @@ import {
 import { useWriteAccess } from '../hooks/usePlan'
 import type { IsoRange } from '../dateRanges'
 import { EntrySheet } from './EntrySheet'
+import { ExpenseSharesSheet } from './ExpenseSharesSheet'
 
 const ALL = 'all'
 const typeLabel = (type: LedgerType) => (type === 'INCOME' ? 'Income' : 'Expense')
@@ -69,6 +70,7 @@ export function LedgerTab({ range, currency, addType, onAddClosed }: LedgerTabPr
   const [adding, setAdding] = useState<LedgerType | null>(null)
   const [editing, setEditing] = useState<EntryView | null>(null)
   const [reversing, setReversing] = useState<EntryView | null>(null)
+  const [collecting, setCollecting] = useState<EntryView | null>(null)
 
   async function openPayment(entry: EntryView) {
     if (!entry.sourceId) return
@@ -230,6 +232,11 @@ export function LedgerTab({ range, currency, addType, onAddClosed }: LedgerTabPr
             )
           ) : (
             <>
+              {row.type === 'EXPENSE' && !row.reversed ? (
+                <DropdownMenuItem onSelect={() => setCollecting(row)}>
+                  Collect from members
+                </DropdownMenuItem>
+              ) : null}
               <DropdownMenuItem disabled={!write.allowed} onSelect={() => setEditing(row)}>
                 Edit
               </DropdownMenuItem>
@@ -256,7 +263,7 @@ export function LedgerTab({ range, currency, addType, onAddClosed }: LedgerTabPr
           ) : (
             <EmptyState
               title="Nothing in this period"
-              description="Payments recorded against invoices appear here by themselves. Add other income and expenses by hand."
+              description="Add an expense when the community spends money, then collect it from members. Cash they pay appears here by itself."
             />
           )
         }
@@ -276,6 +283,11 @@ export function LedgerTab({ range, currency, addType, onAddClosed }: LedgerTabPr
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
         entry={editing ?? undefined}
+      />
+      <ExpenseSharesSheet
+        expense={collecting}
+        onOpenChange={(open) => !open && setCollecting(null)}
+        currency={currency}
       />
       <ReasonDialog
         open={reversing !== null}

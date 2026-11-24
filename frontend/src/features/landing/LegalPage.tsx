@@ -34,7 +34,7 @@ export function LegalPage({ title, children }: LegalPageProps) {
         </p>
       </div>
       <h1 className="font-heading text-4xl font-semibold text-brand-900">{title}</h1>
-      <div className="mt-8 grid gap-4 text-ink [&_h2]:mt-6 [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-brand-900 [&_li]:ml-5 [&_li]:list-disc [&_ul]:grid [&_ul]:gap-1">
+      <div className="mt-8 grid gap-4 text-ink [&_h2]:mt-6 [&_h2]:font-heading [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-brand-900 [&_li]:ms-5 [&_li]:list-disc [&_ul]:grid [&_ul]:gap-1">
         {children}
       </div>
     </article>

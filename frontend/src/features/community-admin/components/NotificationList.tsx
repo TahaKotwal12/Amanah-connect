@@ -50,7 +50,7 @@ export function NotificationList() {
                 type="button"
                 onClick={() => !item.read && markRead.mutate(item.id)}
                 className={cn(
-                  'grid min-h-11 w-full gap-0.5 rounded p-2 text-left hover:bg-brand-50',
+                  'grid min-h-11 w-full gap-0.5 rounded p-2 text-start hover:bg-brand-50',
                   !item.read && 'bg-brand-50',
                 )}
               >

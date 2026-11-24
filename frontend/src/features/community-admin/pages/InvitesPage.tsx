@@ -461,7 +461,7 @@ export default function InvitesPage() {
           <TabsTrigger value="registrations">
             Registrations
             {pending > 0 ? (
-              <span className="ml-2 rounded bg-gold-50 px-1.5 text-xs font-semibold text-gold-600">
+              <span className="ms-2 rounded bg-gold-50 px-1.5 text-xs font-semibold text-gold-600">
                 <span className="sr-only">, </span>
                 {pending} waiting
               </span>

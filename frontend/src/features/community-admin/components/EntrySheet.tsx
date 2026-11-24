@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { isApiError, toApiError } from '@/lib/apiError'
 import { todayInIst } from '@/lib/dates'
+import { useFormDraft } from '@/lib/drafts'
 import { notify } from '@/lib/notify'
 import { formatBytes, uploadToPresignedUrl, validateFile } from '@/lib/upload'
 import { Button } from '@/shared/components/ui/button'
@@ -67,9 +68,12 @@ export function EntrySheet({
   const fileInput = useRef<HTMLInputElement>(null)
   const editing = entry !== undefined
 
+  // Only a new entry keeps a draft: editing starts from the saved entry.
+  const { initial, discard } = useFormDraft(form, `entry:new:${initialType}`, open && !entry)
+
   useEffect(() => {
-    if (open) form.reset(entry ? entryToForm(entry) : emptyEntry(initialType))
-  }, [open, entry, initialType, form])
+    if (open) form.reset(entry ? entryToForm(entry) : initial(emptyEntry(initialType)))
+  }, [open, entry, initialType, form, initial])
 
   const watched = useWatch({ control: form.control }) as EntryInput
   const options = useMemo(
@@ -87,6 +91,7 @@ export function EntrySheet({
       setFormError(null)
       setFile(null)
       setFileError(null)
+      discard()
     }
     onOpenChange(next)
   }
@@ -132,6 +137,7 @@ export function EntrySheet({
       }
       setFile(null)
       setFormError(null)
+      discard()
       // Not close(): the mutation is still pending in this render, and close() ignores that.
       onOpenChange(false)
     } catch (error) {

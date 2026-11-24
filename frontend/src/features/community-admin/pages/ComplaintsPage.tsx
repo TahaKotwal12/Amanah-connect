@@ -78,7 +78,7 @@ export default function ComplaintsPage() {
             <button
               type="button"
               onClick={() => update((n) => n.set('open', info.row.original.id))}
-              className="text-left font-medium text-brand-700 underline"
+              className="text-start font-medium text-brand-700 underline"
             >
               {info.getValue()}
             </button>
@@ -213,7 +213,7 @@ export default function ComplaintsPage() {
             aria-pressed={list.filters[key] === '1'}
             onClick={() => toggle(key)}
             className={cn(
-              'inline-flex min-h-11 items-center rounded border px-3 text-sm font-medium',
+              'inline-flex min-h-11 min-w-11 items-center justify-center rounded border px-3 text-sm font-medium',
               list.filters[key] === '1'
                 ? 'border-brand-600 bg-brand-600 text-white'
                 : 'border-brand-200 bg-white text-brand-900 hover:border-brand-500',
@@ -240,7 +240,7 @@ export default function ComplaintsPage() {
                 aria-pressed={tab.value === status}
                 onClick={() => list.setFilter('status', tab.value)}
                 className={cn(
-                  'inline-flex min-h-11 items-center rounded border px-3 text-sm font-medium',
+                  'inline-flex min-h-11 min-w-11 items-center justify-center rounded border px-3 text-sm font-medium',
                   tab.value === status
                     ? 'border-brand-600 bg-brand-600 text-white'
                     : 'border-brand-200 bg-white text-brand-900 hover:border-brand-500',

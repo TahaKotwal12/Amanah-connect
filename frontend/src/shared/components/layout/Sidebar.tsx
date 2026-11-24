@@ -1,5 +1,6 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { NavLink } from 'react-router'
+import { prefetchRoute } from '@/routes/prefetch'
 import { cn } from '@/shared/utils/cn'
 import { BrandMark } from '../BrandMark'
 import { Tooltip } from '../ui/tooltip'
@@ -44,13 +45,19 @@ export function Sidebar({ subtitle, nav, collapsed, onToggle, navLabel = 'Main' 
             const link = (
               <NavLink
                 to={item.to}
+                onPointerEnter={() => {
+                  prefetchRoute(item.to)
+                }}
+                onFocus={() => {
+                  prefetchRoute(item.to)
+                }}
                 className={({ isActive }) =>
                   cn(
                     'relative flex min-h-11 items-center gap-3 rounded px-3 text-sm font-medium text-brand-50 hover:bg-brand-800',
                     collapsed && 'justify-center px-0',
                     // Gold bar on the active item, so the current page is not told by colour alone.
                     isActive &&
-                      'bg-brand-800 font-semibold text-white before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r before:bg-gold-500',
+                      'bg-brand-800 font-semibold text-white before:absolute before:inset-y-2 before:start-0 before:w-1 before:rounded-e before:bg-gold-500',
                   )
                 }
               >

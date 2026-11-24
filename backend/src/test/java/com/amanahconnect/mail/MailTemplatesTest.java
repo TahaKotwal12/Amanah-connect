@@ -53,7 +53,7 @@ class MailTemplatesTest {
             return;
         }
         assertThat(path).as("golden file " + file + " is missing (run with -Dgolden.update=true to create it)").exists();
-        assertThat(actual).as("rendering of " + file + " changed; if it is intended, regenerate with -Dgolden.update=true and review the diff").isEqualTo(Files.readString(path, StandardCharsets.UTF_8));
+        assertThat(actual.replace("\r\n", "\n")).as("rendering of " + file + " changed; if it is intended, regenerate with -Dgolden.update=true and review the diff").isEqualTo(Files.readString(path, StandardCharsets.UTF_8).replace("\r\n", "\n")); // git on Windows may check the golden files and templates out with CRLF
     }
 
     @Test

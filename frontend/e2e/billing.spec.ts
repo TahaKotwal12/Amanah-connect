@@ -384,7 +384,9 @@ async function fakeBilling(context: BrowserContext) {
   return { invoices, payments, ledger, keys }
 }
 
-test('generate invoices, record a partial payment, see the receipt and the income, then reverse', async ({
+// Phase 1 (cash only; bills come from dividing an expense): fee plans and "Generate invoices" are switched off, so this
+// flow has no screen. The test stays so it can be turned back on with the feature. See expense-shares.spec.ts.
+test.skip('generate invoices, record a partial payment, see the receipt and the income, then reverse', async ({
   page,
   context,
 }) => {

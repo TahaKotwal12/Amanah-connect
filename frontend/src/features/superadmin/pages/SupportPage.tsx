@@ -131,7 +131,7 @@ export default function SupportPage() {
           onSearch={(value) => setParam('q', value || null)}
           label="Search conversations"
           placeholder="Search subject or community"
-          className="ml-auto w-full sm:w-72"
+          className="ms-auto w-full sm:w-72"
         />
       </div>
 

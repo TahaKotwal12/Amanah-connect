@@ -33,7 +33,7 @@ export default function HowItWorks() {
           {/* The dashed connector: horizontal behind the numbers on wide screens. */}
           <div
             aria-hidden="true"
-            className="absolute left-[16.7%] right-[16.7%] top-7 hidden border-t-2 border-dashed border-gold-500 md:block"
+            className="absolute end-[16.7%] start-[16.7%] top-7 hidden border-t-2 border-dashed border-gold-500 md:block"
           />
           {STEPS.map((step, index) => (
             <li key={step.title} className="relative grid justify-items-center gap-3 text-center">

@@ -5,6 +5,32 @@ There is **no payment gateway**: members pay however they like (cash, UPI app, b
 the payment by recording it. The `PaymentGateway` interface has one implementation, `ManualGateway`; a real gateway
 would plug in behind the same interface later.
 
+## Phase 1: cash, and expenses divided among members
+
+The community admin side is deliberately small in this phase. **Only cash** is taken, and bills come from one place: an expense.
+
+```
+expense (money the community spent) ──Collect from members──▶ one invoice per member (equal share), bill emailed
+member pays cash ──admin records it on the invoice──▶ payment ──▶ receipt (PDF, emailed) ──▶ ledger income
+```
+
+* `POST /community/expenses/{id}/divide {memberIds?, dueDate, sendEmails?}` divides an expense **equally to the paisa**: the shares
+  always add up to exactly the expense, and the leftover paise go one each to the first members (so no two shares differ by more
+  than one paisa). With no `memberIds` it divides among every active member; with ids it bills just those (one id bills one member).
+  Each member gets an `ISSUED` invoice with a gap-free number and, if they have an address and agreed to emails, the bill by email.
+* An expense is divided **once**: while any share is live the call answers `409 EXPENSE_ALREADY_DIVIDED`. Cancel the unpaid shares
+  (`POST /invoices/{id}/cancel`) and it can be divided again. A share that has money received is reversed, never deleted.
+* Only a manual, current expense can be divided: not income, not a payment's posting, not a reversal, not an expense that was reversed.
+* `GET /community/expenses/{id}/shares` lists each member's share (an ordinary invoice) with what was paid, and the totals
+  (divided, collected, still to collect).
+* Cash is recorded on the invoice with the ordinary `POST /invoices/{id}/payments` (method `CASH`), which issues and emails the receipt.
+* Shares are tied to their expense by `invoices.expense_entry_id` (migration V17). A unique index allows one live share per
+  expense and member, so a double click or two admins at once cannot bill anyone twice.
+* **Switched off in the screens** (the code and API are kept): fee plans and generating invoices, creating an invoice by hand,
+  donations, the defaulters list and bulk reminders, reports, and the ledger category manager.
+* **UPI is off** (`app.billing.upi-enabled`, env `UPI_ENABLED`, default `false`): no pay link or QR in bills, and the admin screens
+  show cash only. Set it to `true` and uncomment the marked code in the screens to bring UPI back.
+
 ## The flow
 
 ```

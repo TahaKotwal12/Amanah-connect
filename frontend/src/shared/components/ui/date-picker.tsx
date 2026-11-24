@@ -60,7 +60,7 @@ export function DatePicker({
           disabled={disabled}
           onBlur={onBlur}
           aria-haspopup="dialog"
-          className={cn(fieldClasses, 'items-center justify-between gap-2 text-left', className)}
+          className={cn(fieldClasses, 'items-center justify-between gap-2 text-start', className)}
           {...aria}
         >
           <span className={cn(!selected && 'text-muted')}>

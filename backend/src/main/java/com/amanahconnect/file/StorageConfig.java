@@ -17,10 +17,20 @@ public class StorageConfig {
     @Bean
     @ConditionalOnMissingBean(ObjectStorage.class)
     ObjectStorage objectStorage(StorageProperties properties, Clock clock) {
+        if (!properties.localPath().isBlank()) {
+            byte[] key = properties.signingKey().isBlank() ? randomKey() : properties.signingKey().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            return new LocalDiskObjectStorage(properties, key, clock);
+        }
         if (properties.bucket().isBlank()) {
             return new UnconfiguredStorage();
         }
         return new S3ObjectStorage(properties, clock);
+    }
+
+    private static byte[] randomKey() {
+        byte[] key = new byte[32];
+        new java.security.SecureRandom().nextBytes(key);
+        return key;
     }
 
     private static final class UnconfiguredStorage implements ObjectStorage {

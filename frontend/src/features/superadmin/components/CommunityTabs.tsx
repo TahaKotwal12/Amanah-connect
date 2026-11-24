@@ -328,23 +328,23 @@ export function PlanTab({ community }: { community: CommunityView }) {
             <Skeleton className="h-32" role="status" aria-label="Loading payment history" />
           ) : history.data && history.data.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-start text-sm">
                 <caption className="sr-only">Payment history</caption>
                 <thead>
                   <tr className="border-b border-brand-100 text-muted">
-                    <th scope="col" className="py-2 pr-4 font-medium">
+                    <th scope="col" className="py-2 pe-4 font-medium">
                       Plan
                     </th>
-                    <th scope="col" className="py-2 pr-4 font-medium">
+                    <th scope="col" className="py-2 pe-4 font-medium">
                       Period
                     </th>
-                    <th scope="col" className="py-2 pr-4 font-medium">
+                    <th scope="col" className="py-2 pe-4 font-medium">
                       Amount
                     </th>
-                    <th scope="col" className="py-2 pr-4 font-medium">
+                    <th scope="col" className="py-2 pe-4 font-medium">
                       Received
                     </th>
-                    <th scope="col" className="py-2 pr-4 font-medium">
+                    <th scope="col" className="py-2 pe-4 font-medium">
                       Status
                     </th>
                     <th scope="col" className="py-2 font-medium">
@@ -355,13 +355,13 @@ export function PlanTab({ community }: { community: CommunityView }) {
                 <tbody>
                   {history.data.map((line) => (
                     <tr key={line.id} className="border-b border-brand-50">
-                      <td className="py-2 pr-4">{line.planName}</td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2 pe-4">{line.planName}</td>
+                      <td className="py-2 pe-4">
                         {formatDate(line.periodStart)} to {formatDate(line.periodEnd)}
                       </td>
-                      <td className="py-2 pr-4 tabular-nums">{formatMoney(line.amount)}</td>
-                      <td className="py-2 pr-4">{line.paidOn ? formatDate(line.paidOn) : ''}</td>
-                      <td className="py-2 pr-4">
+                      <td className="py-2 pe-4 tabular-nums">{formatMoney(line.amount)}</td>
+                      <td className="py-2 pe-4">{line.paidOn ? formatDate(line.paidOn) : ''}</td>
+                      <td className="py-2 pe-4">
                         <ExpiryBadge status={line.status} daysLeft={0} />
                       </td>
                       <td className="py-2">{line.reference ?? ''}</td>

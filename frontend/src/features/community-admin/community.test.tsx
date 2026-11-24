@@ -239,7 +239,7 @@ describe('Community shell', () => {
     const alert = await screen.findByRole('alert')
     expect(alert).toHaveTextContent('This community is suspended')
     expect(alert).toHaveTextContent('nothing can be added or changed')
-    for (const label of ['Add member', 'Create invoice', 'Record payment', 'Add expense']) {
+    for (const label of ['Add member', 'Record payment', 'Add expense']) {
       expect(await screen.findByRole('button', { name: label })).toBeDisabled()
     }
     expect(
@@ -370,10 +370,7 @@ describe('Community dashboard', () => {
       'href',
       '/admin/members?new=1',
     )
-    expect(within(actions).getByRole('link', { name: 'Create invoice' })).toHaveAttribute(
-      'href',
-      '/admin/billing?new=invoice',
-    )
+    expect(within(actions).queryByRole('link', { name: 'Create invoice' })).toBeNull() // bills come from dividing an expense
     expect(within(actions).getByRole('link', { name: 'Record payment' })).toHaveAttribute(
       'href',
       '/admin/billing?new=payment',

@@ -2,6 +2,7 @@
 // the public lead form.
 import type {
   CursorPage,
+  ExportStatus,
   IsoDate,
   IsoInstant,
   JsonObject,
@@ -445,4 +446,42 @@ export interface InviteRow {
   invitedAt: IsoInstant
   expiresAt: IsoInstant
   acceptedAt: IsoInstant | null
+}
+
+// ---- data export and erasure --------------------------------------------------------------------
+
+export interface ExportView {
+  id: Uuid
+  status: ExportStatus
+  requestedAt: IsoInstant
+  completedAt: IsoInstant | null
+  sizeBytes: number | null
+  /** Rows per table, once ready. */
+  tables: Record<string, number> | null
+  linkExpiresAt: IsoInstant | null
+  downloadCount: number
+  error: string | null
+}
+export interface DownloadUrl {
+  url: string
+  validForSeconds: number
+}
+export interface AnonymiseResult {
+  memberId: Uuid
+  memberNo: string
+  anonymisedAt: IsoInstant
+  kept: {
+    invoices: number
+    payments: number
+    receipts: number
+    unpaidInvoices: number
+    outstanding: MoneyString
+  }
+  removed: {
+    registrations: number
+    complaints: number
+    complaintComments: number
+    emails: number
+    receiptPdfs: number
+  }
 }

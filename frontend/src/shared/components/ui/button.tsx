@@ -17,7 +17,8 @@ export const buttonVariants = cva(
         premium: 'bg-gold-500 text-brand-950 hover:bg-[#B8921F]',
       },
       size: {
-        sm: 'min-h-9 px-3 text-sm',
+        // Compact on a mouse, a full 44px touch target on small screens.
+        sm: 'min-h-11 px-3 text-sm md:min-h-9',
         md: 'min-h-11 px-5 text-sm',
         lg: 'min-h-12 px-7 text-base',
         // Icon-only buttons need an aria-label; 44px keeps the touch target.

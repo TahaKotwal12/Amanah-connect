@@ -22,13 +22,18 @@ public class UpiPayments {
     static final int QR_SIZE = 360;
 
     private final PlanLimitService planLimits;
+    private final BillingProperties properties;
 
-    public UpiPayments(PlanLimitService planLimits) {
+    public UpiPayments(PlanLimitService planLimits, BillingProperties properties) {
         this.planLimits = planLimits;
+        this.properties = properties;
     }
 
     /** For the admin: says exactly why there is no QR code. */
     public UpiPayment require(Community community, Invoice invoice) {
+        if (!properties.upiEnabled()) {
+            throw new ApiException(ErrorCode.UPI_NOT_CONFIGURED, "UPI payments are switched off: this version takes cash only.");
+        }
         planLimits.requireFeature(community.getId(), PlanLimitKeys.FEATURE_UPI_QR);
         if (community.getUpiId() == null || community.getUpiPayeeName() == null) {
             throw new ApiException(ErrorCode.UPI_NOT_CONFIGURED, "Set the community's UPI ID and payee name in settings first.");
@@ -44,7 +49,7 @@ public class UpiPayments {
 
     /** For the public page and bill emails: a payment option if there is one, nothing otherwise. */
     public Optional<UpiPayment> tryBuild(Community community, Invoice invoice) {
-        if (community.getUpiId() == null || community.getUpiPayeeName() == null || !"INR".equals(community.getCurrency())
+        if (!properties.upiEnabled() || community.getUpiId() == null || community.getUpiPayeeName() == null || !"INR".equals(community.getCurrency())
                 || !InvoiceStatusRules.acceptsPayments(invoice.getStatus())
                 || !planLimits.hasFeature(community.getId(), PlanLimitKeys.FEATURE_UPI_QR)) {
             return Optional.empty();

@@ -19,6 +19,8 @@ app:
     preview-enabled: true
     sns:
       topic-arns: arn:aws:sns:ap-south-1:123456789012:amanah-ses-events
+  billing:
+    upi-enabled: true                  # phase 1 turns UPI off in production; its code and tests stay
   scheduling:
     enabled: false                     # tests call the jobs directly; the cron must never fire mid-test
   cors:

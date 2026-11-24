@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { toApiError } from '@/lib/apiError'
 import { todayInIst } from '@/lib/dates'
+import { useFormDraft } from '@/lib/drafts'
 import { notify } from '@/lib/notify'
 import { Button } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
@@ -69,19 +70,29 @@ export function AnnouncementEditor({ open, onOpenChange, announcement }: Announc
     defaultValues: announcement ? announcementToForm(announcement) : EMPTY_ANNOUNCEMENT,
   })
 
+  // Only a new announcement keeps a draft: editing starts from the saved one.
+  const { initial, discard } = useFormDraft(
+    form,
+    'platform-announcement:new',
+    open && !announcement,
+  )
+
   useEffect(() => {
     if (open) {
       savedId.current = null
-      form.reset(announcement ? announcementToForm(announcement) : EMPTY_ANNOUNCEMENT)
+      form.reset(announcement ? announcementToForm(announcement) : initial(EMPTY_ANNOUNCEMENT))
     }
-  }, [open, announcement, form])
+  }, [open, announcement, form, initial])
 
   const watched = useWatch({ control: form.control }) as AnnouncementInput
   const busy = create.isPending || update.isPending || send.isPending
 
   function close(next: boolean) {
     if (busy) return
-    if (!next) setFormError(null)
+    if (!next) {
+      setFormError(null)
+      discard()
+    }
     onOpenChange(next)
   }
 
@@ -102,6 +113,7 @@ export function AnnouncementEditor({ open, onOpenChange, announcement }: Announc
       } else {
         notify.success(values.when === 'later' ? 'Announcement scheduled' : 'Draft saved')
       }
+      discard()
       onOpenChange(false)
     } catch (error) {
       const unmatched = applyApiFieldErrors(form, error, Object.keys(SERVER_FIELDS))

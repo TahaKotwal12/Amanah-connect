@@ -19,7 +19,7 @@ export function EmptyState({
   description,
   illustration,
   action,
-  headingLevel = 3,
+  headingLevel = 2,
   className,
 }: EmptyStateProps) {
   const Heading = `h${headingLevel}` as const

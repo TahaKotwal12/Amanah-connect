@@ -12,8 +12,11 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 import { StatCard } from '@/shared/components/ui/stat-card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import type { LedgerType } from '@/types'
-import { CategoriesTab, LedgerTab } from '../components/BudgetTabs'
-import { ReportsTab } from '../components/ReportsTab'
+import { LedgerTab } from '../components/BudgetTabs'
+// Phase 1 keeps the budget to the ledger: expenses, cash in, and collecting an expense from members.
+// Reports and the category manager are switched off here; their components and API stay.
+// import { CategoriesTab } from '../components/BudgetTabs'
+// import { ReportsTab } from '../components/ReportsTab'
 import { describeRange, rangeFor, type IsoRange, type RangePreset } from '../dateRanges'
 import { useLedgerSummary } from '../hooks/useLedger'
 import { useWriteAccess } from '../hooks/usePlan'
@@ -24,8 +27,8 @@ const BudgetCharts = lazy(() => import('../components/BudgetCharts'))
 
 const TABS = [
   { id: 'ledger', label: 'Ledger' },
-  { id: 'reports', label: 'Reports' },
-  { id: 'categories', label: 'Categories' },
+  // { id: 'reports', label: 'Reports' },
+  // { id: 'categories', label: 'Categories' },
 ] as const
 type TabId = (typeof TABS)[number]['id']
 const isTab = (value: string | null): value is TabId => TABS.some((tab) => tab.id === value)
@@ -229,12 +232,8 @@ export default function BudgetPage() {
             onAddClosed={() => update((n) => n.delete('new'))}
           />
         </TabsContent>
-        <TabsContent value="reports">
-          <ReportsTab />
-        </TabsContent>
-        <TabsContent value="categories">
-          <CategoriesTab />
-        </TabsContent>
+        {/* <TabsContent value="reports"><ReportsTab /></TabsContent> */}
+        {/* <TabsContent value="categories"><CategoriesTab /></TabsContent> */}
       </Tabs>
     </>
   )

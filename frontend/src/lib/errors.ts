@@ -61,6 +61,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // money
   OVERPAYMENT: 'That is more than the balance due on this invoice.',
+  EXPENSE_ALREADY_DIVIDED:
+    'This expense has already been divided among members. Cancel the unpaid shares to divide it again.',
   INVOICE_NOT_PAYABLE: 'This invoice cannot take payments in its current state.',
   ALREADY_REVERSED: 'This has already been reversed.',
   FEE_PLAN_INACTIVE: 'That fee plan is switched off.',

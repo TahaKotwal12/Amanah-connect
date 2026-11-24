@@ -1,0 +1,47 @@
+# UAT stack for one EC2 server. The repo is cloned to ~/app and this file is run from ~/app/deploy.
+# The database is Neon (outside this file) and mail is Hostinger SMTP.
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.backend
+    image: amanah-backend:uat
+    container_name: amanah-backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      STORAGE_LOCAL_PATH: /data/files
+    volumes:
+      - /srv/amanah/files:/data/files        # uploaded files live on this server's disk: back it up
+    expose:
+      - "8080"                                # reachable by Nginx only; 8081 (metrics) is never published
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health/readiness | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.web
+    image: amanah-web:uat
+    container_name: amanah-nginx
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    environment:
+      DOMAIN: ${DOMAIN}
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }

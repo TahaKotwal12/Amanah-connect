@@ -67,7 +67,7 @@ export default function Faq() {
                 className="rounded-card border border-brand-100 bg-ivory data-[state=open]:border-gold-500"
               >
                 <Accordion.Header className="m-0">
-                  <Accordion.Trigger className="group flex min-h-14 w-full items-center justify-between gap-4 rounded-card px-5 py-3 text-left font-heading text-lg font-semibold text-brand-900">
+                  <Accordion.Trigger className="group flex min-h-14 w-full items-center justify-between gap-4 rounded-card px-5 py-3 text-start font-heading text-lg font-semibold text-brand-900">
                     {item.q}
                     <ChevronDown
                       aria-hidden="true"

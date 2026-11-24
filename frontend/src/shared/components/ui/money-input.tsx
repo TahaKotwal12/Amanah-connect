@@ -58,7 +58,7 @@ export function MoneyInput({
     <div className="relative">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted"
+        className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted"
       >
         {symbol}
       </span>
@@ -66,7 +66,7 @@ export function MoneyInput({
         type="text"
         inputMode="decimal"
         autoComplete="off"
-        className={cn(fieldClasses, 'pl-8 text-right tabular-nums', className)}
+        className={cn(fieldClasses, 'ps-8 text-end tabular-nums', className)}
         value={shown}
         onFocus={() => {
           setTyped(value)

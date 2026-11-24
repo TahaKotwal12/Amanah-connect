@@ -169,7 +169,7 @@ export function ImportWizard({
                     accept=".csv,text/csv"
                     aria-describedby={`${id}-hint`}
                     onChange={(event) => choose(key, event.target.files?.[0])}
-                    className="block w-full text-sm file:mr-3 file:min-h-11 file:rounded file:border file:border-brand-600 file:bg-white file:px-4 file:font-medium file:text-brand-700"
+                    className="block w-full text-sm file:me-3 file:min-h-11 file:rounded file:border file:border-brand-600 file:bg-white file:px-4 file:font-medium file:text-brand-700"
                   />
                   <p id={`${id}-hint`} className="text-xs text-muted">
                     {hint}

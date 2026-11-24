@@ -93,7 +93,7 @@ export function SupportThreadList({
                 onClick={() => onSelect(thread.id)}
                 aria-current={selected ? 'true' : undefined}
                 className={cn(
-                  'grid min-h-11 w-full gap-1 rounded border p-3 text-left',
+                  'grid min-h-11 w-full gap-1 rounded border p-3 text-start',
                   selected
                     ? 'border-brand-600 bg-brand-50'
                     : 'border-brand-100 bg-white hover:border-brand-500',

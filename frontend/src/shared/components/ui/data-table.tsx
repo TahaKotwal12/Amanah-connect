@@ -20,7 +20,8 @@ import {
   Download,
   EllipsisVertical,
 } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { useMediaQuery } from '@/shared/hooks/useMediaQuery'
 import { cn } from '@/shared/utils/cn'
 import { Button } from './button'
@@ -73,6 +74,13 @@ export function paramsToSorting(params: readonly string[]): SortingState {
 
 const NO_SORTING: SortingState = []
 const SKELETON_ROWS = 5
+/**
+ * A page with more rows than this renders only the rows in view (plus a few either side) on wide
+ * screens. Smaller pages render every row, which is simpler and just as fast. The estimate is the
+ * usual row height; real heights are measured as rows appear.
+ */
+export const VIRTUALIZE_AFTER_ROWS = 50
+const ESTIMATED_ROW_HEIGHT = 57
 
 export interface DataTableProps<TData extends RowData> {
   /** Names the table for screen readers (its caption). */
@@ -216,6 +224,22 @@ export function DataTable<TData extends RowData>({
   })
 
   const rows = table.getRowModel().rows
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const virtualize = isDesktop && stickyHeader && !isLoading && rows.length > VIRTUALIZE_AFTER_ROWS
+  // The React Compiler cannot memoize this hook's return value; nothing here relies on it doing so.
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const virtualizer = useVirtualizer({
+    count: virtualize ? rows.length : 0,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => ESTIMATED_ROW_HEIGHT,
+    overscan: 8,
+  })
+  const virtualItems = virtualize ? virtualizer.getVirtualItems() : []
+  const spaceBefore = virtualItems[0]?.start ?? 0
+  const spaceAfter = virtualize
+    ? virtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end ?? 0)
+    : 0
+  const visibleColumnCount = table.getVisibleLeafColumns().length
   const hideableColumns = table.getAllLeafColumns().filter((column) => column.getCanHide())
   const hasToolbar =
     !!(search ?? filters ?? toolbarActions ?? onExport) || hideableColumns.length > 1
@@ -235,7 +259,7 @@ export function DataTable<TData extends RowData>({
             />
           ) : null}
           {filters}
-          <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="ms-auto flex flex-wrap items-center gap-2">
             {hideableColumns.length > 1 ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -296,6 +320,7 @@ export function DataTable<TData extends RowData>({
         ))
       ) : isDesktop ? (
         <div
+          ref={scrollRef}
           role="region"
           aria-label={`${label} table`}
           // A scrolling region must be reachable by keyboard, or its overflow is unreadable without a mouse.
@@ -307,8 +332,10 @@ export function DataTable<TData extends RowData>({
           )}
         >
           <table
-            className="w-full border-collapse text-left text-sm"
+            className="w-full border-collapse text-start text-sm"
             aria-busy={isFetching || undefined}
+            // With only part of the rows in the page, tell assistive technology the real size.
+            aria-rowcount={virtualize ? rows.length + 1 : undefined}
           >
             <caption className="sr-only">{label}</caption>
             <thead className={cn(stickyHeader && 'sticky top-0 z-10')}>
@@ -376,18 +403,50 @@ export function DataTable<TData extends RowData>({
                       ))}
                     </tr>
                   ))
-                : rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="border-b border-brand-100 last:border-0 hover:bg-brand-50/60"
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id} className="px-4 py-3 align-middle">
-                          <table.FlexRender cell={cell} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                : virtualize
+                  ? [
+                      spaceBefore > 0 ? (
+                        <tr key="space-before" aria-hidden="true">
+                          <td colSpan={visibleColumnCount} style={{ height: spaceBefore }} />
+                        </tr>
+                      ) : null,
+                      ...virtualItems.map((item) => {
+                        const row = rows[item.index]
+                        if (!row) return null
+                        return (
+                          <tr
+                            key={row.id}
+                            data-index={item.index}
+                            ref={virtualizer.measureElement}
+                            aria-rowindex={item.index + 2}
+                            className="border-b border-brand-100 last:border-0 hover:bg-brand-50/60"
+                          >
+                            {row.getVisibleCells().map((cell) => (
+                              <td key={cell.id} className="px-4 py-3 align-middle">
+                                <table.FlexRender cell={cell} />
+                              </td>
+                            ))}
+                          </tr>
+                        )
+                      }),
+                      spaceAfter > 0 ? (
+                        <tr key="space-after" aria-hidden="true">
+                          <td colSpan={visibleColumnCount} style={{ height: spaceAfter }} />
+                        </tr>
+                      ) : null,
+                    ]
+                  : rows.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="border-b border-brand-100 last:border-0 hover:bg-brand-50/60"
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="px-4 py-3 align-middle">
+                            <table.FlexRender cell={cell} />
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
             </tbody>
           </table>
         </div>
@@ -437,7 +496,7 @@ export function DataTable<TData extends RowData>({
                                   columnDef: cell.column.columnDef,
                                 })}
                               </dt>
-                              <dd className="min-w-0 text-right">
+                              <dd className="min-w-0 text-end">
                                 <table.FlexRender cell={cell} />
                               </dd>
                             </div>

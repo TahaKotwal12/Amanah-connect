@@ -174,7 +174,7 @@ export default function DemoForm() {
                   {/* Honeypot: off-screen and hidden from assistive tech. Real visitors never see it. */}
                   <div
                     aria-hidden="true"
-                    className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                    className="absolute -start-[9999px] h-0 w-0 overflow-hidden"
                   >
                     <label>
                       Leave this field empty

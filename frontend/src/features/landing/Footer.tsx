@@ -3,7 +3,8 @@ import { paths } from '@/routes/paths'
 import { BrandMark } from '@/shared/components/BrandMark'
 import { SECTION_LINKS } from './nav'
 
-const linkClasses = 'inline-flex min-h-11 items-center rounded text-brand-100 hover:text-white'
+const linkClasses =
+  'inline-flex min-h-11 min-w-11 items-center rounded text-brand-100 hover:text-white'
 
 export function Footer() {
   return (

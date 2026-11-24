@@ -110,7 +110,7 @@ export default function RichTextEditor({
         ...(describedBy ? { 'aria-describedby': describedBy } : {}),
         ...(invalid ? { 'aria-invalid': 'true' } : {}),
         class:
-          'min-h-48 px-3 py-2 text-base focus:outline-none sm:text-sm [&_a]:text-brand-700 [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-brand-200 [&_blockquote]:pl-3 [&_h2]:font-heading [&_h2]:text-lg [&_h2]:font-semibold [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-2 [&_ul]:list-disc [&_ul]:pl-6',
+          'min-h-48 px-3 py-2 text-base focus:outline-none sm:text-sm [&_a]:text-brand-700 [&_a]:underline [&_blockquote]:border-s-4 [&_blockquote]:border-brand-200 [&_blockquote]:ps-3 [&_h2]:font-heading [&_h2]:text-lg [&_h2]:font-semibold [&_ol]:list-decimal [&_ol]:ps-6 [&_p]:my-2 [&_ul]:list-disc [&_ul]:ps-6',
       },
     },
     onUpdate: ({ editor: current }) => {

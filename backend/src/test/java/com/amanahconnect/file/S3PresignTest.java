@@ -31,7 +31,7 @@ class S3PresignTest {
     }
 
     private S3ObjectStorage storage(String endpoint) {
-        return new S3ObjectStorage(new StorageProperties("amanah-test-bucket", "ap-south-1", endpoint, 524288, 5242880, Duration.ofMinutes(10), Duration.ofMinutes(2), "", ""), Clock.systemUTC());
+        return new S3ObjectStorage(StorageProperties.s3("amanah-test-bucket", "ap-south-1", endpoint, 524288, 5242880, Duration.ofMinutes(10), Duration.ofMinutes(2), "", ""), Clock.systemUTC());
     }
 
     private static Map<String, String> query(String url) {
@@ -89,7 +89,7 @@ class S3PresignTest {
 
     @Test
     void staticCredentialsAreUsedWhenGivenForLocalMinio() {
-        S3ObjectStorage local = new S3ObjectStorage(new StorageProperties("amanah-local", "ap-south-1", "http://localhost:9000", 524288, 5242880, Duration.ofMinutes(10), Duration.ofMinutes(2), "minio-user", "minio-secret-123"), Clock.systemUTC());
+        S3ObjectStorage local = new S3ObjectStorage(StorageProperties.s3("amanah-local", "ap-south-1", "http://localhost:9000", 524288, 5242880, Duration.ofMinutes(10), Duration.ofMinutes(2), "minio-user", "minio-secret-123"), Clock.systemUTC());
 
         String url = local.presignUpload("communities/c1/logo/abc.png", "image/png", 1000).url();
 

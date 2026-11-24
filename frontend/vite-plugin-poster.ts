@@ -30,15 +30,23 @@ export function injectPoster(html: string, posterHtml: string): string {
  * fire earlier). That keeps the bundle off the path to the first paint. Every other page, which has
  * nothing to show without the app, loads it at once.
  */
-export function deferEntryScript(html: string, landingChunks: readonly string[] = []): string {
+export function deferEntryScript(
+  html: string,
+  landingChunks: readonly string[] = [],
+  loginChunks: readonly string[] = [],
+): string {
   const match = /<script type="module" crossorigin src="([^"]+)"><\/script>\s*/.exec(html)
   if (!match) throw new Error('index.html has no entry <script type="module"> to defer')
   // On "/" the chunks the landing page needs are fetched in the same step as the entry, in
   // parallel, instead of being discovered one round trip later when the router asks for them.
   const loader =
-    "<script>(function(){function l(){if(location.pathname==='/'){var p=" +
+    // The sign-in page has the same problem (entry, then layout, then page, one round trip each), so
+    // its chunks are fetched alongside the entry too.
+    "<script>(function(){function l(){var w=location.pathname,p=w==='/'?" +
     JSON.stringify(landingChunks) +
-    ";for(var i=0;i<p.length;i++){var k=document.createElement('link');k.rel='modulepreload';k.crossOrigin='';k.href=p[i];document.head.appendChild(k)}}var s=document.createElement('script');s.type='module';s.crossOrigin='';s.src=" +
+    ":w==='/login'?" +
+    JSON.stringify(loginChunks) +
+    ":[];for(var i=0;i<p.length;i++){var k=document.createElement('link');k.rel='modulepreload';k.crossOrigin='';k.href=p[i];document.head.appendChild(k)}var s=document.createElement('script');s.type='module';s.crossOrigin='';s.src=" +
     JSON.stringify(match[1]) +
     ";document.head.appendChild(s)}if(location.pathname==='/'){requestAnimationFrame(function(){requestAnimationFrame(l)})}else{l()}})()</script>"
   return html
@@ -55,6 +63,7 @@ export function deferEntryScript(html: string, landingChunks: readonly string[] 
 export function poster(): Plugin {
   let config: ResolvedConfig
   let landingChunks: string[] = []
+  let loginChunks: string[] = []
   return {
     name: 'amanah-poster',
     apply: 'build',
@@ -84,6 +93,14 @@ export function poster(): Plugin {
         )
         .map((chunk) => chunk.fileName)
       landingChunks = [...closure(landing)]
+        .filter((file) => !alreadyLoaded.has(file))
+        .map((file) => '/' + file)
+      const login = chunks
+        .filter((chunk) =>
+          /features\/auth\/(AuthLayout|pages\/LoginPage)\.tsx$/.test(chunk.facadeModuleId ?? ''),
+        )
+        .map((chunk) => chunk.fileName)
+      loginChunks = [...closure(login)]
         .filter((file) => !alreadyLoaded.has(file))
         .map((file) => '/' + file)
     },
@@ -126,7 +143,7 @@ export function poster(): Plugin {
         const html = await readFile(file, 'utf8')
         await writeFile(
           file,
-          deferEntryScript(injectPoster(html, module.renderPoster()), landingChunks),
+          deferEntryScript(injectPoster(html, module.renderPoster()), landingChunks, loginChunks),
         )
       } finally {
         await server.close()

@@ -209,7 +209,7 @@ function Card({
         <button
           type="button"
           onClick={onOpen}
-          className="min-w-0 text-left text-sm font-semibold text-brand-900 underline-offset-2 hover:underline"
+          className="min-w-0 text-start text-sm font-semibold text-brand-900 underline-offset-2 hover:underline"
         >
           {complaint.subject}
         </button>

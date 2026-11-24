@@ -98,6 +98,10 @@ export const communityAdminKeys = {
     totals: (filters: InvoiceFilters) => [scope, 'invoices', 'totals', filters] as const,
   },
   payments: resourceKeys<PageParams>(scope, 'payments'),
+  expenseShares: {
+    all: [scope, 'expense-shares'] as const,
+    detail: (id: Uuid) => [scope, 'expense-shares', id] as const,
+  },
   receipts: resourceKeys<ReceiptListParams>(scope, 'receipts'),
   defaulters: resourceKeys<PageParams>(scope, 'defaulters'),
 

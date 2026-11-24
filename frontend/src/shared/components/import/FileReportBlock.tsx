@@ -24,7 +24,7 @@ export function FileReportBlock({ title, report }: { title: string; report: Impo
       ))}
       {report.invalid.length > 0 ? (
         <div className="max-h-64 overflow-auto rounded border border-brand-100">
-          <table className="w-full text-left text-sm">
+          <table className="w-full text-start text-sm">
             <caption className="sr-only">{title}: rows with problems</caption>
             <thead className="sticky top-0 bg-brand-50">
               <tr>

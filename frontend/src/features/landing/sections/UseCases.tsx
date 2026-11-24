@@ -61,7 +61,7 @@ export default function UseCases() {
                     {item.title}
                   </h3>
                   <p className="mt-2 text-ink">{item.pitch}</p>
-                  <p className="mt-3 border-l-2 border-gold-500 pl-3 text-sm text-muted">
+                  <p className="mt-3 border-s-2 border-gold-500 ps-3 text-sm text-muted">
                     <span className="font-semibold text-gold-600">For example: </span>
                     {item.example}
                   </p>

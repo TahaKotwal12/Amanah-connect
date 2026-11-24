@@ -30,7 +30,7 @@ export function UserMenu({ onSignOut, settingsPath }: UserMenuProps) {
           aria-label={`Account menu for ${user.fullName}`}
           className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-brand-50"
         >
-          <Avatar name={user.fullName} size="sm" />
+          <Avatar name={user.fullName} size="sm" decorative />
           <span className="hidden text-sm font-medium text-ink sm:block">{user.fullName}</span>
           <ChevronDown aria-hidden="true" className="hidden size-4 text-muted sm:block" />
         </button>

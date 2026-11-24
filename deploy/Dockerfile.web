@@ -1,0 +1,13 @@
+# Builds the React app and bakes it into the Nginx image. Node lives inside this build, not on the host.
+# Build context is the repository root.
+FROM node:22-alpine AS build
+WORKDIR /src
+COPY frontend/package.json frontend/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
+COPY frontend/ .
+ENV NODE_OPTIONS="--max-old-space-size=1024"
+RUN npm run build && find dist -name '*.map' -delete
+
+FROM nginx:1.27-alpine
+COPY --from=build /src/dist /usr/share/nginx/html
+COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template

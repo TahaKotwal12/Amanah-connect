@@ -17,6 +17,9 @@ public interface InvoiceRepository extends TenantRepository<Invoice, UUID> {
 
     boolean existsByCommunityIdAndFeePlanId(UUID communityId, UUID feePlanId);
 
+    /** Every invoice that is a member's share of one expense (cancelled ones included). */
+    java.util.List<Invoice> findByCommunityIdAndExpenseEntryId(UUID communityId, UUID expenseEntryId);
+
 
     Optional<Invoice> findByCommunityIdAndInvoiceNo(UUID communityId, String invoiceNo);
 

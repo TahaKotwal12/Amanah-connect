@@ -21,13 +21,19 @@ import { Skeleton } from '@/shared/components/ui/skeleton'
 import { StatCard } from '@/shared/components/ui/stat-card'
 import { StatusBadge } from '@/shared/components/ui/status-badge'
 import { ExpiryBadge } from '../components/ExpiryBadge'
-import { RecordPaymentSheet } from '../components/RecordPaymentSheet'
 import { useLeads } from '../hooks/useLeads'
 import { useMonthlyStats, useStats } from '../hooks/useStats'
 import { useSubscriptions } from '../hooks/useSubscriptions'
 
 // Recharts is the heaviest dependency on this page: fetched after the numbers, not before.
 const MonthlyCharts = lazy(() => import('../components/MonthlyCharts'))
+// The payment form (React Hook Form, zod, date picker) is only needed once someone clicks "Record
+// payment", so it stays out of the first download.
+const RecordPaymentSheet = lazy(() =>
+  import('../components/RecordPaymentSheet').then((module) => ({
+    default: module.RecordPaymentSheet,
+  })),
+)
 
 const LIST_SIZE = 5
 const ICON = 'size-5'
@@ -263,7 +269,11 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <RecordPaymentSheet open={paymentOpen} onOpenChange={setPaymentOpen} />
+      {paymentOpen ? (
+        <Suspense fallback={null}>
+          <RecordPaymentSheet open={paymentOpen} onOpenChange={setPaymentOpen} />
+        </Suspense>
+      ) : null}
     </>
   )
 }

@@ -1,0 +1,42 @@
+name: Deploy UAT
+
+# Every push to main redeploys the UAT server: the server pulls the code, rebuilds and restarts.
+# Needs three repository secrets (Settings > Secrets and variables > Actions):
+#   EC2_HOST      the server address
+#   EC2_USER      ubuntu
+#   EC2_SSH_KEY   the private key of a key pair that is allowed to log in to the server
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-uat
+  cancel-in-progress: false      # never cut a running deploy in half
+
+jobs:
+  deploy:
+    name: Deploy to the UAT server
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Prepare SSH
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$EC2_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+      - name: Pull, build and restart on the server
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ServerAliveInterval=30 "$EC2_USER@$EC2_HOST" \
+            "bash ~/app/deploy/deploy.sh"

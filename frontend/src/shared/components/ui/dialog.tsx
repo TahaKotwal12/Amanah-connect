@@ -1,6 +1,7 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ComponentProps } from 'react'
+import { useReturnFocus } from '@/shared/hooks/useReturnFocus'
 import { cn } from '@/shared/utils/cn'
 
 export const Dialog = DialogPrimitive.Root
@@ -26,8 +27,11 @@ export function DialogOverlay({
 export function DialogContent({
   className,
   children,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Content>) {
+  const returnFocus = useReturnFocus({ onOpenAutoFocus, onCloseAutoFocus })
   return (
     <DialogPrimitive.Portal>
       <DialogOverlay />
@@ -36,12 +40,13 @@ export function DialogContent({
           'fixed left-1/2 top-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-card border border-brand-100 bg-white p-6 shadow-lift',
           className,
         )}
+        {...returnFocus}
         {...props}
       >
         {children}
         <DialogPrimitive.Close
           aria-label="Close"
-          className="absolute right-3 top-3 flex size-10 items-center justify-center rounded text-muted hover:bg-brand-50 hover:text-ink"
+          className="absolute end-3 top-3 flex size-11 items-center justify-center rounded text-muted hover:bg-brand-50 hover:text-ink"
         >
           <X aria-hidden="true" className="size-5" />
         </DialogPrimitive.Close>
@@ -51,7 +56,7 @@ export function DialogContent({
 }
 
 export function DialogHeader({ className, ...props }: ComponentProps<'div'>) {
-  return <div className={cn('grid gap-1.5 pr-8', className)} {...props} />
+  return <div className={cn('grid gap-1.5 pe-8', className)} {...props} />
 }
 
 export function DialogFooter({ className, ...props }: ComponentProps<'div'>) {

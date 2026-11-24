@@ -64,7 +64,7 @@ export function Combobox({
           aria-haspopup="listbox"
           disabled={disabled}
           onBlur={onBlur}
-          className={cn(fieldClasses, 'items-center justify-between gap-2 text-left', className)}
+          className={cn(fieldClasses, 'items-center justify-between gap-2 text-start', className)}
           {...aria}
         >
           <span className={cn('truncate', !selected && 'text-muted')}>

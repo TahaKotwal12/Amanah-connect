@@ -342,7 +342,7 @@ export function SupportConversation({ threadId, onBack }: SupportConversationPro
               Assign to me
             </Button>
           ) : null}
-          <div className="ml-auto flex gap-2">
+          <div className="ms-auto flex gap-2">
             {active ? (
               <>
                 <Button

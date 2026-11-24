@@ -6,7 +6,7 @@ Read [`CLAUDE.md`](CLAUDE.md) (hard rules) and the
 
 ```
 backend/    Spring Boot 4.1 API (Java 21, Maven, PostgreSQL, Flyway)
-frontend/   React 19 + Vite + TypeScript (scaffold only for now)
+frontend/   React 19 + Vite + TypeScript (see docs/frontend-quality.md for the checks)
 docker-compose.local.yml   Postgres 16 + Mailpit + MinIO for local development
 .env.example               every environment variable the backend reads
 ```

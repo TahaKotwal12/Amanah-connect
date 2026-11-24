@@ -26,7 +26,7 @@ export function Navbar() {
       <div className="container flex min-h-16 items-center justify-between gap-4">
         <Link
           to={paths.home}
-          className="flex items-center gap-3 rounded"
+          className="flex min-h-11 items-center gap-3 rounded"
           aria-label="Amanah Connect home"
         >
           <BrandMark />

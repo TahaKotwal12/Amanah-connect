@@ -18,7 +18,7 @@ import { cn } from '@/shared/utils/cn'
 import type { PaymentView } from '@/types'
 import { fetchReceiptPdf } from '../api/billing'
 import { InvoiceActionDialogs, type InvoiceActionTarget } from '../components/InvoiceActionDialogs'
-import { QrCard } from '../components/QrDialog'
+// import { QrCard } from '../components/QrDialog' // UPI and QR codes are off in phase 1 (cash only)
 import { useInvoice, useReversePayment } from '../hooks/useBilling'
 import { useWriteAccess } from '../hooks/usePlan'
 import { useSettings } from '../hooks/useSettings'
@@ -135,7 +135,7 @@ export default function InvoiceDetailPage() {
                 </p>
                 <p className="text-sm text-muted">Invoice {data.invoiceNo}</p>
               </div>
-              <div className="text-right text-sm">
+              <div className="text-end text-sm">
                 <p>Issued {data.issuedOn ? formatDate(data.issuedOn) : 'not yet'}</p>
                 <p className="font-medium">Due {formatDate(data.dueDate)}</p>
               </div>
@@ -150,14 +150,14 @@ export default function InvoiceDetailPage() {
               </Link>{' '}
               ({data.memberNo})
             </p>
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-start text-sm">
               <caption className="sr-only">Invoice lines</caption>
               <thead>
                 <tr className="border-b border-brand-100 text-muted">
                   <th scope="col" className="py-2 font-medium">
                     For
                   </th>
-                  <th scope="col" className="py-2 text-right font-medium">
+                  <th scope="col" className="py-2 text-end font-medium">
                     Amount
                   </th>
                 </tr>
@@ -168,19 +168,19 @@ export default function InvoiceDetailPage() {
                     {data.description}
                     {data.period ? `, ${data.period}` : ''}
                   </td>
-                  <td className="py-2 text-right tabular-nums">{money(data.amount)}</td>
+                  <td className="py-2 text-end tabular-nums">{money(data.amount)}</td>
                 </tr>
                 <tr>
-                  <th scope="row" className="pt-2 text-left font-medium text-muted">
+                  <th scope="row" className="pt-2 text-start font-medium text-muted">
                     Paid so far
                   </th>
-                  <td className="pt-2 text-right tabular-nums">{money(data.amountPaid)}</td>
+                  <td className="pt-2 text-end tabular-nums">{money(data.amountPaid)}</td>
                 </tr>
                 <tr>
-                  <th scope="row" className="pt-1 text-left font-semibold">
+                  <th scope="row" className="pt-1 text-start font-semibold">
                     Balance
                   </th>
-                  <td className="pt-1 text-right font-heading text-xl font-semibold lining-nums tabular-nums text-brand-900">
+                  <td className="pt-1 text-end font-heading text-xl font-semibold lining-nums tabular-nums text-brand-900">
                     {money(data.balance)}
                   </td>
                 </tr>
@@ -204,20 +204,20 @@ export default function InvoiceDetailPage() {
                 <p className="text-sm text-muted">No payment has been recorded for this invoice.</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
+                  <table className="w-full text-start text-sm">
                     <caption className="sr-only">Payments against this invoice</caption>
                     <thead>
                       <tr className="border-b border-brand-100 text-muted">
-                        <th scope="col" className="py-2 pr-3 font-medium">
+                        <th scope="col" className="py-2 pe-3 font-medium">
                           Received
                         </th>
-                        <th scope="col" className="py-2 pr-3 font-medium">
+                        <th scope="col" className="py-2 pe-3 font-medium">
                           Method
                         </th>
-                        <th scope="col" className="py-2 pr-3 text-right font-medium">
+                        <th scope="col" className="py-2 pe-3 text-end font-medium">
                           Amount
                         </th>
-                        <th scope="col" className="py-2 pr-3 font-medium">
+                        <th scope="col" className="py-2 pe-3 font-medium">
                           Receipt
                         </th>
                         <th scope="col" className="py-2 font-medium">
@@ -228,8 +228,8 @@ export default function InvoiceDetailPage() {
                     <tbody>
                       {payments.map((payment) => (
                         <tr key={payment.id} className="border-b border-brand-50 align-top">
-                          <td className="py-2 pr-3">{formatDate(payment.receivedOn)}</td>
-                          <td className="py-2 pr-3">
+                          <td className="py-2 pe-3">{formatDate(payment.receivedOn)}</td>
+                          <td className="py-2 pe-3">
                             {payment.method}
                             {payment.reference ? (
                               <span className="block text-xs text-muted">{payment.reference}</span>
@@ -237,14 +237,14 @@ export default function InvoiceDetailPage() {
                           </td>
                           <td
                             className={cn(
-                              'py-2 pr-3 text-right tabular-nums',
+                              'py-2 pe-3 text-end tabular-nums',
                               (payment.reversed || payment.kind === 'REVERSAL') && 'text-muted',
                               payment.reversed && 'line-through',
                             )}
                           >
                             {money(payment.amount)}
                           </td>
-                          <td className="py-2 pr-3">
+                          <td className="py-2 pe-3">
                             {payment.receiptId ? (
                               <button
                                 type="button"
@@ -259,7 +259,7 @@ export default function InvoiceDetailPage() {
                               ''
                             )}
                             {payment.reversed ? (
-                              <span className="ml-2">
+                              <span className="ms-2">
                                 <StatusBadge status="reversed" />
                               </span>
                             ) : null}
@@ -293,6 +293,7 @@ export default function InvoiceDetailPage() {
         </div>
 
         <div className="grid content-start gap-4">
+          {/* UPI and QR codes are off in phase 1 (cash only):
           {payable ? (
             <Card>
               <CardHeader>
@@ -305,6 +306,7 @@ export default function InvoiceDetailPage() {
               </CardContent>
             </Card>
           ) : null}
+          */}
 
           <Card>
             <CardHeader>
@@ -315,14 +317,14 @@ export default function InvoiceDetailPage() {
             <CardContent>
               <ol
                 aria-label="What happened"
-                className="relative grid gap-4 border-l border-brand-100 pl-5"
+                className="relative grid gap-4 border-s border-brand-100 ps-5"
               >
                 {timeline.map((event) => (
                   <li key={event.key} className="relative">
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'absolute -left-[1.6rem] top-1.5 size-2.5 rounded-full',
+                        'absolute -start-[1.6rem] top-1.5 size-2.5 rounded-full',
                         event.kind === 'payment'
                           ? 'bg-success'
                           : event.kind === 'reversal' || event.kind === 'cancelled'

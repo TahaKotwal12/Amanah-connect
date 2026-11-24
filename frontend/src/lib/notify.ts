@@ -13,6 +13,9 @@ const loadSonner = () => (sonner ??= import('sonner'))
 interface ToastOptions {
   id?: string
   description?: string
+  duration?: number
+  /** One button on the toast (reload, undo, install). */
+  action?: { label: string; onClick: () => void }
 }
 
 export const notify = {

@@ -94,7 +94,7 @@ export function MemberMultiPicker({
             return (
               <li
                 key={memberId}
-                className="flex items-center gap-1 rounded border border-brand-200 bg-brand-100 py-0.5 pl-2 pr-0.5 text-sm text-brand-900"
+                className="flex items-center gap-1 rounded border border-brand-200 bg-brand-100 py-0.5 pe-0.5 ps-2 text-sm text-brand-900"
               >
                 {name}
                 <button

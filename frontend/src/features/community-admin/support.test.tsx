@@ -304,7 +304,10 @@ describe('polling', () => {
         },
       }),
     )
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     render('/admin/support?thread=t1')
     const log = await screen.findByRole('list', { name: 'Messages' })
     expect(within(log).getByText('The PDF is blank.')).toBeInTheDocument()
@@ -320,7 +323,10 @@ describe('polling', () => {
   it('pauses while the tab is hidden and catches up when it is shown again', async () => {
     const polls = vi.fn<MockHandler>(() => ({ status: 200, data: summary() }))
     api(oneThread({ 'GET /community/support/summary': polls }))
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     render('/admin/support')
     await screen.findByRole('list', { name: 'Conversations' })
 
@@ -371,7 +377,10 @@ describe('polling', () => {
         },
       }),
     )
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     render('/admin/support')
     await screen.findByRole('list', { name: 'Conversations' })
     const before = lists

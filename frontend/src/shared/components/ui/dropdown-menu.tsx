@@ -54,8 +54,8 @@ export function DropdownMenuCheckboxItem({
   ...props
 }: ComponentProps<typeof MenuPrimitive.CheckboxItem>) {
   return (
-    <MenuPrimitive.CheckboxItem className={cn(itemClasses, 'pl-8', className)} {...props}>
-      <span className="absolute left-2 flex size-4 items-center justify-center">
+    <MenuPrimitive.CheckboxItem className={cn(itemClasses, 'ps-8', className)} {...props}>
+      <span className="absolute start-2 flex size-4 items-center justify-center">
         <MenuPrimitive.ItemIndicator>
           <Check aria-hidden="true" className="size-4 text-brand-600" />
         </MenuPrimitive.ItemIndicator>

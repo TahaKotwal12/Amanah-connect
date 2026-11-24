@@ -61,7 +61,7 @@ function EntryRow({ entry }: { entry: AdminAuditEntry }) {
         </div>
       </div>
       {open ? (
-        <div className="mb-3 ml-12 grid gap-3 rounded border border-brand-100 bg-brand-50 p-4">
+        <div className="mb-3 ms-12 grid gap-3 rounded border border-brand-100 bg-brand-50 p-4">
           {hasDetail ? (
             <AuditDiff before={entry.before} after={entry.after} />
           ) : (

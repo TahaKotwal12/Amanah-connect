@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { isRouteErrorResponse, useRouteError } from 'react-router'
+import { reportError } from '@/lib/monitoring'
 import { ErrorFallback } from './ErrorFallback'
 import NotFoundPage from './NotFoundPage'
 
@@ -9,6 +11,14 @@ const CHUNK_LOAD_FAILURE =
 /** The router's errorElement: loader, action, lazy-chunk and render errors inside any route. */
 export function RouteError() {
   const error = useRouteError()
+  const expected =
+    isRouteErrorResponse(error) ||
+    (error instanceof Error && CHUNK_LOAD_FAILURE.test(error.message))
+
+  // A 404 and a stale chunk after a deploy are not bugs: only the rest is reported.
+  useEffect(() => {
+    if (!expected) reportError(error)
+  }, [error, expected])
 
   if (isRouteErrorResponse(error) && error.status === 404) return <NotFoundPage />
 

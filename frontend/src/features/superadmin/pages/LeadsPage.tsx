@@ -87,7 +87,7 @@ function BoardColumn({
               <button
                 type="button"
                 onClick={() => onOpen(lead.id)}
-                className="block min-h-11 w-full rounded border border-brand-100 bg-white p-3 text-left hover:border-brand-500"
+                className="block min-h-11 w-full rounded border border-brand-100 bg-white p-3 text-start hover:border-brand-500"
               >
                 <span className="block font-medium text-brand-900">{lead.name}</span>
                 <span className="block truncate text-sm text-muted">
@@ -310,7 +310,14 @@ export default function LeadsPage() {
       />
 
       {view === 'board' ? (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div
+          role="region"
+          aria-label="Lead pipeline"
+          // A scrolling area must be reachable by keyboard, or its overflow is unreadable without a mouse.
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+          tabIndex={0}
+          className="flex gap-4 overflow-x-auto pb-4"
+        >
           {PIPELINE.map(({ status: columnStatus, label }) => (
             <BoardColumn
               key={columnStatus}

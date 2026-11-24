@@ -208,10 +208,10 @@ export function SupportConversation({ id, onBack }: ConversationProps) {
       ) : messages.isLoading ? (
         <div role="status" aria-label="Loading messages" className="grid gap-3">
           <Skeleton className="h-16 w-2/3" />
-          <Skeleton className="ml-auto h-16 w-2/3" />
+          <Skeleton className="ms-auto h-16 w-2/3" />
         </div>
       ) : (
-        <ul aria-label="Messages" className="grid max-h-[55vh] gap-3 overflow-y-auto pr-1">
+        <ul aria-label="Messages" className="grid max-h-[55vh] gap-3 overflow-y-auto pe-1">
           {items.map((message) => (
             <Bubble key={message.id} message={message} />
           ))}

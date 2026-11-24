@@ -49,7 +49,7 @@ export function SearchInput({
     <div className={cn('relative', className)} role="search" aria-label={label}>
       <Search
         aria-hidden="true"
-        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted"
+        className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted"
       />
       <input
         type="search"
@@ -70,7 +70,7 @@ export function SearchInput({
             committed.current = ''
             onSearch('')
           }}
-          className="absolute right-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded text-muted hover:text-ink"
+          className="absolute end-1 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded text-muted hover:text-ink"
         >
           <X aria-hidden="true" className="size-4" />
         </button>

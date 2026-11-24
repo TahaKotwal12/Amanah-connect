@@ -1,5 +1,15 @@
 /* eslint-disable @typescript-eslint/unbound-method -- these only test whether the stand-in is needed */
-import '@testing-library/jest-dom/vitest'
+import * as jestDomMatchers from '@testing-library/jest-dom/matchers'
+import { expect } from 'vitest'
+import '@/i18n'
+
+// The package's own '@testing-library/jest-dom/vitest' entry namespace-imports a CommonJS file,
+// which vitest 5 turns into { default }, so none of the matchers registered. Register them here.
+const matchers =
+  (jestDomMatchers as { default?: typeof jestDomMatchers }).default ?? jestDomMatchers
+expect.extend(matchers)
+// Tests use the global `expect` (globals: true), which is a separate instance here.
+;(globalThis as { expect?: typeof expect }).expect?.extend(matchers)
 
 // jsdom lacks several browser APIs that Radix, cmdk and react-day-picker call. Minimal stand-ins:
 // they exist so components render, not to simulate layout.

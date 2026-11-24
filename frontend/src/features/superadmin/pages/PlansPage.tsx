@@ -69,7 +69,7 @@ function AdminPlanCard({
           {LIMIT_FIELDS.map(({ key, label }) => (
             <div key={key} className="contents">
               <dt className="text-muted">{label}</dt>
-              <dd className="text-right tabular-nums">{limitText(plan, key)}</dd>
+              <dd className="text-end tabular-nums">{limitText(plan, key)}</dd>
             </div>
           ))}
         </dl>

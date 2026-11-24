@@ -50,7 +50,7 @@ export default function AnnouncementsPage() {
           cell: (info) => (
             <button
               type="button"
-              className="text-left font-medium text-brand-700 underline-offset-2 hover:underline"
+              className="text-start font-medium text-brand-700 underline-offset-2 hover:underline"
               onClick={() => setViewing(info.row.original)}
             >
               {info.getValue()}

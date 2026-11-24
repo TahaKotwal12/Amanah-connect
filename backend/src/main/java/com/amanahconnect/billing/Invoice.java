@@ -65,6 +65,10 @@ public class Invoice extends TenantEntity {
     @Column(name = "description", length = 200)
     private String description;
 
+    /** The expense this invoice is a member's share of (null for every other invoice). */
+    @Column(name = "expense_entry_id", updatable = false)
+    private java.util.UUID expenseEntryId;
+
     @Column(name = "cancel_reason")
     private String cancelReason;
 

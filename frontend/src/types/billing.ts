@@ -259,3 +259,47 @@ export interface PublicPayView {
   manualConfirmation: boolean
   notice: string
 }
+
+// ---- dividing an expense among members ---------------------------------------------------------
+
+export interface DivideExpenseRequest {
+  /** Leave out (or empty) for every active member. */
+  memberIds?: Uuid[]
+  dueDate: IsoDate
+  /** Email each member their bill. Default true. */
+  sendEmails?: boolean
+}
+export interface DivideResult {
+  expenseId: Uuid
+  total: MoneyString
+  members: number
+  firstShare: MoneyString
+  lastShare: MoneyString
+  emailsQueued: number
+  emailsSkippedNoAddress: number
+  emailsSkippedNoConsent: number
+  emailsSkippedQuota: number
+}
+/** One member's share of an expense: an ordinary invoice. */
+export interface ShareView {
+  invoiceId: Uuid
+  invoiceNo: string | null
+  memberId: Uuid
+  memberNo: string
+  memberName: string
+  amount: MoneyString
+  amountPaid: MoneyString
+  balance: MoneyString
+  status: InvoiceStatus
+  dueDate: IsoDate
+}
+export interface SharesView {
+  expenseId: Uuid
+  title: string
+  expenseAmount: MoneyString
+  /** Sum of the live (not cancelled) shares. */
+  divided: MoneyString
+  collected: MoneyString
+  pending: MoneyString
+  shares: ShareView[]
+}

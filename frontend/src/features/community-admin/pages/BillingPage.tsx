@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { formatMoney } from '@/lib/money'
-import { Button } from '@/shared/components/ui/button'
 import { Combobox } from '@/shared/components/ui/combobox'
 import {
   Dialog,
@@ -13,20 +12,23 @@ import {
 import { PageHeader } from '@/shared/components/ui/page-header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import type { InvoiceView } from '@/types'
-import { DefaultersTab, FeePlansTab, ReceiptsTab } from '../components/BillingTabs'
-import { GenerateInvoicesWizard } from '../components/GenerateInvoicesWizard'
+// Phase 1: bills come from dividing an expense (Budget), so fee plans, generating invoices, new invoices and
+// the defaulters list are switched off here. Their components and API stay in the code.
+// import { DefaultersTab, FeePlansTab } from '../components/BillingTabs'
+// import { GenerateInvoicesWizard } from '../components/GenerateInvoicesWizard'
+// import { NewInvoiceSheet } from '../components/NewInvoiceSheet'
+import { ReceiptsTab } from '../components/BillingTabs'
 import { InvoiceActionDialogs, type InvoiceActionTarget } from '../components/InvoiceActionDialogs'
 import { InvoicesTab } from '../components/InvoicesTab'
-import { NewInvoiceSheet } from '../components/NewInvoiceSheet'
 import { useInvoices } from '../hooks/useBilling'
 import { useWriteAccess } from '../hooks/usePlan'
 import { useSettings } from '../hooks/useSettings'
 
 const TABS = [
   { id: 'invoices', label: 'Invoices' },
-  { id: 'fee-plans', label: 'Fee plans' },
+  // { id: 'fee-plans', label: 'Fee plans' },
   { id: 'receipts', label: 'Receipts' },
-  { id: 'defaulters', label: 'Defaulters' },
+  // { id: 'defaulters', label: 'Defaulters' },
 ] as const
 type TabId = (typeof TABS)[number]['id']
 const isTab = (value: string | null): value is TabId => TABS.some((tab) => tab.id === value)
@@ -85,10 +87,9 @@ export default function BillingPage() {
   const currency = settings.data?.currency ?? 'INR'
   const requested = params.get('tab')
   const tab: TabId = isTab(requested) ? requested : 'invoices'
-  const [generateOpen, setGenerateOpen] = useState(false)
   const [action, setAction] = useState<InvoiceActionTarget | null>(null)
 
-  // ?new=invoice opens the invoice panel and ?new=payment the invoice picker (the dashboard's quick actions).
+  // ?new=payment opens the invoice picker (the dashboard's "Record payment" quick action).
   const wanted = params.get('new')
   function clearNew() {
     setParams(
@@ -105,34 +106,7 @@ export default function BillingPage() {
     <>
       <PageHeader
         title="Billing"
-        description="Bills, payments and receipts."
-        actions={
-          <>
-            <Button
-              onClick={() =>
-                setParams(
-                  (previous) => {
-                    const next = new URLSearchParams(previous)
-                    next.set('new', 'invoice')
-                    return next
-                  },
-                  { replace: true },
-                )
-              }
-              disabled={!write.allowed}
-              {...(write.reason ? { title: write.reason } : {})}
-            >
-              New invoice
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={() => setGenerateOpen(true)}
-              disabled={!write.allowed}
-            >
-              Generate invoices
-            </Button>
-          </>
-        }
+        description="Bills for members' shares of an expense, the cash received, and receipts. To bill members, add an expense in Budget and choose Collect from members."
       />
       {write.reason ? <p className="-mt-3 mb-4 text-sm text-muted">{write.reason}</p> : null}
 
@@ -160,23 +134,13 @@ export default function BillingPage() {
         <TabsContent value="invoices">
           <InvoicesTab currency={currency} />
         </TabsContent>
-        <TabsContent value="fee-plans">
-          <FeePlansTab currency={currency} onGenerate={() => setGenerateOpen(true)} />
-        </TabsContent>
+        {/* <TabsContent value="fee-plans"><FeePlansTab currency={currency} onGenerate={...} /></TabsContent> */}
         <TabsContent value="receipts">
           <ReceiptsTab currency={currency} />
         </TabsContent>
-        <TabsContent value="defaulters">
-          <DefaultersTab currency={currency} />
-        </TabsContent>
+        {/* <TabsContent value="defaulters"><DefaultersTab currency={currency} /></TabsContent> */}
       </Tabs>
 
-      <GenerateInvoicesWizard
-        open={generateOpen}
-        onOpenChange={setGenerateOpen}
-        currency={currency}
-      />
-      <NewInvoiceSheet open={wanted === 'invoice'} onOpenChange={(open) => !open && clearNew()} />
       <PickInvoiceDialog
         open={wanted === 'payment' && action === null}
         onOpenChange={(open) => !open && clearNew()}

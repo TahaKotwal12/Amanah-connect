@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { reportError } from '@/lib/monitoring'
 import { ErrorFallback } from './ErrorFallback'
 
 interface ErrorBoundaryProps {
@@ -23,8 +24,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   override componentDidCatch(error: Error, info: ErrorInfo): void {
-    // The error reporter (prompt F6) hooks in here. Only the stack goes to the console: component
-    // props and state can hold personal data.
+    // Only the stack is reported and logged: component props and state can hold personal data.
+    reportError(error)
     console.error('Unhandled render error', error, info.componentStack)
   }
 

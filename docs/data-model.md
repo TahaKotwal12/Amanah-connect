@@ -312,6 +312,7 @@ erDiagram
     invoices ||--o{ invoice_reminders : "invoice_id, community_id"
     communities ||--o{ invoices : "community_id"
     fee_plans ||--o{ invoices : "fee_plan_id, community_id"
+    ledger_entries ||--o{ invoices : "expense_entry_id, community_id"
     members ||--o{ invoices : "member_id, community_id"
     users ||--o{ invoices : "cancelled_by"
     communities ||--o{ ledger_categories : "community_id"
@@ -375,6 +376,7 @@ erDiagram
         text cancel_reason
         timestamptz cancelled_at
         uuid cancelled_by FK
+        uuid expense_entry_id FK
     }
     ledger_categories {
         uuid id PK

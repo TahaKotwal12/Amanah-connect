@@ -86,7 +86,7 @@ export function NewPasswordForm({ submitLabel, onSubmit, onInvalidToken }: NewPa
           <AuthAlert>
             <p>{error.message}</p>
             {error.problems.length > 0 ? (
-              <ul className="ml-4 list-disc font-normal">
+              <ul className="ms-4 list-disc font-normal">
                 {error.problems.map((problem) => (
                   <li key={problem}>{problem}</li>
                 ))}

@@ -1,10 +1,13 @@
 import { Suspense, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Outlet, useNavigation } from 'react-router'
+import { OfflineBanner } from '../OfflineBanner'
 import { PageSpinner } from '../PageSpinner'
 
 /** Outermost route element: skip link, a loading bar while a route chunk loads, Suspense. */
 export function RootLayout() {
   const navigation = useNavigation()
+  const { t } = useTranslation()
 
   // The page is on screen now: put away the prerendered first screen that stood in for it. Two
   // frames, so the real content has been painted before the stand-in goes. It is hidden, not
@@ -32,12 +35,13 @@ export function RootLayout() {
   return (
     <>
       <a href="#main" className="skip-link">
-        Skip to main content
+        {t('skipToContent')}
       </a>
+      <OfflineBanner />
       {navigation.state === 'loading' ? (
         <div
           role="progressbar"
-          aria-label="Loading page"
+          aria-label={t('loadingPage')}
           className="fixed inset-x-0 top-0 z-50 h-1 bg-gold-500"
         />
       ) : null}

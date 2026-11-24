@@ -512,7 +512,10 @@ describe('Support polling', () => {
         }
       },
     })
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     renderApp('/superadmin/support?thread=t-1')
 
     expect(await screen.findByText('I cannot download a receipt.')).toBeInTheDocument()
@@ -528,7 +531,10 @@ describe('Support polling', () => {
   it('stops while the tab is hidden and catches up when it is shown again', async () => {
     const messages = vi.fn(() => ({ status: 200, data: messagesPage([message()]) }))
     api({ ...oneThread(), 'GET /admin/support/threads/t-1/messages': messages })
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     renderApp('/superadmin/support?thread=t-1')
     await screen.findByText('I cannot download a receipt.')
 
@@ -583,7 +589,10 @@ describe('Support polling', () => {
         }
       },
     })
-    vi.useFakeTimers({ shouldAdvanceTime: true })
+    vi.useFakeTimers({
+      shouldAdvanceTime: true,
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    })
     renderApp('/superadmin/support')
 
     await screen.findByText('Cannot download receipts')

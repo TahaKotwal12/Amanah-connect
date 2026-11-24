@@ -88,12 +88,7 @@ export default function DashboardPage() {
           allowed={write.allowed}
           reason={write.reason}
         />
-        <QuickAction
-          to={`${paths.admin.billing}?new=invoice`}
-          label="Create invoice"
-          allowed={write.allowed}
-          reason={write.reason}
-        />
+        {/* "Create invoice" is off in phase 1: bills come from dividing an expense. */}
         <QuickAction
           to={`${paths.admin.billing}?new=payment`}
           label="Record payment"
@@ -209,17 +204,17 @@ export default function DashboardPage() {
               <Skeleton className="h-40" role="status" aria-label="Loading overdue invoices" />
             ) : overdue.data && overdue.data.items.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+                <table className="w-full text-start text-sm">
                   <caption className="sr-only">Invoices past their due date</caption>
                   <thead>
                     <tr className="border-b border-brand-100 text-muted">
-                      <th scope="col" className="py-2 pr-3 font-medium">
+                      <th scope="col" className="py-2 pe-3 font-medium">
                         Member
                       </th>
-                      <th scope="col" className="py-2 pr-3 font-medium">
+                      <th scope="col" className="py-2 pe-3 font-medium">
                         Due
                       </th>
-                      <th scope="col" className="py-2 text-right font-medium">
+                      <th scope="col" className="py-2 text-end font-medium">
                         Owes
                       </th>
                     </tr>
@@ -227,7 +222,7 @@ export default function DashboardPage() {
                   <tbody>
                     {overdue.data.items.map((invoice) => (
                       <tr key={invoice.id} className="border-b border-brand-50">
-                        <td className="py-2 pr-3">
+                        <td className="py-2 pe-3">
                           <Link
                             to={paths.admin.member(invoice.memberId)}
                             className="font-medium text-brand-700 underline-offset-2 hover:underline"
@@ -236,8 +231,8 @@ export default function DashboardPage() {
                           </Link>
                           <span className="block text-xs text-muted">{invoice.invoiceNo}</span>
                         </td>
-                        <td className="py-2 pr-3">{formatDate(invoice.dueDate)}</td>
-                        <td className="py-2 text-right tabular-nums">
+                        <td className="py-2 pe-3">{formatDate(invoice.dueDate)}</td>
+                        <td className="py-2 text-end tabular-nums">
                           {formatMoney(invoice.balance, { currency: d?.currency ?? 'INR' })}
                         </td>
                       </tr>
@@ -265,12 +260,12 @@ export default function DashboardPage() {
             {loading ? (
               <Skeleton className="h-40" role="status" aria-label="Loading activity" />
             ) : d && d.recentActivity.length > 0 ? (
-              <ol className="relative grid gap-4 border-l border-brand-100 pl-5">
+              <ol className="relative grid gap-4 border-s border-brand-100 ps-5">
                 {d.recentActivity.map((entry, index) => (
                   <li key={`${entry.at}-${index}`} className="relative">
                     <span
                       aria-hidden="true"
-                      className="absolute -left-[1.6rem] top-1.5 size-2.5 rounded-full bg-brand-500"
+                      className="absolute -start-[1.6rem] top-1.5 size-2.5 rounded-full bg-brand-500"
                     />
                     <p className="font-medium text-brand-900">{entry.summary}</p>
                     <p className="text-sm text-muted">

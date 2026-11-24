@@ -28,12 +28,13 @@ const positiveAmount = (empty: string) =>
 
 // ---- recording a payment ----------------------------------------------------------------------
 
+// Phase 1 takes cash only. The other methods are kept here, commented out, for the UPI and bank phase.
 export const PAYMENT_METHODS: ReadonlyArray<{ value: PaymentMethod; label: string }> = [
-  { value: 'UPI', label: 'UPI' },
   { value: 'CASH', label: 'Cash' },
-  { value: 'BANK', label: 'Bank transfer' },
-  { value: 'CHEQUE', label: 'Cheque' },
-  { value: 'OTHER', label: 'Other' },
+  // { value: 'UPI', label: 'UPI' },
+  // { value: 'BANK', label: 'Bank transfer' },
+  // { value: 'CHEQUE', label: 'Cheque' },
+  // { value: 'OTHER', label: 'Other' },
 ]
 
 /**

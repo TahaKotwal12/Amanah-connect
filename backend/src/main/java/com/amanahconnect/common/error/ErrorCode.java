@@ -42,6 +42,7 @@ public enum ErrorCode {
     INVITE_UNAVAILABLE(HttpStatus.NOT_FOUND, "Invitation link is not valid"),
     STORAGE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "File storage is not available"),
     OVERPAYMENT(HttpStatus.UNPROCESSABLE_ENTITY, "Payment is more than the balance due"),
+    EXPENSE_ALREADY_DIVIDED(HttpStatus.CONFLICT, "Expense has already been divided among members"),
     INVOICE_NOT_PAYABLE(HttpStatus.CONFLICT, "Invoice cannot take payments"),
     ALREADY_REVERSED(HttpStatus.CONFLICT, "Already reversed"),
     IDEMPOTENCY_KEY_REUSED(HttpStatus.UNPROCESSABLE_ENTITY, "Idempotency key was used for a different request"),

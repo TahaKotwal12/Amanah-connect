@@ -11,7 +11,7 @@ class S3TimeoutsTest {
     @Test
     void noS3CallCanHangAWorkerThread() {
         S3ObjectStorage storage = new S3ObjectStorage(
-                new StorageProperties("bucket", "ap-south-1", "http://localhost:9", 1, 1, Duration.ofMinutes(1), Duration.ofMinutes(1), "key", "secret"), Clock.systemUTC());
+                StorageProperties.s3("bucket", "ap-south-1", "http://localhost:9", 1, 1, Duration.ofMinutes(1), Duration.ofMinutes(1), "key", "secret"), Clock.systemUTC());
 
         var config = storage.client().serviceClientConfiguration().overrideConfiguration();
 

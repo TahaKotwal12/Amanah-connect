@@ -68,7 +68,12 @@ describe('deferEntryScript', () => {
 
   it('fetches the landing page chunks in parallel with the entry, on "/" only', () => {
     expect(out).toContain('["/assets/Landing-1.js","/assets/sheet-2.js"]')
-    expect(out.indexOf("if(location.pathname==='/'){var p=")).toBeGreaterThan(-1)
+    expect(out).toContain('w===\'/\'?["/assets/Landing-1.js"')
+  })
+
+  it('does the same for the sign-in page chunks on "/login"', () => {
+    const withLogin = deferEntryScript(shell, ['/assets/Landing-1.js'], ['/assets/Login-9.js'])
+    expect(withLogin).toContain('w===\'/login\'?["/assets/Login-9.js"]')
   })
 
   it('fails the build rather than ship a page with no entry script', () => {

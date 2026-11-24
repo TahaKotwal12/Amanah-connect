@@ -130,7 +130,11 @@ export default function BudgetCharts({ summary, currency }: BudgetChartsProps) {
         }
       >
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={months} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+          <BarChart
+            accessibilityLayer={false}
+            data={months}
+            margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+          >
             <CartesianGrid vertical={false} stroke={GRID} />
             <XAxis dataKey="label" interval="preserveStartEnd" {...axisProps} />
             <YAxis
@@ -186,7 +190,7 @@ export default function BudgetCharts({ summary, currency }: BudgetChartsProps) {
           </p>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart accessibilityLayer={false}>
               <Pie
                 data={slices}
                 dataKey="value"

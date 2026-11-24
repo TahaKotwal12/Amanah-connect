@@ -66,7 +66,7 @@ export default function AuthLayout() {
 
       <div className="flex flex-col bg-ivory">
         <header className="border-b border-brand-100 bg-white px-4 py-3 lg:hidden">
-          <Link to={paths.home} className="flex items-center gap-3 rounded">
+          <Link to={paths.home} className="flex min-h-11 items-center gap-3 rounded">
             <BrandMark />
             <span className="font-display text-base font-semibold tracking-[0.12em] text-brand-900">
               AMANAH CONNECT

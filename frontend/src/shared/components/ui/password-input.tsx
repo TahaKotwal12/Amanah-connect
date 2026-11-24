@@ -33,7 +33,7 @@ export function PasswordInput({
       <div className="relative">
         <Input
           type={visible ? 'text' : 'password'}
-          className={cn('pr-12', className)}
+          className={cn('pe-12', className)}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
@@ -58,7 +58,7 @@ export function PasswordInput({
           }}
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
-          className="absolute right-1 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded text-muted hover:text-ink"
+          className="absolute end-1 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded text-muted hover:text-ink"
         >
           {visible ? (
             <EyeOff aria-hidden="true" className="size-5" />

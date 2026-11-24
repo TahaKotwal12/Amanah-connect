@@ -2,6 +2,7 @@ import { Suspense, lazy, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { isApiError, toApiError } from '@/lib/apiError'
 import { formatDateTime, todayInIst } from '@/lib/dates'
+import { clearDraft, loadDraft, useFormDraft } from '@/lib/drafts'
 import { notify } from '@/lib/notify'
 import { Button } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/ui/confirm-dialog'
@@ -64,12 +65,20 @@ interface ComposerProps {
  * what members will get and who it reaches, send a test to yourself, then send now or schedule.
  * Moving to the second step saves a draft, so nothing typed is lost.
  */
+const DRAFT_KEY = 'announcement:new'
+
 export function AnnouncementComposer({ open, onOpenChange, announcement }: ComposerProps) {
+  // Closing on purpose throws the unsent text away. An expired session does not go through here,
+  // so the text is still there when the person signs back in and opens the composer again.
+  const closeSheet = (next: boolean) => {
+    if (!next) clearDraft(DRAFT_KEY)
+    onOpenChange(next)
+  }
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={closeSheet}>
       <SheetContent className="max-w-2xl">
         {/* Mounted only while open, so every opening starts from a clean state. */}
-        <ComposerBody onOpenChange={onOpenChange} announcement={announcement} />
+        <ComposerBody onOpenChange={closeSheet} announcement={announcement} />
       </SheetContent>
     </Sheet>
   )
@@ -85,8 +94,11 @@ function ComposerBody({
   const create = useCreateAnnouncement()
   const update = useUpdateAnnouncement()
   const form = useZodForm(announcementSchema, {
-    defaultValues: announcement ? announcementToForm(announcement) : EMPTY_ANNOUNCEMENT,
+    defaultValues: announcement
+      ? announcementToForm(announcement)
+      : { ...EMPTY_ANNOUNCEMENT, ...loadDraft<Partial<AnnouncementInput>>(DRAFT_KEY) },
   })
+  useFormDraft(form, DRAFT_KEY, !announcement)
   const [savedId, setSavedId] = useState<Uuid | null>(announcement?.id ?? null)
   const [savedStatus, setSavedStatus] = useState<AnnouncementView['status']>(
     announcement?.status ?? 'DRAFT',

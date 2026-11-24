@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useWatch } from 'react-hook-form'
 import { isApiError, toApiError } from '@/lib/apiError'
+import { useFormDraft } from '@/lib/drafts'
 import { notify } from '@/lib/notify'
 import { Button } from '@/shared/components/ui/button'
 import { applyApiFieldErrors, useZodForm } from '@/shared/components/ui/form'
@@ -45,15 +46,21 @@ export function NewComplaintSheet({ open, onOpenChange, memberId, onCreated }: P
   const form = useZodForm(newComplaintSchema, { defaultValues: emptyComplaint(memberId) })
   const [formError, setFormError] = useState<string | null>(null)
 
+  // An expired session unmounts this sheet mid-sentence: the draft comes back after sign-in.
+  const { initial, discard } = useFormDraft(form, `complaint:new:${memberId ?? 'general'}`, open)
+
   useEffect(() => {
-    if (open) form.reset(emptyComplaint(memberId))
-  }, [open, memberId, form])
+    if (open) form.reset(initial(emptyComplaint(memberId)))
+  }, [open, memberId, form, initial])
 
   const watched = useWatch({ control: form.control }) as NewComplaintInput
 
   function close(next: boolean) {
     if (create.isPending) return
-    if (!next) setFormError(null)
+    if (!next) {
+      setFormError(null)
+      discard()
+    }
     onOpenChange(next)
   }
 
@@ -61,6 +68,7 @@ export function NewComplaintSheet({ open, onOpenChange, memberId, onCreated }: P
     setFormError(null)
     try {
       const made = await create.mutateAsync(toCreateComplaintRequest(values))
+      discard()
       notify.success('Complaint logged')
       // One URL update only: two in a row would each start from the same old address.
       if (onCreated) onCreated(made.id)

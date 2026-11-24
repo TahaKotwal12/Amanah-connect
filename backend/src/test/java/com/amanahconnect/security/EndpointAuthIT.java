@@ -30,6 +30,8 @@ class EndpointAuthIT extends AbstractDeskIT {
             "POST /api/v1/public/leads",                          // landing-page contact form
             "GET /api/v1/public/plans",                           // plans and prices on the landing page
             "POST /api/v1/webhooks/ses",                          // signed SNS notifications
+            "PUT /api/v1/public/files/upload",                    // local-disk storage: the HMAC-signed link is the permission
+            "GET /api/v1/public/files/download",
             "POST /api/v1/auth/login", "POST /api/v1/auth/login/2fa", "POST /api/v1/auth/refresh", "POST /api/v1/auth/logout",
             "POST /api/v1/auth/password/forgot", "POST /api/v1/auth/password/reset", "POST /api/v1/auth/accept-invite");
 
