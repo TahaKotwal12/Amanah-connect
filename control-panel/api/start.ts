@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { canStart, currentStatus, guard, startServer } from './_aws'
+import { fail, canStart, currentStatus, guard, startServer } from './_aws'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const cfg = await guard(req, res)
@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     if (canStart(before.ec2State)) await startServer(cfg)
     res.status(202).json(await currentStatus(cfg))
-  } catch {
-    res.status(502).json({ error: 'Could not start the server. Try again in a moment.' })
+  } catch (error) {
+    fail(res, 'start the server', error)
   }
 }

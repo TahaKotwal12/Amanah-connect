@@ -53,13 +53,16 @@ user → **Security credentials → Create access key → Application running ou
 
    | Name | Value |
    |---|---|
-   | `AWS_ACCESS_KEY_ID` | from step 1 |
-   | `AWS_SECRET_ACCESS_KEY` | from step 1 |
+   | `CONTROL_AWS_ACCESS_KEY_ID` | from step 1 |
+   | `CONTROL_AWS_SECRET_ACCESS_KEY` | from step 1 |
    | `INSTANCE_ID` | `i-02d86c27d0e54cad4` |
    | `ACCESS_CODE` | a long code you choose (for example four random words) |
    | `SITE_URL` | `https://uat.amanahconnect.co.in` |
 
    `AWS_REGION_NAME` is optional; it defaults to `ap-southeast-2`.
+
+   Do not name the keys `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`: Vercel uses those names for its own
+   access and can override them, which makes AWS refuse the call.
 4. **Deploy.** Give the client the Vercel link, and the access code **separately** (not in the same message).
 
 To change the code later: change `ACCESS_CODE` in Vercel and redeploy. To cut access completely: delete the

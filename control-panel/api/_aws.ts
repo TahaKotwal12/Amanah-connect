@@ -18,9 +18,26 @@ function config() {
 
 let client: EC2Client | undefined
 function ec2(region: string): EC2Client {
-  // The AWS SDK reads AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY from the environment by itself.
-  client ??= new EC2Client({ region })
+  // Vercel uses the plain AWS_* names for its own access and may override them, so the keys are
+  // read from CONTROL_AWS_* names it leaves alone. The plain names still work as a fallback.
+  const accessKeyId = process.env.CONTROL_AWS_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID
+  const secretAccessKey =
+    process.env.CONTROL_AWS_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY
+  client ??=
+    accessKeyId && secretAccessKey
+      ? new EC2Client({ region, credentials: { accessKeyId, secretAccessKey } })
+      : new EC2Client({ region })
   return client
+}
+
+/**
+ * Answers a failed AWS call. The name of the error (for example UnauthorizedOperation or
+ * AuthFailure) says what went wrong and holds nothing secret, so it goes to the log and to the page.
+ */
+export function fail(res: VercelResponse, what: string, error: unknown): void {
+  const name = error instanceof Error ? error.name : 'UnknownError'
+  console.error(`${what} failed:`, name, error instanceof Error ? error.message : '')
+  res.status(502).json({ error: `Could not ${what}. Try again in a moment.`, detail: name })
 }
 
 export interface Status {
